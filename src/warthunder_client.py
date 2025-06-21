@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 import time
@@ -32,11 +33,10 @@ class WarThunderClientManager:
         delay_seconds = delay_config.random_delay_seconds
         time.sleep(delay_seconds)
 
-
     def press_key(self, key: Key | str, *, times: int = 1) -> None:
         """Press and release a key with a random delay."""
 
-        if (times == 1):
+        if times == 1:
             logger.info(f"Pressing key: '{key}'")
         else:
             logger.info(f"Pressing key: '{key}' {times} times")
@@ -50,14 +50,14 @@ class WarThunderClientManager:
         except Exception as e:
             logger.error(f"Error pressing key: '{key}', {e}")
 
-
     def _activate_game_window(self) -> bool:
         """Bring the game window to the foreground."""
-        window = self.window_manager.find_window_by_title(self.config.warthunder_config.window_title)
+        window = self.window_manager.find_window_by_title(
+            self.config.warthunder_config.window_title
+        )
         if window:
             return self.window_manager.activate_window(window)
         return False
-
 
     def navigate_to_battles_tab(self) -> bool:
         """
@@ -74,12 +74,21 @@ class WarThunderClientManager:
             logger.info("Navigating to Battles tab")
 
             # Press Up Arrow multiple times to ensure we're at the top
-            logger.info(f"Pressing Up Arrow {self.config.warthunder_ui_navigation_config.up_arrow_count} times")
-            self.press_key(Key.up, times=self.config.warthunder_ui_navigation_config.up_arrow_count)
+            logger.info(
+                f"Pressing Up Arrow {self.config.warthunder_ui_navigation_config.up_arrow_count} times"
+            )
+            self.press_key(
+                Key.up, times=self.config.warthunder_ui_navigation_config.up_arrow_count
+            )
 
             # Press Left Arrow multiple times to ensure we're at the leftmost tab
-            logger.info(f"Pressing Left Arrow {self.config.warthunder_ui_navigation_config.left_arrow_count} times")
-            self.press_key(Key.left, times=self.config.warthunder_ui_navigation_config.left_arrow_count)
+            logger.info(
+                f"Pressing Left Arrow {self.config.warthunder_ui_navigation_config.left_arrow_count} times"
+            )
+            self.press_key(
+                Key.left,
+                times=self.config.warthunder_ui_navigation_config.left_arrow_count,
+            )
 
             # Press Right Arrow once to select the Battles tab (second tab)
             logger.info("Pressing Right Arrow to select Battles tab")
@@ -95,7 +104,6 @@ class WarThunderClientManager:
             logger.error(f"Error navigating to Battles tab: {e}")
             return False
 
-
     def select_battle(self, index: int = 0) -> bool:
         """
         Select a battle from the list by index (0 = first battle).
@@ -108,7 +116,9 @@ class WarThunderClientManager:
         """
         try:
             # Press Down Arrow the specified number of times
-            for _ in range(index + 1):  # +1 because we need to move from the tab to the first battle
+            for _ in range(
+                index + 1
+            ):  # +1 because we need to move from the tab to the first battle
                 self.press_key(Key.down)
                 self._delay(self.config.delay_config.battle_select_delay)
 
@@ -120,7 +130,6 @@ class WarThunderClientManager:
         except Exception as e:
             logger.error(f"Error selecting battle at index {index}: {e}")
             return False
-
 
     def copy_battle_data(self) -> Optional[str]:
         """
@@ -154,7 +163,6 @@ class WarThunderClientManager:
         except Exception as e:
             logger.error(f"Error copying battle data: {e}")
             return None
-
 
     def go_to_next_battle(self) -> bool:
         """

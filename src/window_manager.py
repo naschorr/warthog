@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 import time
@@ -21,7 +22,6 @@ class WindowManager:
         self.config = get_config()
         self.mouse = MouseController()
 
-
     def find_window_by_title(self, title: str) -> Optional[gw.Window]:
         """Find and return a window by its title."""
         try:
@@ -37,10 +37,8 @@ class WindowManager:
             logger.error(f"Error finding window: {e}")
             return None
 
-
-    def move_cursor_ease_in_out(self,
-            destination: Tuple[int, int],
-            base_delay_seconds: float = 0.001
+    def move_cursor_ease_in_out(
+        self, destination: Tuple[int, int], base_delay_seconds: float = 0.001
     ) -> None:
         """
         Smoothly moves the cursor to the destination coordinates using an ease-in-out movement pattern.
@@ -55,7 +53,7 @@ class WindowManager:
         end_x, end_y = destination
 
         # Calculate distance
-        distance = int(math.sqrt((end_x - start_x)**2 + (end_y - start_y)**2))
+        distance = int(math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2))
         distance = distance // 4
 
         # Skip if we're close enough to the destination
@@ -75,12 +73,11 @@ class WindowManager:
             self.mouse.position = (intermediate_x, intermediate_y)
 
             # Calculate delay factor using ease-in-out curve
-            delay_factor = 12 * math.pow(t - 0.5, 2)    # 0.5 since t is normalized
+            delay_factor = 12 * math.pow(t - 0.5, 2)  # 0.5 since t is normalized
             time.sleep(delay_factor * base_delay_seconds)
 
         # Ensure we end up exactly at the destination
         self.mouse.position = destination
-
 
     def activate_window(self, window: gw.Window) -> bool:
         """
@@ -122,7 +119,6 @@ class WindowManager:
             logger.error(f"Error activating window: {e}")
             return False
 
-
     def is_window_active(self, title: str) -> bool:
         """Check if a window with the given title is currently active."""
         try:
@@ -130,7 +126,7 @@ class WindowManager:
             if active_window and title in active_window.title:
                 return True
             return False
+
         except Exception as e:
             logger.error(f"Error checking if window is active: {e}")
             return False
-

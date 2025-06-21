@@ -1,5 +1,5 @@
-from inspect import trace
 import logging
+
 logger = logging.getLogger(__name__)
 
 import re
@@ -8,9 +8,20 @@ from typing import Dict, List, Optional, Tuple, Set, Callable, Any
 
 from models.currency_models import Currency
 from models import (
-    Battle, DamageEntry, CaptureEntry, AwardEntry, ActivityEntry,
-    TimePlayedEntry, SkillBonusEntry, DamageSection, BattleSummary,
-    ResearchUnit, ResearchProgress, BoosterInfo, ScoutingEntry, ScoutingDestructionEntry
+    Battle,
+    DamageEntry,
+    CaptureEntry,
+    AwardEntry,
+    ActivityEntry,
+    TimePlayedEntry,
+    SkillBonusEntry,
+    DamageSection,
+    BattleSummary,
+    ResearchUnit,
+    ResearchProgress,
+    BoosterInfo,
+    ScoutingEntry,
+    ScoutingDestructionEntry,
 )
 
 
@@ -23,7 +34,7 @@ class SectionDefinition:
         pattern: str,
         handler_method: str,
         target_attr: Optional[str] = None,
-        is_direct_value: bool = False
+        is_direct_value: bool = False,
     ):
         """
         Args:
@@ -61,86 +72,62 @@ class BattleParser:
             "Destruction Ground",
             r"destruction of ground vehicles",
             "_parse_damage_entries",
-            "damage.destruction_ground"
+            "damage.destruction_ground",
         ),
         SectionDefinition(
             "Destruction Air",
             r"destruction of aircraft",
             "_parse_damage_entries",
-            "damage.destruction_air"
+            "damage.destruction_air",
         ),
         SectionDefinition(
             "Assistance",
             r"assistance in destroying",
             "_parse_damage_entries",
-            "damage.assistance"
+            "damage.assistance",
         ),
         SectionDefinition(
             "Critical Damage",
             r"critical damage",
             "_parse_damage_entries",
-            "damage.critical"
+            "damage.critical",
         ),
         SectionDefinition(
-            "Damage",
-            r"damage to the enemy",
-            "_parse_damage_entries",
-            "damage.damage"
+            "Damage", r"damage to the enemy", "_parse_damage_entries", "damage.damage"
         ),
         SectionDefinition(
             "Scouting",
             r"scouting of the enemy",
             "_parse_scouting_entries",
-            "scouting.scouted"
+            "scouting.scouted",
         ),
         SectionDefinition(
             "Damage by Scouted",
             r"damage taken by scouted enemies",
             "_parse_scouting_entries",
-            "scouting.damage_by_scouted"
+            "scouting.damage_by_scouted",
         ),
         SectionDefinition(
             "Scouted Destruction",
             r"destruction by allies of scouted enemies",
             "_parse_scouting_destruction_entries",
-            "scouting.destruction_of_scouted"
+            "scouting.destruction_of_scouted",
         ),
         SectionDefinition(
-            "Capture",
-            r"capture of zones",
-            "_parse_capture_entries",
-            "captures"
+            "Capture", r"capture of zones", "_parse_capture_entries", "captures"
+        ),
+        SectionDefinition("Awards", r"awards", "_parse_award_entries", "awards"),
+        SectionDefinition(
+            "Activity Time", r"activity time", "_parse_activity_entries", "activity"
         ),
         SectionDefinition(
-            "Awards",
-            r"awards",
-            "_parse_award_entries",
-            "awards"
+            "Time Played", r"time played", "_parse_time_played_entries", "time_played"
         ),
         SectionDefinition(
-            "Activity Time",
-            r"activity time",
-            "_parse_activity_entries",
-            "activity"
+            "Reward", r"reward for", "_parse_reward", "reward", is_direct_value=True
         ),
         SectionDefinition(
-            "Time Played",
-            r"time played",
-            "_parse_time_played_entries",
-            "time_played"
-        ),
-        SectionDefinition(
-            "Reward",
-            r"reward for",
-            "_parse_reward",
-            "reward",
-            is_direct_value=True
-        ),
-        SectionDefinition(
-            "Skill Bonus",
-            r"skill bonus",
-            "_parse_skill_bonus_entries",
-            "skill_bonus"
+            "Skill Bonus", r"skill bonus", "_parse_skill_bonus_entries", "skill_bonus"
         ),
     ]
 
@@ -168,19 +155,13 @@ class BattleParser:
     )
 
     # Activity time entry pattern
-    ACTIVITY_ENTRY_PATTERN = re.compile(
-        r"\s*(.+?)\s+(\d+) SL\s+(.+?)$"
-    )
+    ACTIVITY_ENTRY_PATTERN = re.compile(r"\s*(.+?)\s+(\d+) SL\s+(.+?)$")
 
     # Time played entry pattern
-    TIME_PLAYED_ENTRY_PATTERN = re.compile(
-        r"\s*(.+?)\s+(\d+)%\s+(\d+:\d+)\s+(.+?)$"
-    )
+    TIME_PLAYED_ENTRY_PATTERN = re.compile(r"\s*(.+?)\s+(\d+)%\s+(\d+:\d+)\s+(.+?)$")
 
     # Skill bonus entry pattern
-    SKILL_BONUS_ENTRY_PATTERN = re.compile(
-        r"\s*(.+?)\s+(I+|IV|V)\s+(\d+) RP\s*$"
-    )
+    SKILL_BONUS_ENTRY_PATTERN = re.compile(r"\s*(.+?)\s+(I+|IV|V)\s+(\d+) RP\s*$")
 
     # Summary patterns
     EARNINGS_PATTERN = re.compile(r"Earned: (\d+) SL, (\d+) CRP")
@@ -193,10 +174,8 @@ class BattleParser:
     SESSION_PATTERN = re.compile(r"Session: ([a-f0-9]+)")
     TOTAL_PATTERN = re.compile(r"Total: (.+)")
 
-
     def __init__(self):
         self.used_vehicles: Set[str] = set()
-
 
     def parse_battle(self, text: str) -> Optional[Battle]:
         """
@@ -232,7 +211,7 @@ class BattleParser:
                 session=session,
                 mission_name=mission_name,
                 mission_type=mission_type,
-                victory=victory
+                victory=victory,
             )
 
             # Split text into sections and parse each one
@@ -257,7 +236,6 @@ class BattleParser:
             logger.debug(traceback.format_exc())
             return None
 
-
     def _parse_header(self, header_line: str) -> Tuple[str, str, bool]:
         """Parse the battle header line to extract basic info."""
         match = self.HEADER_PATTERN.match(header_line)
@@ -270,20 +248,25 @@ class BattleParser:
 
         return mission_type, mission_name, victory
 
-
     def _find_session(self, lines: List[str]) -> Optional[str]:
         """Find the session ID in the battle text."""
-        for line in reversed(lines):  # Search from the end as session is near the bottom
+        for line in reversed(
+            lines
+        ):  # Search from the end as session is near the bottom
             match = self.SESSION_PATTERN.search(line)
             if match:
                 return match.group(1)
         return None
 
-
-    def _process_section(self, section_name: str, lines: List[str], battle: Battle) -> None:
+    def _process_section(
+        self, section_name: str, lines: List[str], battle: Battle
+    ) -> None:
         """Process a specific section of battle text."""
         # Find the section definition that matches this section
-        section_def = next((s for s in self.SECTION_DEFINITIONS if s.pattern.search(section_name)), None)
+        section_def = next(
+            (s for s in self.SECTION_DEFINITIONS if s.pattern.search(section_name)),
+            None,
+        )
         if not section_def:
             logger.warning(f"No section definition found for: {section_name}")
             return
@@ -311,8 +294,9 @@ class BattleParser:
                 if hasattr(target, "extend"):
                     target.extend(result)
                 else:
-                    logger.warning(f"Cannot add to non-list attribute: {section_def.target_attr}")
-
+                    logger.warning(
+                        f"Cannot add to non-list attribute: {section_def.target_attr}"
+                    )
 
     def _get_nested_attr(self, obj: Any, attr_path: List[str]) -> Any:
         """Get a nested attribute value from an object using a path list."""
@@ -323,14 +307,12 @@ class BattleParser:
                 return None
         return current
 
-
     def _set_nested_attr(self, obj: Any, attr_path: List[str], value: Any) -> None:
         """Set a nested attribute value on an object using a path list."""
         current = obj
         for attr in attr_path[:-1]:
             current = getattr(current, attr)
         setattr(current, attr_path[-1], value)
-
 
     def _parse_damage_entries(self, lines: List[str]) -> List[DamageEntry]:
         """Parse damage-related entries (destruction, assistance, critical, regular)."""
@@ -342,7 +324,7 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
             if len(parts) >= 6:  # Ensure we have enough parts
                 # Extract data from parts based on typical format:
                 # timestamp, attack_vehicle, ammunition, target_vehicle, mission_points, sl_reward, rp_reward
@@ -352,15 +334,19 @@ class BattleParser:
                 target_vehicle = parts[3].strip()
 
                 # Process mission points (format: "X mission points")
-                mission_points_match = re.search(r'(\d+)', parts[4].strip())
+                mission_points_match = re.search(r"(\d+)", parts[4].strip())
                 if mission_points_match:
                     mission_points = int(mission_points_match.group(1))
                 else:
-                    logger.warning(f"Could not parse mission points: {parts[4].strip()}")
+                    logger.warning(
+                        f"Could not parse mission points: {parts[4].strip()}"
+                    )
                     mission_points = 0
 
                 # Create currency object from extracted currency values
-                currency = Currency.from_strings(sl=parts[5].strip(), rp=parts[6].strip())
+                currency = Currency.from_strings(
+                    sl=parts[5].strip(), rp=parts[6].strip()
+                )
 
                 # Track the vehicle used
                 self.used_vehicles.add(attack_vehicle)
@@ -371,14 +357,15 @@ class BattleParser:
                     ammunition=ammunition,
                     target_vehicle=target_vehicle,
                     mission_points=mission_points,
-                    currency=currency
+                    currency=currency,
                 )
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse damage entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse damage entry (insufficient parts): {line}"
+                )
 
         return entries
-
 
     def _parse_scouting_entries(self, lines: List[str]) -> List[ScoutingEntry]:
         """Parse scouting entries."""
@@ -390,7 +377,7 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
             if len(parts) >= 5:  # Ensure we have enough parts
                 # Format: timestamp, vehicle, target_vehicle, mission_points, sl_reward
                 timestamp = parts[0].strip()
@@ -398,11 +385,13 @@ class BattleParser:
                 target_vehicle = parts[2].strip()
 
                 # Process mission points (format: "X mission points")
-                mission_points_match = re.search(r'(\d+)', parts[4].strip())
+                mission_points_match = re.search(r"(\d+)", parts[4].strip())
                 if mission_points_match:
                     mission_points = int(mission_points_match.group(1))
                 else:
-                    logger.warning(f"Could not parse mission points: {parts[4].strip()}")
+                    logger.warning(
+                        f"Could not parse mission points: {parts[4].strip()}"
+                    )
                     mission_points = 0
 
                 # Create currency object from SL string
@@ -416,16 +405,19 @@ class BattleParser:
                     scout_vehicle=scout_vehicle,
                     target_vehicle=target_vehicle,
                     mission_points=mission_points,
-                    currency=currency
+                    currency=currency,
                 )
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse scouting entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse scouting entry (insufficient parts): {line}"
+                )
 
         return entries
 
-
-    def _parse_scouting_destruction_entries(self, lines: List[str]) -> List[ScoutingDestructionEntry]:
+    def _parse_scouting_destruction_entries(
+        self, lines: List[str]
+    ) -> List[ScoutingDestructionEntry]:
         """Parse destruction by allies of scouted enemies entries."""
         entries = []
 
@@ -435,7 +427,7 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
             if len(parts) >= 6:  # Ensure we have enough parts
                 # Format: timestamp, vehicle, target_vehicle, mission_points, sl_reward (with ×), rp_reward
                 timestamp = parts[0].strip()
@@ -443,19 +435,23 @@ class BattleParser:
                 target_vehicle = parts[2].strip()
 
                 # Process mission points (format: "X mission points")
-                mission_points_match = re.search(r'(\d+)', parts[3].strip())
+                mission_points_match = re.search(r"(\d+)", parts[3].strip())
                 if mission_points_match:
                     mission_points = int(mission_points_match.group(1))
                 else:
-                    logger.warning(f"Could not parse mission points: {parts[3].strip()}")
+                    logger.warning(
+                        f"Could not parse mission points: {parts[3].strip()}"
+                    )
                     mission_points = 0
 
                 # Address odd formatting where mission points might be followed by "×"
-                if ("×" in parts[4].strip()):
+                if "×" in parts[4].strip():
                     del parts[4]
 
                 # Create currency object from extracted currency values
-                currency = Currency.from_strings(sl=parts[4].strip(), rp=parts[5].strip() if len(parts) > 5 else "")
+                currency = Currency.from_strings(
+                    sl=parts[4].strip(), rp=parts[5].strip() if len(parts) > 5 else ""
+                )
 
                 # Track the vehicle used
                 self.used_vehicles.add(scout_vehicle)
@@ -465,14 +461,15 @@ class BattleParser:
                     scout_vehicle=scout_vehicle,
                     target_vehicle=target_vehicle,
                     mission_points=mission_points,
-                    currency=currency
+                    currency=currency,
                 )
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse scouting destruction entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse scouting destruction entry (insufficient parts): {line}"
+                )
 
         return entries
-
 
     def _parse_capture_entries(self, lines: List[str]) -> List[CaptureEntry]:
         """Parse capture zone entries."""
@@ -484,14 +481,14 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
             if len(parts) >= 6:  # Ensure we have enough parts
                 # Format: timestamp, vehicle, percentage, mission_points, sl_reward, rp_reward
                 timestamp = parts[0].strip()
                 vehicle = parts[1].strip()
 
                 # Process percentage (format: "X%")
-                percentage_match = re.search(r'(\d+)', parts[4].strip())
+                percentage_match = re.search(r"(\d+)", parts[4].strip())
                 if percentage_match:
                     percentage = int(percentage_match.group(1))
                 else:
@@ -499,32 +496,37 @@ class BattleParser:
                     percentage = 0
 
                 # Process mission points (format: "X mission points")
-                mission_points_match = re.search(r'(\d+)', parts[4].strip())
+                mission_points_match = re.search(r"(\d+)", parts[4].strip())
                 if mission_points_match:
                     mission_points = int(mission_points_match.group(1))
                 else:
-                    logger.warning(f"Could not parse mission points: {parts[4].strip()}")
+                    logger.warning(
+                        f"Could not parse mission points: {parts[4].strip()}"
+                    )
                     mission_points = 0
 
                 # Track the vehicle used
                 self.used_vehicles.add(vehicle)
 
                 # Create currency object from extracted currency values
-                currency = Currency.from_strings(sl=parts[4].strip(), rp=parts[5].strip() if len(parts) > 5 else "")
+                currency = Currency.from_strings(
+                    sl=parts[4].strip(), rp=parts[5].strip() if len(parts) > 5 else ""
+                )
 
                 entry = CaptureEntry(
                     timestamp=timestamp,
                     vehicle=vehicle,
                     capture_percentage=percentage,
                     mission_points=mission_points,
-                    currency=currency
+                    currency=currency,
                 )
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse capture entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse capture entry (insufficient parts): {line}"
+                )
 
         return entries
-
 
     def _parse_award_entries(self, lines: List[str]) -> List[AwardEntry]:
         """Parse award entries."""
@@ -536,37 +538,38 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
 
             if len(parts) >= 2:  # Ensure we have enough parts
                 # Format: [timestamp], name, sl_reward, [rp_reward]
 
                 # Check if the first part is a timestamp (format: "X:XX")
-                if re.match(r'\d+:\d+', parts[0]):
+                if re.match(r"\d+:\d+", parts[0]):
                     timestamp = parts[0].strip()
                     name = parts[1].strip()
                     sl_str = parts[2].strip() if len(parts) > 2 else "0 SL"
-                    rp_str = parts[3].strip() if len(parts) > 3 and "RP" in parts[3] else ""
+                    rp_str = (
+                        parts[3].strip() if len(parts) > 3 and "RP" in parts[3] else ""
+                    )
                 else:
                     timestamp = None
                     name = parts[0].strip()
                     sl_str = parts[1].strip()
-                    rp_str = parts[2].strip() if len(parts) > 2 and "RP" in parts[2] else ""
+                    rp_str = (
+                        parts[2].strip() if len(parts) > 2 and "RP" in parts[2] else ""
+                    )
 
                 # Create currency object from extracted currency values
                 currency = Currency.from_strings(sl=sl_str, rp=rp_str)
 
-                entry = AwardEntry(
-                    timestamp=timestamp,
-                    name=name,
-                    currency=currency
-                )
+                entry = AwardEntry(timestamp=timestamp, name=name, currency=currency)
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse award entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse award entry (insufficient parts): {line}"
+                )
 
         return entries
-
 
     def _parse_activity_entries(self, lines: List[str]) -> List[ActivityEntry]:
         """Parse activity time entries."""
@@ -578,7 +581,7 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
 
             if len(parts) >= 3:  # Ensure we have enough parts
                 # Format: vehicle, sl_reward, rp_reward
@@ -588,18 +591,18 @@ class BattleParser:
                 self.used_vehicles.add(vehicle)
 
                 # Create currency object from extracted currency values
-                currency = Currency.from_strings(sl=parts[1].strip(), rp=parts[2].strip())
-
-                entry = ActivityEntry(
-                    vehicle=vehicle,
-                    currency=currency
+                currency = Currency.from_strings(
+                    sl=parts[1].strip(), rp=parts[2].strip()
                 )
+
+                entry = ActivityEntry(vehicle=vehicle, currency=currency)
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse activity entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse activity entry (insufficient parts): {line}"
+                )
 
         return entries
-
 
     def _parse_time_played_entries(self, lines: List[str]) -> List[TimePlayedEntry]:
         """Parse time played entries."""
@@ -620,14 +623,14 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
 
             if len(parts) >= 4:  # Ensure we have enough parts
                 # Format: vehicle, percentage%, time_str, rp_reward
                 vehicle = parts[0].strip()
 
                 # Process percentage (format: "X%")
-                percentage_match = re.search(r'(\d+)', parts[1].strip())
+                percentage_match = re.search(r"(\d+)", parts[1].strip())
                 if percentage_match:
                     percentage = int(percentage_match.group(1))
                 else:
@@ -647,14 +650,15 @@ class BattleParser:
                     vehicle=vehicle,
                     activity_percentage=percentage,
                     time_str=time_str,
-                    currency=currency
+                    currency=currency,
                 )
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse time played entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse time played entry (insufficient parts): {line}"
+                )
 
         return entries
-
 
     def _parse_skill_bonus_entries(self, lines: List[str]) -> List[SkillBonusEntry]:
         """Parse skill bonus entries."""
@@ -666,7 +670,7 @@ class BattleParser:
                 continue
 
             # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
 
             if len(parts) >= 3:  # Ensure we have enough parts
                 # Format: vehicle, tier (Roman numeral), rp_value
@@ -679,24 +683,21 @@ class BattleParser:
                 # Create currency object from extracted currency values
                 currency = Currency.from_strings(rp=parts[2].strip())
 
-                entry = SkillBonusEntry(
-                    vehicle=vehicle,
-                    tier=tier,
-                    currency=currency
-                )
+                entry = SkillBonusEntry(vehicle=vehicle, tier=tier, currency=currency)
                 entries.append(entry)
             else:
-                logger.warning(f"Could not parse skill bonus entry (insufficient parts): {line}")
+                logger.warning(
+                    f"Could not parse skill bonus entry (insufficient parts): {line}"
+                )
 
         return entries
-
 
     def _parse_reward(self, lines: List[str]) -> Currency:
         """Parse the reward section to extract currency values."""
         currency = Currency()
 
         line = lines[0].strip()
-        parts = [part for part in re.split(r'\s{4,}', line.strip()) if part]
+        parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
 
         if len(parts) >= 2:
             title = parts[0].strip()
@@ -705,7 +706,6 @@ class BattleParser:
             currency = Currency.from_strings(sl=sl)
 
         return currency
-
 
     def _parse_summary(self, lines: List[str]) -> BattleSummary:
         """Parse the battle summary from the text."""
@@ -717,17 +717,19 @@ class BattleParser:
             earnings_match = self.EARNINGS_PATTERN.search(line)
             if earnings_match:
                 summary.earnings.silver_lions = int(earnings_match.group(1))
-                summary.earnings.convertible_research_points = int(earnings_match.group(2))
+                summary.earnings.convertible_research_points = int(
+                    earnings_match.group(2)
+                )
 
             # Activity percentage
             activity_match = self.ACTIVITY_PATTERN.search(line)
             if activity_match:
-                summary.activity_percentage = float(int(activity_match.group(1))/100)
+                summary.activity_percentage = float(int(activity_match.group(1)) / 100)
 
             # Damaged vehicles
             damaged_match = self.DAMAGED_VEHICLES_PATTERN.search(line)
             if damaged_match:
-                vehicles = [v.strip() for v in damaged_match.group(1).split(',')]
+                vehicles = [v.strip() for v in damaged_match.group(1).split(",")]
                 summary.damaged_vehicles = vehicles
 
             # Repair cost
@@ -743,10 +745,10 @@ class BattleParser:
             # Researched unit
             research_match = self.RESEARCHED_UNIT_PATTERN.search(line)
             if research_match:
-                parts = lines[index + 1].split(':', 1)
+                parts = lines[index + 1].split(":", 1)
                 research_unit = ResearchUnit(
                     unit=parts[0].strip(),
-                    currency=Currency.from_strings(rp=parts[1].strip())
+                    currency=Currency.from_strings(rp=parts[1].strip()),
                 )
                 summary.research.research_unit = research_unit
 
@@ -756,15 +758,17 @@ class BattleParser:
                 vehicle, item, rp = progress_match.groups()
                 progress = ResearchProgress(
                     item=f"{vehicle.strip()} - {item.strip()}",
-                    currency=Currency.from_strings(rp=rp.strip() if rp else "")
+                    currency=Currency.from_strings(rp=rp.strip() if rp else ""),
                 )
                 summary.research.research_progress.append(progress)
 
             # Total values from the last line
             total_match = self.TOTAL_PATTERN.search(line)
             if total_match:
-                sl, crp, rp = total_match.group(1).split(',')
-                summary.total_currency = Currency.from_strings(sl=sl.strip(), crp=crp.strip(), rp=rp.strip())
+                sl, crp, rp = total_match.group(1).split(",")
+                summary.total_currency = Currency.from_strings(
+                    sl=sl.strip(), crp=crp.strip(), rp=rp.strip()
+                )
 
         return summary
 
