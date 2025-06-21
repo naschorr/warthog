@@ -1,0 +1,33 @@
+{
+    "game": {
+        "process_name": "aces.exe",
+        "window_title": "War Thunder"
+    },
+    "storage": {
+        "data_dir": "../data",
+        "recent_battles_count": 25
+    },
+    "delays": {
+        "foreground_min_ms": 1000,
+        "foreground_max_ms": 2000,
+        "tab_switch_min_ms": 250,
+        "tab_switch_max_ms": 500,
+        "battle_select_min_ms": 250,
+        "battle_select_max_ms": 500,
+        "clipboard_min_ms": 250,
+        "clipboard_max_ms": 500,
+        "keypress_min_ms": 50,
+        "keypress_max_ms": 250
+    },
+    "navigation": {
+        "up_arrow_count": 25,
+        "left_arrow_count": 11,
+        "battle_count": 25,
+        "retry_attempts": 3,
+        "retry_delay_ms": 1000
+    },
+    "logging": {
+        "console_level": "INFO",
+        "file_enabled": false
+    }
+}
