@@ -16,8 +16,8 @@
         "battle_select_max_ms": 500,
         "clipboard_min_ms": 250,
         "clipboard_max_ms": 500,
-        "keypress_min_ms": 50,
-        "keypress_max_ms": 250
+        "keypress_min_ms": 150,
+        "keypress_max_ms": 400
     },
     "navigation": {
         "up_arrow_count": 25,

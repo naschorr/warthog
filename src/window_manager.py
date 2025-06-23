@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 
 import time
 import math
-from typing import Optional, Tuple
+from typing import Optional
 
 import pygetwindow as gw
 from pynput.mouse import Button, Controller as MouseController
@@ -19,26 +19,31 @@ class WindowManager:
     """
 
     def __init__(self):
-        self.config = get_config()
-        self.mouse = MouseController()
+        self._config = get_config()
+        self._mouse = MouseController()
 
-    def find_window_by_title(self, title: str) -> Optional[gw.Window]:
-        """Find and return a window by its title."""
-        try:
-            windows = gw.getWindowsWithTitle(title)
-            for window in windows:
-                if title in window.title:
-                    logger.info(f"Found window: {window.title}")
-                    return window
+    def get_window_center(self, window: gw.Window) -> tuple[int, int]:
+        """
+        Returns the center coordinates of the given window.
 
-            logger.warning(f"Window not found with title: {title}")
-            return None
-        except Exception as e:
-            logger.error(f"Error finding window: {e}")
-            return None
+        Args:
+            window: The window to get the center of
+
+        Returns:
+            Tuple of (x, y) coordinates of the window center
+        """
+        center_x = int(window.left + window.width / 2)
+        center_y = int(window.top + window.height / 2)
+        return (center_x, center_y)
+
+    def get_cursor_position(self) -> tuple[int, int]:
+        """
+        Returns the current cursor position as a tuple of (x, y) coordinates.
+        """
+        return self._mouse.position
 
     def move_cursor_ease_in_out(
-        self, destination: Tuple[int, int], base_delay_seconds: float = 0.001
+        self, destination: tuple[int, int], base_delay_seconds: float = 0.001
     ) -> None:
         """
         Smoothly moves the cursor to the destination coordinates using an ease-in-out movement pattern.
@@ -49,7 +54,7 @@ class WindowManager:
             base_delay_seconds: Base delay factor (will be adjusted by ease curve)
         """
         # Get current position
-        start_x, start_y = self.mouse.position
+        start_x, start_y = self._mouse.position
         end_x, end_y = destination
 
         # Calculate distance
@@ -70,14 +75,29 @@ class WindowManager:
             intermediate_y = int(start_y + (end_y - start_y) * t)
 
             # Move to the intermediate position
-            self.mouse.position = (intermediate_x, intermediate_y)
+            self._mouse.position = (intermediate_x, intermediate_y)
 
             # Calculate delay factor using ease-in-out curve
             delay_factor = 12 * math.pow(t - 0.5, 2)  # 0.5 since t is normalized
             time.sleep(delay_factor * base_delay_seconds)
 
         # Ensure we end up exactly at the destination
-        self.mouse.position = destination
+        self._mouse.position = destination
+
+    def find_window_by_title(self, title: str) -> Optional[gw.Window]:
+        """Find and return a window by its title."""
+        try:
+            windows = gw.getWindowsWithTitle(title)
+            for window in windows:
+                if title in window.title:
+                    logger.info(f"Found window: {window.title}")
+                    return window
+
+            logger.warning(f"Window not found with title: {title}")
+            return None
+        except Exception as e:
+            logger.error(f"Error finding window: {e}")
+            return None
 
     def activate_window(self, window: gw.Window) -> bool:
         """
@@ -95,28 +115,48 @@ class WindowManager:
             window.activate()
 
             # Wait for the window to become active
-            time.sleep(self.config.delay_config.foreground_delay.random_delay_seconds)
-
-            # Calculate the center of the window
-            window_center_x = int(window.left + window.width / 2)
-            window_center_y = int(window.top + window.height / 2)
-
-            # Smoothly move the cursor to the center of the window using ease-in-out
-            self.move_cursor_ease_in_out((window_center_x, window_center_y))
-
-            # Click to ensure focus
-            self.mouse.press(Button.left)
+            time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
 
             # Verify window is active
-            active_window = gw.getActiveWindow()
-            if active_window and active_window.title == window.title:
-                logger.info(f"Window '{window.title}' activated successfully")
-                return True
-            else:
-                logger.warning(f"Failed to activate window: {window.title}")
+            if not self.is_window_active(window.title):
+                logger.info(
+                    f"Window not active after activation attempt: {window.title}"
+                )
                 return False
+
+            # Smoothly move the cursor to the center of the window using ease-in-out
+            logger.info(f"Moving cursor to window center: {window.title}")
+            self.move_cursor_ease_in_out(self.get_window_center(window))
+
+            ## todo: hoist click logic into warthunder client
+            # Click to ensure focus and select a battle
+            logger.info("Clicking to select battle.")
+            self._mouse.click(Button.left)
+
+            # Wait for the window to become active
+            time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
+
+            logger.info(f"Window activated: {window.title}")
+            return True
         except Exception as e:
             logger.error(f"Error activating window: {e}")
+            return False
+
+    def activate_window_by_title(self, title: str) -> bool:
+        """
+        Activate a window by its title.
+
+        Args:
+            title: The title of the window to activate
+
+        Returns:
+            bool: True if activation was successful
+        """
+        window = self.find_window_by_title(title)
+        if window:
+            return self.activate_window(window)
+        else:
+            logger.warning(f"Window with title '{title}' not found.")
             return False
 
     def is_window_active(self, title: str) -> bool:

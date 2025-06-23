@@ -26,6 +26,8 @@ class WarThunderClientManager:
         self.keyboard = KeyboardController()
         self.config = get_config()
 
+        self._messages_ui_bounds: list[tuple[int, int]] = []
+
     ## Methods
 
     def _delay(self, delay_config: BaseDelayConfig) -> None:
@@ -33,20 +35,19 @@ class WarThunderClientManager:
         delay_seconds = delay_config.random_delay_seconds
         time.sleep(delay_seconds)
 
-    def press_key(self, key: Key | str, *, times: int = 1) -> None:
+    def press_key(self, key: Key | str, *, times: int = 1, dwell_ms: int = 50) -> None:
         """Press and release a key with a random delay."""
 
-        if times == 1:
-            logger.info(f"Pressing key: '{key}'")
-        else:
+        if times != 1:
             logger.info(f"Pressing key: '{key}' {times} times")
 
         try:
             for _ in range(times):
                 logger.debug(f"Pressing key: '{key}'")
                 self.keyboard.press(key)
-                self._delay(self.config.delay_config.key_press_delay)
+                time.sleep(dwell_ms / 1000)  # Convert ms to seconds
                 self.keyboard.release(key)
+                self._delay(self.config.delay_config.key_press_delay)
         except Exception as e:
             logger.error(f"Error pressing key: '{key}', {e}")
 
@@ -66,9 +67,14 @@ class WarThunderClientManager:
         Returns:
             bool: True if navigation was successful, False otherwise.
         """
-        if not self._activate_game_window():
+        if not self.window_manager.activate_window_by_title(
+            self.config.warthunder_config.window_title
+        ):
             logger.error("Failed to activate game window for navigation")
             return False
+
+        ## Final bit of wait after the window has been activated
+        self._delay(self.config.delay_config.foreground_delay)
 
         try:
             logger.info("Navigating to Battles tab")
