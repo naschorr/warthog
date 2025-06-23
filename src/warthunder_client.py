@@ -67,15 +67,15 @@ class WarThunderClientManager:
             self._config.warthunder_config.window_title
         )
         if not window:
-            logger.error("Game window activated, but then not found.")
+            logger.error("Game window activated, but then not found")
             return False
 
         # Smoothly move the cursor to the center of the window using ease-in-out, then click to select the Messages UI.
-        logger.info("Moving cursor to window center.")
+        logger.info("Moving cursor to window center")
         self._hid_manager.move_cursor_ease_in_out(
             self._window_manager.get_window_center(window)
         )
-        logger.info("Clicking to select Messages interface.")
+        logger.info("Clicking to select Messages interface")
         self._hid_manager.click_mouse()
 
         ## Final bit of wait after the click has gone through to ensure the UI is ready.
@@ -85,25 +85,21 @@ class WarThunderClientManager:
             logger.info("Navigating to Battles tab")
 
             # Press Up Arrow multiple times to ensure we're at the top
-            logger.info(
-                f"Pressing Up Arrow {self._config.warthunder_ui_navigation_config.up_arrow_count} times"
-            )
+            logger.info("Selecting Messages tab row")
             self.press_key(
                 Key.up,
                 times=self._config.warthunder_ui_navigation_config.up_arrow_count,
             )
 
             # Press Left Arrow multiple times to ensure we're at the leftmost tab
-            logger.info(
-                f"Pressing Left Arrow {self._config.warthunder_ui_navigation_config.left_arrow_count} times"
-            )
+            logger.info("Selecting left-most Messages tab")
             self.press_key(
                 Key.left,
                 times=self._config.warthunder_ui_navigation_config.left_arrow_count,
             )
 
             # Press Right Arrow once to select the Battles tab (second tab)
-            logger.info("Pressing Right Arrow to select Battles tab")
+            logger.info("Choosing Battles tab")
             self.press_key(Key.right)
 
             # Delay to allow the UI to update
