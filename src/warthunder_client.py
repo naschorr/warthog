@@ -8,6 +8,7 @@ from typing import Optional
 
 import pyperclip
 from pynput.keyboard import Key, Controller as KeyboardController
+from pynput.mouse import Button, Controller as MouseController
 
 from config import get_config, BaseDelayConfig
 from window_manager import WindowManager
@@ -24,6 +25,7 @@ class WarThunderClientManager:
     def __init__(self):
         self.window_manager = WindowManager()
         self.keyboard = KeyboardController()
+        self.mouse = MouseController()
         self.config = get_config()
 
         self._messages_ui_bounds: list[tuple[int, int]] = []
@@ -73,7 +75,23 @@ class WarThunderClientManager:
             logger.error("Failed to activate game window for navigation")
             return False
 
-        ## Final bit of wait after the window has been activated
+        ## Grab a reference to the game window
+        window = self.window_manager.find_window_by_title(
+            self.config.warthunder_config.window_title
+        )
+        if not window:
+            logger.error("Game window activated, but then not found.")
+            return False
+
+        # Smoothly move the cursor to the center of the window using ease-in-out, then click to select the Messages UI.
+        logger.info("Moving cursor to window center.")
+        self.window_manager.move_cursor_ease_in_out(
+            self.window_manager.get_window_center(window)
+        )
+        logger.info("Clicking to select Messages interface.")
+        self.mouse.click(Button.left)
+
+        ## Final bit of wait after the click has gone through to ensure the UI is ready.
         self._delay(self.config.delay_config.foreground_delay)
 
         try:

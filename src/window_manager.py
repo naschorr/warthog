@@ -124,15 +124,6 @@ class WindowManager:
                 )
                 return False
 
-            # Smoothly move the cursor to the center of the window using ease-in-out
-            logger.info(f"Moving cursor to window center: {window.title}")
-            self.move_cursor_ease_in_out(self.get_window_center(window))
-
-            ## todo: hoist click logic into warthunder client
-            # Click to ensure focus and select a battle
-            logger.info("Clicking to select battle.")
-            self._mouse.click(Button.left)
-
             # Wait for the window to become active
             time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
 
