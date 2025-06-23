@@ -109,6 +109,13 @@ class WarThunderClientManager:
             # Delay to allow the UI to update
             self._delay(self._config.delay_config.tab_switch_delay)
 
+            # Select the Battles tab
+            logger.info("Selecting Battles tab")
+            self.press_key(Key.space)
+
+            # Delay to allow the UI to update
+            self._delay(self._config.delay_config.tab_switch_delay)
+
             logger.info("Successfully navigated to Battles tab")
             return True
 
