@@ -1,5 +1,7 @@
 import logging
 
+from src.window_manager import WindowManager
+
 logger = logging.getLogger(__name__)
 
 import argparse
@@ -12,6 +14,7 @@ from colorama import Fore, Style
 from src.config import get_config
 from models import Battle
 from battle_parser import BattleParser
+from window_manager import WindowManager
 from warthunder_client import WarThunderClientManager
 
 # Initialize colorama
@@ -30,6 +33,7 @@ class Warthog:
         output_dir: Optional[Path] = None,
         allow_overwrite=False,
     ):
+        self.window_manager = WindowManager()
         self.wt_client = WarThunderClientManager()
         self.parser = BattleParser()
         self.config = get_config()
@@ -222,8 +226,11 @@ class Warthog:
 
     def stop_collection(self):
         """Stop the collection process."""
-        self.is_running = False
         logger.info("Stopping collection process")
+        self.is_running = False
+
+        # Flash the window in the taskbar to notify the user that the process is complete.
+        self.window_manager.flash_window()
 
 
 def parse_arguments():

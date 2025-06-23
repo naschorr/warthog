@@ -3,7 +3,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import time
-import random
 from typing import Optional
 
 import pyperclip
