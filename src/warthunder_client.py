@@ -36,19 +36,6 @@ class WarThunderClientManager:
         delay_seconds = delay_config.random_delay_seconds
         time.sleep(delay_seconds)
 
-    def press_key(self, key: Key | str, *, times: int = 1, dwell_ms: int = 50) -> None:
-        """Press and release a key with a random delay using HIDManager."""
-        self._hid_manager.press_key(key, times=times, dwell_ms=dwell_ms)
-
-    def _activate_game_window(self) -> bool:
-        """Bring the game window to the foreground."""
-        window = self._window_manager.find_window_by_title(
-            self._config.warthunder_config.window_title
-        )
-        if window:
-            return self._window_manager.activate_window(window)
-        return False
-
     def navigate_to_battles_tab(self) -> bool:
         """
         Navigate to the Battles tab in the Messages screen.
@@ -86,28 +73,28 @@ class WarThunderClientManager:
 
             # Press Up Arrow multiple times to ensure we're at the top
             logger.info("Selecting Messages tab row")
-            self.press_key(
+            self._hid_manager.press_key(
                 Key.up,
                 times=self._config.warthunder_ui_navigation_config.up_arrow_count,
             )
 
             # Press Left Arrow multiple times to ensure we're at the leftmost tab
             logger.info("Selecting left-most Messages tab")
-            self.press_key(
+            self._hid_manager.press_key(
                 Key.left,
                 times=self._config.warthunder_ui_navigation_config.left_arrow_count,
             )
 
             # Press Right Arrow once to select the Battles tab (second tab)
             logger.info("Choosing Battles tab")
-            self.press_key(Key.right)
+            self._hid_manager.press_key(Key.right)
 
             # Delay to allow the UI to update
             self._delay(self._config.delay_config.tab_switch_delay)
 
             # Select the Battles tab
             logger.info("Selecting Battles tab")
-            self.press_key(Key.space)
+            self._hid_manager.press_key(Key.space)
 
             # Delay to allow the UI to update
             self._delay(self._config.delay_config.tab_switch_delay)
@@ -134,7 +121,7 @@ class WarThunderClientManager:
             for _ in range(
                 index + 1
             ):  # +1 because we need to move from the tab to the first battle
-                self.press_key(Key.down)
+                self._hid_manager.press_key(Key.down)
                 self._delay(self._config.delay_config.battle_select_delay)
 
             # Delay to allow the UI to update
@@ -188,7 +175,7 @@ class WarThunderClientManager:
         try:
             # Press Down Arrow to go to the next battle
             logger.info("Moving to next battle")
-            self.press_key(Key.down)
+            self._hid_manager.press_key(Key.down)
 
             # Delay to allow the UI to update
             self._delay(self._config.delay_config.battle_select_delay)
