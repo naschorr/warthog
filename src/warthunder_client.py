@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 import time
 from typing import Optional
 
-import pyperclip
+from pywinauto import clipboard
 from pynput.keyboard import Key
 
 from config import get_config, BaseDelayConfig
@@ -141,7 +141,7 @@ class WarThunderClientManager:
         """
         try:
             # Clear clipboard before copying
-            pyperclip.copy("")
+            clipboard.EmptyClipboard()
 
             # Send Ctrl+C to copy
             logger.info("Copying battle data to clipboard")
@@ -151,7 +151,7 @@ class WarThunderClientManager:
             self._delay(self._config.delay_config.clipboard_delay)
 
             # Get clipboard contents
-            clipboard_data = pyperclip.paste()
+            clipboard_data = clipboard.GetData()
 
             if not clipboard_data:
                 logger.warning("No data copied to clipboard")
