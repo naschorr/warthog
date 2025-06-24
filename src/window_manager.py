@@ -6,14 +6,12 @@ import sys
 import time
 import os
 import psutil
-from typing import Optional
 
-import win32gui
-import win32con
-import pygetwindow as gw
+from typing import Optional
 from pywinauto import Desktop
 from pywinauto.controls.uiawrapper import UIAWrapper
-
+import win32gui
+import win32con
 
 from config import get_config
 from hid_manager import HIDManager
@@ -37,7 +35,7 @@ class WindowManager:
 
     ## Methods
 
-    def get_window_center(self, window: gw.Window) -> tuple[int, int]:
+    def get_window_center(self, window: UIAWrapper) -> tuple[int, int]:
         """
         Returns the center coordinates of the given window.
 
@@ -47,8 +45,9 @@ class WindowManager:
         Returns:
             Tuple of (x, y) coordinates of the window center
         """
-        center_x = int(window.left + window.width / 2)
-        center_y = int(window.top + window.height / 2)
+        rect = window.rectangle()
+        center_x = int(rect.left + rect.width() / 2)
+        center_y = int(rect.top + rect.height() / 2)
         return (center_x, center_y)
 
     def _get_current_process_id(self) -> int:
@@ -75,27 +74,26 @@ class WindowManager:
             logger.error(f"Error getting parent process ID: {e}")
             return []
 
-    def find_window_by_process_ids(self, pids: list[int]) -> Optional[gw.Window]:
+    def find_window_by_process_ids(self, pids: list[int]) -> Optional[UIAWrapper]:
         """Find a window associated with the given process IDs using pywinauto."""
         try:
-            windows: list[UIAWrapper] = Desktop(backend="uia").windows()
+            desktop = Desktop(backend="uia")
+            windows = desktop.windows()
 
             # Start with oldest processes (parent processes first)
             for pid in reversed(pids):
                 try:
                     # Look at all the windows on the desktop
-                    for window in windows:
+                    for win in windows:
                         ## Does the window's PID match up with the one we're looking for, and is the window's class valid?
-                        if window.process_id() == pid and not any(
-                            block in window.class_name()
+                        if win.process_id() == pid and not any(
+                            block in win.class_name()
                             for block in self.WINDOW_CLASS_NAME_CONTAINS_BLOCK_LIST
                         ):
-                            # Convert to pygetwindow Window object
-                            gw_window = gw.Window(hWnd=window.handle)
                             logger.info(
-                                f"Found window for PID {pid}: {gw_window.title}"
+                                f"Found window for PID {pid}: {win.window_text()}"
                             )
-                            return gw_window
+                            return win
                 except Exception as e:
                     logger.debug(f"Could not find window for PID {pid}: {e}")
                     continue
@@ -106,7 +104,7 @@ class WindowManager:
             logger.error(f"Error finding window by process ID: {e}")
             return None
 
-    def get_current_application_window(self) -> Optional[gw.Window]:
+    def get_current_application_window(self) -> Optional[UIAWrapper]:
         """Get the window of the application that's running this script."""
         try:
             # Try with parent process hierarchy
@@ -121,22 +119,17 @@ class WindowManager:
             logger.error(f"Error getting current application window: {e}")
             return None
 
-    def find_window_by_title(self, title: str) -> Optional[gw.Window]:
+    def find_window_by_title(self, title: str) -> Optional[UIAWrapper]:
         """Find and return a window by its title using pywinauto."""
         try:
             # Use pywinauto to find windows by title
-            desktop = Desktop(backend="win32")
+            desktop = Desktop(backend="uia")
             windows = desktop.windows(title=title)
 
             if windows:
-                pywinauto_window = windows[0]
-                hwnd = pywinauto_window.handle
-
-                # Convert to pygetwindow Window object for compatibility
-                for window in gw.getAllWindows():
-                    if window._hWnd == hwnd:
-                        logger.info(f"Found window: {pywinauto_window.window_text()}")
-                        return window
+                window = windows[0]
+                logger.info(f"Found window: {window.window_text()}")
+                return window
 
             logger.warning(f"Window not found with title: {title}")
             return None
@@ -145,8 +138,8 @@ class WindowManager:
             return None
 
     def flash_window(
-        self, window: Optional[gw.Window] = None, *, count: int = 5, rate_ms: int = 500
-    ):
+        self, window: Optional[UIAWrapper] = None, *, count: int = 5, rate_ms: int = 500
+    ) -> bool:
         """
         Flash the window's taskbar icon to get the user's attention.
 
@@ -171,12 +164,12 @@ class WindowManager:
                 return False
 
         try:
-            # Get the window handle from pygetwindow and prep the flash parameters
-            hwnd = window._hWnd
+            # Get the window handle and prep the flash parameters
+            hwnd = window.handle
             flags = win32con.FLASHW_TRAY
 
             # Flash the window
-            logger.debug(f"Flashing window: {window.title} (HWND: {hwnd})")
+            logger.debug(f"Flashing window: {window.window_text()} (HWND: {hwnd})")
             win32gui.FlashWindowEx(hwnd, flags, count, rate_ms)
             return True
 
@@ -184,7 +177,7 @@ class WindowManager:
             logger.error(f"Error flashing window: {e}")
             return False
 
-    def activate_window(self, window: gw.Window) -> bool:
+    def activate_window(self, window: UIAWrapper) -> bool:
         """
         Bring a window to the foreground.
 
@@ -196,23 +189,22 @@ class WindowManager:
         """
         try:
             # Activate the window
-            window.maximize()
-            window.activate()
+            window.set_focus()
 
             # Wait for the window to become active
             time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
 
             # Verify window is active
-            if not self.is_window_active(window.title):
+            if not self.is_window_active(window.window_text()):
                 logger.info(
-                    f"Window not active after activation attempt: {window.title}"
+                    f"Window not active after activation attempt: {window.window_text()}"
                 )
                 return False
 
             # Wait for the window to become active
             time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
 
-            logger.info(f"Window activated: {window.title}")
+            logger.info(f"Window activated: {window.window_text()}")
             return True
         except Exception as e:
             logger.error(f"Error activating window: {e}")
@@ -238,11 +230,8 @@ class WindowManager:
     def is_window_active(self, title: str) -> bool:
         """Check if a window with the given title is currently active."""
         try:
-            active_window = gw.getActiveWindow()
-            if active_window and title in active_window.title:
-                return True
-            return False
-
+            window = self.find_window_by_title(title)
+            return window is not None
         except Exception as e:
             logger.error(f"Error checking if window is active: {e}")
             return False
