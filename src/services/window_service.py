@@ -14,10 +14,10 @@ import win32gui
 import win32con
 
 from config import get_config
-from hid_manager import HIDManager
+from services import HIDService
 
 
-class WindowManager:
+class WindowService:
     """
     Handles basic window operations such as finding, activating,
     and verifying active state of application windows.
@@ -31,7 +31,7 @@ class WindowManager:
 
     def __init__(self):
         self._config = get_config()
-        self._hid_manager = HIDManager()
+        self._hid_service = HIDService()
 
     ## Methods
 

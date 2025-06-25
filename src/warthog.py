@@ -1,7 +1,5 @@
 import logging
 
-from src.window_manager import WindowManager
-
 logger = logging.getLogger(__name__)
 
 import argparse
@@ -12,9 +10,9 @@ import colorama
 from colorama import Fore, Style
 
 from src.config import get_config
-from models import Battle
+from models.battle_models import Battle
 from battle_parser import BattleParser
-from window_manager import WindowManager
+from services import WindowService
 from warthunder_client import WarThunderClientManager
 
 # Initialize colorama
@@ -33,7 +31,7 @@ class Warthog:
         output_dir: Optional[Path] = None,
         allow_overwrite=False,
     ):
-        self.window_manager = WindowManager()
+        self.window_service = WindowService()
         self.wt_client = WarThunderClientManager()
         self.parser = BattleParser()
         self.config = get_config()
@@ -230,7 +228,7 @@ class Warthog:
         self.is_running = False
 
         # Flash the window in the taskbar to notify the user that the process is complete.
-        self.window_manager.flash_window()
+        self.window_service.flash_window()
 
 
 def parse_arguments():

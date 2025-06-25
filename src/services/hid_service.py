@@ -13,7 +13,7 @@ from config import get_config, BaseDelayConfig
 KeyInput = Key | str
 
 
-class HIDManager:
+class HIDService:
     """
     Handles Human Interface Device (HID) operations such as mouse movement
     and keyboard input.

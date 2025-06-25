@@ -12,9 +12,12 @@ class Currency(BaseModel):
         research_points: Research Points (RP) amount (always represents the total)
         convertible_research_points: Convertible Research Points (CRP) amount
     """
+
     silver_lions: int = Field(default=0, description="Silver Lions (SL)")
     research_points: int = Field(default=0, description="Research Points (RP)")
-    convertible_research_points: int = Field(default=0, description="Convertible Research Points (CRP)")
+    convertible_research_points: int = Field(
+        default=0, description="Convertible Research Points (CRP)"
+    )
 
     ## Properties
 
@@ -53,19 +56,19 @@ class Currency(BaseModel):
     def from_strings(cls, *, sl: str = "", rp: str = "", crp: str = "") -> "Currency":
         currency = cls()
 
-        if (sl):
+        if sl:
             sl_match = re.search(r"\s*(\d+)\s+SL\s*$", sl)
-            if (sl_match):
+            if sl_match:
                 currency.silver_lions = int(sl_match.group(1))
 
-        if (rp):
+        if rp:
             rp_match = re.search(r"\s*(\d+)\s+RP\s*$", rp)
-            if (rp_match):
+            if rp_match:
                 currency.research_points = int(rp_match.group(1))
 
-        if (crp):
+        if crp:
             crp_match = re.search(r"\s*(\d+)\s+CRP\s*$", crp)
-            if (crp_match):
+            if crp_match:
                 currency.convertible_research_points = int(crp_match.group(1))
 
         return currency

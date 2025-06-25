@@ -1,16 +1,15 @@
 import logging
-
-logger = logging.getLogger(__name__)
-
 import time
 from typing import Optional
+from datetime import datetime
 
 from pywinauto import clipboard
 from pynput.keyboard import Key
 
 from config import get_config, BaseDelayConfig
-from window_manager import WindowManager
-from hid_manager import HIDManager
+from services import WindowService, HIDService
+
+logger = logging.getLogger(__name__)
 
 
 class WarThunderClientManager:
@@ -22,8 +21,8 @@ class WarThunderClientManager:
     ## Lifecycle
 
     def __init__(self):
-        self._hid_manager = HIDManager()
-        self._window_manager = WindowManager()
+        self._hid_service = HIDService()
+        self._window_service = WindowService()
         self._config = get_config()
 
         self._messages_ui_bounds: list[tuple[int, int]] = []
@@ -42,14 +41,14 @@ class WarThunderClientManager:
         Returns:
             bool: True if navigation was successful, False otherwise.
         """
-        if not self._window_manager.activate_window_by_title(
+        if not self._window_service.activate_window_by_title(
             self._config.warthunder_config.window_title
         ):
             logger.error("Failed to activate game window for navigation")
             return False
 
         ## Grab a reference to the game window
-        window = self._window_manager.find_window_by_title(
+        window = self._window_service.find_window_by_title(
             self._config.warthunder_config.window_title
         )
         if not window:
@@ -58,11 +57,11 @@ class WarThunderClientManager:
 
         # Smoothly move the cursor to the center of the window using ease-in-out, then click to select the Messages UI.
         logger.info("Moving cursor to window center")
-        self._hid_manager.move_cursor_ease_in_out(
-            self._window_manager.get_window_center(window)
+        self._hid_service.move_cursor_ease_in_out(
+            self._window_service.get_window_center(window)
         )
         logger.info("Clicking to select Messages interface")
-        self._hid_manager.click_mouse()
+        self._hid_service.click_mouse()
 
         ## Final bit of wait after the click has gone through to ensure the UI is ready.
         self._delay(self._config.delay_config.foreground_delay)
@@ -72,28 +71,28 @@ class WarThunderClientManager:
 
             # Press Up Arrow multiple times to ensure we're at the top
             logger.info("Selecting Messages tab row")
-            self._hid_manager.press_key(
+            self._hid_service.press_key(
                 Key.up,
                 times=self._config.warthunder_ui_navigation_config.up_arrow_count,
             )
 
             # Press Left Arrow multiple times to ensure we're at the leftmost tab
             logger.info("Selecting left-most Messages tab")
-            self._hid_manager.press_key(
+            self._hid_service.press_key(
                 Key.left,
                 times=self._config.warthunder_ui_navigation_config.left_arrow_count,
             )
 
             # Press Right Arrow once to select the Battles tab (second tab)
             logger.info("Choosing Battles tab")
-            self._hid_manager.press_key(Key.right)
+            self._hid_service.press_key(Key.right)
 
             # Delay to allow the UI to update
             self._delay(self._config.delay_config.tab_switch_delay)
 
             # Select the Battles tab
             logger.info("Selecting Battles tab")
-            self._hid_manager.press_key(Key.space)
+            self._hid_service.press_key(Key.space)
 
             # Delay to allow the UI to update
             self._delay(self._config.delay_config.tab_switch_delay)
@@ -120,7 +119,7 @@ class WarThunderClientManager:
             for _ in range(
                 index + 1
             ):  # +1 because we need to move from the tab to the first battle
-                self._hid_manager.press_key(Key.down)
+                self._hid_service.press_key(Key.down)
                 self._delay(self._config.delay_config.battle_select_delay)
 
             # Delay to allow the UI to update
@@ -145,7 +144,7 @@ class WarThunderClientManager:
 
             # Send Ctrl+C to copy
             logger.info("Copying battle data to clipboard")
-            self._hid_manager.press_key_combination([Key.ctrl, "c"])
+            self._hid_service.press_key_combination([Key.ctrl, "c"])
 
             # Delay to allow the clipboard to be populated
             self._delay(self._config.delay_config.clipboard_delay)
@@ -174,7 +173,7 @@ class WarThunderClientManager:
         try:
             # Press Down Arrow to go to the next battle
             logger.info("Moving to next battle")
-            self._hid_manager.press_key(Key.down)
+            self._hid_service.press_key(Key.down)
 
             # Delay to allow the UI to update
             self._delay(self._config.delay_config.battle_select_delay)

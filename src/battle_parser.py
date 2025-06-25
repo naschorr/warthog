@@ -6,8 +6,8 @@ import re
 import traceback
 from typing import Dict, List, Optional, Tuple, Set, Callable, Any
 
-from models.currency_models import Currency
-from models import (
+from models.battle_models.currency_models import Currency
+from models.battle_models import (
     Battle,
     DamageEntry,
     CaptureEntry,
