@@ -8,6 +8,8 @@ from pathlib import Path
 
 import colorama
 from colorama import Fore, Style
+import pyperclip
+from pywinauto import clipboard
 
 from src.config import get_config
 from models.battle_models import Battle
@@ -31,10 +33,11 @@ class Warthog:
         output_dir: Optional[Path] = None,
         allow_overwrite=False,
     ):
+        self.config = get_config()
+        self.setup_logging()
         self.window_service = WindowService()
         self.wt_client = WarThunderClientManager()
         self.parser = BattleParser()
-        self.config = get_config()
         self.battle_data_path = battle_data_path
         self.data_dir = (
             Path(output_dir)
@@ -46,8 +49,9 @@ class Warthog:
         self.current_battle = 0
         self.skip_current = False
         self.recent_sessions = set()
+        self.original_clipboard = None
+
         self.load_recent_sessions()
-        self.setup_logging()
 
     def setup_logging(self):
         """Configure logging based on config settings."""
@@ -170,6 +174,17 @@ class Warthog:
         print(f"===========================")
         print(f"\nStarting collection process...\n")
 
+        # Store the original clipboard content to restore it later
+        try:
+            self.original_clipboard = clipboard.GetData()
+            logger.info(
+                f"{Fore.BLUE}Saved original clipboard content ({len(self.original_clipboard) if self.original_clipboard else 0} characters){Style.RESET_ALL}"
+            )
+        except Exception as e:
+            logger.warning(
+                f"{Fore.YELLOW}Could not save clipboard content: {e}{Style.RESET_ALL}"
+            )
+
         self.is_running = True
 
         if self.battle_data_path is None:
@@ -226,6 +241,22 @@ class Warthog:
         """Stop the collection process."""
         logger.info("Stopping collection process")
         self.is_running = False
+
+        # Restore the original clipboard content if we saved it
+        if self.original_clipboard is not None:
+            try:
+                pyperclip.copy(self.original_clipboard)
+                logger.info(
+                    f"{Fore.BLUE}Restored original clipboard content ({len(self.original_clipboard)} characters){Style.RESET_ALL}"
+                )
+            except Exception as e:
+                logger.warning(
+                    f"{Fore.YELLOW}Failed to restore clipboard content: {e}{Style.RESET_ALL}"
+                )
+        else:
+            logger.info(
+                f"{Fore.BLUE}No original clipboard content to restore{Style.RESET_ALL}"
+            )
 
         # Flash the window in the taskbar to notify the user that the process is complete.
         self.window_service.flash_window()

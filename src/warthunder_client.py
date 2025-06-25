@@ -25,8 +25,6 @@ class WarThunderClientManager:
         self._window_service = WindowService()
         self._config = get_config()
 
-        self._messages_ui_bounds: list[tuple[int, int]] = []
-
     ## Methods
 
     def _delay(self, delay_config: BaseDelayConfig) -> None:
