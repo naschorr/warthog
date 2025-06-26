@@ -2,16 +2,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+import os
 import sys
 import time
-import os
-import psutil
-
 from typing import Optional
-from pywinauto import Desktop
-from pywinauto.controls.uiawrapper import UIAWrapper
+
+import psutil
 import win32gui
 import win32con
+from pywinauto import Desktop
+from pywinauto.controls.uiawrapper import UIAWrapper
 
 from config import get_config
 from services import HIDService
@@ -25,6 +25,7 @@ class WindowService:
 
     ## Statics
 
+    UIA_BACKEND = "uia"
     WINDOW_CLASS_NAME_CONTAINS_BLOCK_LIST = ["Tray", "Wnd", "Progman"]
 
     ## Lifecycle
@@ -74,26 +75,26 @@ class WindowService:
             logger.error(f"Error getting parent process ID: {e}")
             return []
 
-    def find_window_by_process_ids(self, pids: list[int]) -> Optional[UIAWrapper]:
-        """Find a window associated with the given process IDs using pywinauto."""
+    def find_window_by_pids(self, pids: list[int]) -> Optional[UIAWrapper]:
+        """Find a window associated with the given list of PIDs (representing the call chain)."""
         try:
-            desktop = Desktop(backend="uia")
+            desktop = Desktop(backend=self.UIA_BACKEND)
             windows = desktop.windows()
 
             # Start with oldest processes (parent processes first)
             for pid in reversed(pids):
                 try:
                     # Look at all the windows on the desktop
-                    for win in windows:
+                    for window in windows:
                         ## Does the window's PID match up with the one we're looking for, and is the window's class valid?
-                        if win.process_id() == pid and not any(
-                            block in win.class_name()
+                        if window.process_id() == pid and not any(
+                            block in window.class_name()
                             for block in self.WINDOW_CLASS_NAME_CONTAINS_BLOCK_LIST
                         ):
                             logger.info(
-                                f"Found window for PID {pid}: {win.window_text()}"
+                                f"Found window for PID {pid}: {window.window_text()}"
                             )
-                            return win
+                            return window
                 except Exception as e:
                     logger.debug(f"Could not find window for PID {pid}: {e}")
                     continue
@@ -101,7 +102,7 @@ class WindowService:
             logger.warning(f"No window found for PIDs: {pids}")
             return None
         except Exception as e:
-            logger.error(f"Error finding window by process ID: {e}")
+            logger.error(f"Error finding window by PID: {e}")
             return None
 
     def get_current_application_window(self) -> Optional[UIAWrapper]:
@@ -110,7 +111,7 @@ class WindowService:
             # Try with parent process hierarchy
             pid_hierarchy = self._get_pid_hierarchy()
             if pid_hierarchy:
-                window = self.find_window_by_process_ids(pid_hierarchy)
+                window = self.find_window_by_pids(pid_hierarchy)
                 if window:
                     return window
 
@@ -123,7 +124,7 @@ class WindowService:
         """Find and return a window by its title using pywinauto."""
         try:
             # Use pywinauto to find windows by title
-            desktop = Desktop(backend="uia")
+            desktop = Desktop(backend=self.UIA_BACKEND)
             windows = desktop.windows(title=title)
 
             if windows:
