@@ -9,6 +9,7 @@ from pynput.mouse import Button, Controller as MouseController
 from pynput.keyboard import Key, Controller as KeyboardController
 
 from config import get_config, BaseDelayConfig
+from models import Coordinate
 
 KeyInput = Key | str
 
@@ -29,29 +30,31 @@ class HIDService:
         delay_seconds = delay_config.random_delay_seconds
         time.sleep(delay_seconds)
 
-    def get_cursor_position(self) -> tuple[int, int]:
+    def get_cursor_position(self) -> Coordinate:
         """
-        Returns the current cursor position as a tuple of (x, y) coordinates.
+        Returns the current cursor position as a Coordinate object.
         """
-        return self._mouse.position
+        position = self._mouse.position
+        return Coordinate(int(position[0]), int(position[1]))
 
     def move_cursor_ease_in_out(
-        self, destination: tuple[int, int], base_delay_seconds: float = 0.001
+        self, destination: Coordinate, base_delay_seconds: float = 0.001
     ) -> None:
         """
         Smoothly moves the cursor to the destination coordinates using an ease-in-out movement pattern.
         The cursor starts slowly, accelerates in the middle, and slows down as it approaches the destination.
 
         Args:
-            destination: Tuple of (x, y) coordinates to move to
+            destination: Coordinate object representing the (x, y) coordinates to move to
             base_delay_seconds: Base delay factor (will be adjusted by ease curve)
         """
         # Get current position
-        start_x, start_y = self._mouse.position
-        end_x, end_y = destination
+        start = self.get_cursor_position()
 
         # Calculate distance
-        distance = int(math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2))
+        distance = int(
+            math.sqrt((destination.x - start.x) ** 2 + (destination.y - start.y) ** 2)
+        )
         distance = distance // 4
 
         # Skip if we're close enough to the destination
@@ -64,8 +67,8 @@ class HIDService:
             t = i / distance
 
             # Calculate intermediate position with ease factor
-            intermediate_x = int(start_x + (end_x - start_x) * t)
-            intermediate_y = int(start_y + (end_y - start_y) * t)
+            intermediate_x = int(start.x + (destination.x - start.x) * t)
+            intermediate_y = int(start.y + (destination.y - start.y) * t)
 
             # Move to the intermediate position
             self._mouse.position = (intermediate_x, intermediate_y)
@@ -76,7 +79,7 @@ class HIDService:
             time.sleep(delay_factor * base_delay_seconds)
 
         # Ensure we end up exactly at the destination
-        self._mouse.position = destination
+        self._mouse.position = destination.to_tuple()
 
     def click_mouse(self, button=Button.left, *, count=1):
         """

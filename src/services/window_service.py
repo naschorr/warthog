@@ -14,6 +14,7 @@ from pywinauto import Desktop
 from pywinauto.controls.uiawrapper import UIAWrapper
 
 from config import get_config
+from models import Coordinate
 from services import HIDService
 
 
@@ -36,20 +37,20 @@ class WindowService:
 
     ## Methods
 
-    def get_window_center(self, window: UIAWrapper) -> tuple[int, int]:
+    def get_window_center(self, window: UIAWrapper) -> Coordinate:
         """
-        Returns the center coordinates of the given window.
+        Returns the coordinate of the center of a given window.
 
         Args:
             window: The window to get the center of
 
         Returns:
-            Tuple of (x, y) coordinates of the window center
+            Coordinate representing the center of the window
         """
         rect = window.rectangle()
         center_x = int(rect.left + rect.width() / 2)
         center_y = int(rect.top + rect.height() / 2)
-        return (center_x, center_y)
+        return Coordinate(center_x, center_y)
 
     def _get_current_process_id(self) -> int:
         """Get the process ID of the current Python process."""
