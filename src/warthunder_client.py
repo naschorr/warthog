@@ -39,14 +39,14 @@ class WarThunderClientManager:
         Returns:
             bool: True if navigation was successful, False otherwise.
         """
-        if not self._window_service.activate_window_by_title(
+        if not self._window_service.activate_window(
             self._config.warthunder_config.window_title
         ):
             logger.error("Failed to activate game window for navigation")
             return False
 
         ## Grab a reference to the game window
-        window = self._window_service.find_window_by_title(
+        window = self._window_service.get_window(
             self._config.warthunder_config.window_title
         )
         if not window:

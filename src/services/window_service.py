@@ -17,6 +17,8 @@ from config import get_config
 from models import Coordinate
 from services import HIDService
 
+WindowRef = UIAWrapper | str
+
 
 class WindowService:
     """
@@ -37,27 +39,47 @@ class WindowService:
 
     ## Methods
 
-    def get_window_center(self, window: UIAWrapper) -> Coordinate:
+    def _resolve_window_ref(self, window_ref: WindowRef) -> Optional[UIAWrapper]:
+        """
+        Resolved a WindowRef to a UIAWrapper instance or None if not found.
+        """
+        if isinstance(window_ref, UIAWrapper):
+            return window_ref
+        elif isinstance(window_ref, str):
+            desktop = Desktop(backend=self.UIA_BACKEND)
+            windows = desktop.windows(title=window_ref)
+
+            if windows:
+                window = windows[0]
+                logger.info(f"Found window: {window.window_text()}")
+                return window
+
+            logger.info(f"Window with title '{window_ref}' not found.")
+            return None
+
+    def get_window_center(self, window_ref: WindowRef) -> Coordinate:
         """
         Returns the coordinate of the center of a given window.
-
-        Args:
-            window: The window to get the center of
-
-        Returns:
-            Coordinate representing the center of the window
         """
+        window = self._resolve_window_ref(window_ref)
+        if not window:
+            raise ValueError("Window reference is invalid or not found.")
+
         rect = window.rectangle()
         center_x = int(rect.left + rect.width() / 2)
         center_y = int(rect.top + rect.height() / 2)
         return Coordinate(center_x, center_y)
 
     def _get_current_process_id(self) -> int:
-        """Get the process ID of the current Python process."""
+        """
+        Get the process ID of the current Python process.
+        """
         return os.getpid()
 
     def _get_pid_hierarchy(self) -> list[int]:
-        """Get the hierarchy of process IDs starting from current process up to root."""
+        """
+        Get the hierarchy of process IDs starting from current process up to root.
+        """
         try:
             current_process = psutil.Process(self._get_current_process_id())
             pid_hierarchy = [current_process.pid, current_process.ppid()]
@@ -76,8 +98,10 @@ class WindowService:
             logger.error(f"Error getting parent process ID: {e}")
             return []
 
-    def find_window_by_pids(self, pids: list[int]) -> Optional[UIAWrapper]:
-        """Find a window associated with the given list of PIDs (representing the call chain)."""
+    def _get_window_by_pid_chain(self, pids: list[int]) -> Optional[UIAWrapper]:
+        """
+        Find a window associated with the given list of PIDs (representing the call chain).
+        """
         try:
             desktop = Desktop(backend=self.UIA_BACKEND)
             windows = desktop.windows()
@@ -107,12 +131,14 @@ class WindowService:
             return None
 
     def get_current_application_window(self) -> Optional[UIAWrapper]:
-        """Get the window of the application that's running this script."""
+        """
+        Get the window of the application that's running this script.
+        """
         try:
             # Try with parent process hierarchy
             pid_hierarchy = self._get_pid_hierarchy()
             if pid_hierarchy:
-                window = self.find_window_by_pids(pid_hierarchy)
+                window = self._get_window_by_pid_chain(pid_hierarchy)
                 if window:
                     return window
 
@@ -121,38 +147,33 @@ class WindowService:
             logger.error(f"Error getting current application window: {e}")
             return None
 
-    def find_window_by_title(self, title: str) -> Optional[UIAWrapper]:
-        """Find and return a window by its title using pywinauto."""
+    def get_window(self, title: str) -> Optional[UIAWrapper]:
+        """
+        Find and return a window by its title.
+        """
         try:
-            # Use pywinauto to find windows by title
-            desktop = Desktop(backend=self.UIA_BACKEND)
-            windows = desktop.windows(title=title)
-
-            if windows:
-                window = windows[0]
-                logger.info(f"Found window: {window.window_text()}")
-                return window
-
-            logger.warning(f"Window not found with title: {title}")
-            return None
+            return self._resolve_window_ref(title)
         except Exception as e:
-            logger.error(f"Error finding window: {e}")
+            logger.error(f"Error finding window by title '{title}': {e}")
             return None
 
     def flash_window(
-        self, window: Optional[UIAWrapper] = None, *, count: int = 5, rate_ms: int = 500
+        self,
+        window_ref: Optional[WindowRef] = None,
+        *,
+        count: int = 5,
+        rate_ms: int = 500,
     ) -> bool:
         """
         Flash the window's taskbar icon to get the user's attention.
-
-        Args:
-            window: The window to flash
-            count: Number of times to flash the window (default: 5)
-            rate_ms: Flash rate in milliseconds (default: 500ms)
-
-        Returns:
-            bool: True if the flash operation was initiated successfully
         """
+        # Resolve the window reference
+        window = None
+        if window_ref:
+            window = self._resolve_window_ref(window_ref)
+            if not window:
+                raise ValueError("Window reference is invalid or not found.")
+
         # Ensure we're on Windows
         if "win" not in sys.platform:
             logger.warning("Taskbar flashing is only supported on Windows")
@@ -179,17 +200,16 @@ class WindowService:
             logger.error(f"Error flashing window: {e}")
             return False
 
-    def activate_window(self, window: UIAWrapper) -> bool:
+    def activate_window(self, window_ref: WindowRef) -> bool:
         """
         Bring a window to the foreground.
-
-        Args:
-            window: The window to activate
-
-        Returns:
-            bool: True if activation was successful
         """
         try:
+            # Resolve the window reference
+            window = self._resolve_window_ref(window_ref)
+            if not window:
+                raise ValueError("Window reference is invalid or not found.")
+
             # Activate the window
             window.set_focus()
 
@@ -212,27 +232,16 @@ class WindowService:
             logger.error(f"Error activating window: {e}")
             return False
 
-    def activate_window_by_title(self, title: str) -> bool:
+    def is_window_active(self, window_ref: WindowRef) -> bool:
         """
-        Activate a window by its title.
-
-        Args:
-            title: The title of the window to activate
-
-        Returns:
-            bool: True if activation was successful
+        Check if a window with the given title is currently active.
         """
-        window = self.find_window_by_title(title)
-        if window:
-            return self.activate_window(window)
-        else:
-            logger.warning(f"Window with title '{title}' not found.")
-            return False
-
-    def is_window_active(self, title: str) -> bool:
-        """Check if a window with the given title is currently active."""
         try:
-            window = self.find_window_by_title(title)
+            # Resolve the window reference
+            window = self._resolve_window_ref(window_ref)
+            if not window:
+                raise ValueError("Window reference is invalid or not found.")
+
             return window is not None
         except Exception as e:
             logger.error(f"Error checking if window is active: {e}")

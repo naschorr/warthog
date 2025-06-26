@@ -34,8 +34,7 @@ class HIDService:
         """
         Returns the current cursor position as a Coordinate object.
         """
-        position = self._mouse.position
-        return Coordinate(int(position[0]), int(position[1]))
+        return Coordinate(*self._mouse.position)
 
     def move_cursor_ease_in_out(
         self, destination: Coordinate, base_delay_seconds: float = 0.001
@@ -46,7 +45,7 @@ class HIDService:
 
         Args:
             destination: Coordinate object representing the (x, y) coordinates to move to
-            base_delay_seconds: Base delay factor (will be adjusted by ease curve)
+            base_delay_seconds: Base delay factor, lower values result in faster movement
         """
         # Get current position
         start = self.get_cursor_position()
