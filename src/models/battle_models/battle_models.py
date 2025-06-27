@@ -28,6 +28,7 @@ class BattleSummary(BaseModel):
 class Battle(SerializableModel):
     """Represents a complete War Thunder battle record."""
 
+    timestamp: Optional[datetime] = None
     session: str
     mission_name: str
     mission_type: str

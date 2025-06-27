@@ -3,6 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import argparse
+from datetime import datetime
 from typing import Optional
 from pathlib import Path
 
@@ -47,7 +48,6 @@ class Warthog:
         self.allow_overwrite = allow_overwrite
         self.is_running = False
         self.current_battle = 0
-        self.skip_current = False
         self.recent_sessions = set()
         self.original_clipboard = None
 
@@ -93,48 +93,9 @@ class Warthog:
         """Check if a battle is a duplicate of one we've already seen."""
         return battle.session in self.recent_sessions and not self.allow_overwrite
 
-    def process_battle(self, battle_data: str = ""):
-        """Process a single battle."""
-        # Display progress
-        self.current_battle += 1
-        progress = f"({self.current_battle}/{self.config.warthunder_ui_navigation_config.battle_count})"
-        logger.info(f"{Fore.CYAN}Processing battle {progress}{Style.RESET_ALL}")
-
-        # Check if we should skip this battle
-        if self.skip_current:
-            logger.info(
-                f"{Fore.YELLOW}Skipping battle {self.current_battle}{Style.RESET_ALL}"
-            )
-            self.skip_current = False
-            return
-
-        # Parse the battle data
-        battle = self.parser.parse_battle(battle_data)
-        if not battle:
-            logger.warning(
-                f"{Fore.YELLOW}Failed to parse battle {self.current_battle}. Skipping.{Style.RESET_ALL}"
-            )
-            return
-
-        # Check for duplicates
-        if self.is_duplicate(battle):
-            logger.info(
-                f"{Fore.YELLOW}Battle {self.current_battle} is a duplicate (session: {battle.session}). Skipping.{Style.RESET_ALL}"
-            )
-            return
-
-        # Save the battle and update our list of recent sessions
-        self.save_battle(battle)
-        self.recent_sessions.add(battle.session)
-
-        # Log success
-        outcome = "Victory" if battle.victory else "Defeat"
-        logger.info(
-            f"{Fore.GREEN}Successfully processed battle {self.current_battle}: {outcome} on {battle.mission_name}{Style.RESET_ALL}"
-        )
-
-    def get_battle_data(self) -> str:
+    def get_battle(self) -> Optional[Battle]:
         battle_data = ""
+        timestamp: Optional[datetime] = None
 
         # If battle data is provided during construction, use it directly
         if self.battle_data_path:
@@ -152,8 +113,24 @@ class Warthog:
                     f"{Fore.RED}No battle data copied. Please ensure you are in the Battles tab.{Style.RESET_ALL}"
                 )
                 battle_data = ""
+            timestamp = self.wt_client.get_battle_timestamp()
 
-        return battle_data
+        # Parse the battle data
+        battle = self.parser.parse_battle(battle_data, timestamp=timestamp)
+        if not battle:
+            logger.warning(
+                f"{Fore.YELLOW}Failed to parse battle {self.current_battle}. Skipping.{Style.RESET_ALL}"
+            )
+            return None
+
+        # Check for duplicates
+        if self.is_duplicate(battle):
+            logger.info(
+                f"{Fore.YELLOW}Battle {self.current_battle} is a duplicate (session: {battle.session}). Skipping.{Style.RESET_ALL}"
+            )
+            return None
+
+        return battle
 
     def save_battle(self, battle: Battle) -> Path:
         """Save a battle to the data directory."""
@@ -210,9 +187,25 @@ class Warthog:
         # Start collecting data for each battle
         self.current_battle = 0
         while self.is_running and self.current_battle < battle_count:
+            self.current_battle += 1
+            progress = f"({self.current_battle}/{self.config.warthunder_ui_navigation_config.battle_count})"
+            logger.info(f"{Fore.CYAN}Processing battle {progress}{Style.RESET_ALL}")
+
             try:
-                battle_data = self.get_battle_data()
-                self.process_battle(battle_data)
+                battle = self.get_battle()
+                if battle:
+                    # Save the battle and update our list of recent sessions
+                    self.save_battle(battle)
+                    self.recent_sessions.add(battle.session)
+
+                    outcome = "Victory" if battle.victory else "Defeat"
+                    logger.info(
+                        f"{Fore.GREEN}Successfully processed battle: '{outcome} in the [{battle.mission_type}] {battle.mission_name} mission - {battle.session}'{Style.RESET_ALL}"
+                    )
+                else:
+                    logger.warning(
+                        f"{Fore.YELLOW}Skipping battle {self.current_battle + 1} due to parsing error or duplicate.{Style.RESET_ALL}"
+                    )
 
                 # Check if we need to go to the next battle
                 if self.current_battle < battle_count:

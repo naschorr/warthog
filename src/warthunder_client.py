@@ -1,4 +1,8 @@
 import logging
+
+logger = logging.getLogger(__name__)
+
+import re
 import time
 from typing import Optional
 from datetime import datetime
@@ -7,9 +11,8 @@ from pywinauto import clipboard
 from pynput.keyboard import Key
 
 from config import get_config, BaseDelayConfig
-from services import WindowService, HIDService
-
-logger = logging.getLogger(__name__)
+from models import Coordinate, OCRResult
+from services import WindowService, HIDService, OCRService
 
 
 class WarThunderClientManager:
@@ -18,11 +21,22 @@ class WarThunderClientManager:
     keyboard interactions, and data retrieval via clipboard.
     """
 
+    ## Statics
+
+    BATTLE_TIMESTAMP_TIME_REGEX = re.compile(
+        r"(\d{2})\s*[\Wi]\s*(\d{2})\s*[\Wi]\s*(\d{2})"
+    )
+    BATTLE_TIMESTAMP_DATETIME_REGEX = re.compile(
+        r"(\w+)\s*(\d{2})\s*[\Wi]\s*(\d{4})\s*(\d{2})\s*[\Wi]\s*(\d{2})\s*[\Wi]\s*(\d{2})",
+        re.IGNORECASE,
+    )
+
     ## Lifecycle
 
     def __init__(self):
-        self._hid_service = HIDService()
         self._window_service = WindowService()
+        self._hid_service = HIDService()
+        self._ocr_service = OCRService()
         self._config = get_config()
 
     ## Methods
@@ -160,6 +174,116 @@ class WarThunderClientManager:
         except Exception as e:
             logger.error(f"Error copying battle data: {e}")
             return None
+
+    def get_battle_timestamp(self) -> Optional[datetime]:
+        """
+        Get the timestamp of the currently selected battle.
+        """
+        window = self._window_service.get_window(
+            self._config.warthunder_config.window_title
+        )
+        if not window:
+            raise RuntimeError("Game window not found")
+
+        if not self._window_service.is_window_active(window):
+            raise RuntimeError("Game window is not active")
+
+        width, height = self._window_service.get_window_dimensions(window)
+        window_center = self._window_service.get_window_center(window)
+        screenshot_region = (
+            Coordinate(0, 0),
+            Coordinate(width, window_center.y),
+        )  # Left side center, to upper right corner of the window
+
+        battle_timestamp: Optional[datetime] = None
+        tries = 0
+        max_tries = 3
+        while not battle_timestamp and tries < max_tries:
+            # Get the screenshot
+            screenshot = self._window_service.capture_screenshot(
+                window, region=screenshot_region
+            )
+            if screenshot is None:
+                logger.error("Failed to capture screenshot")
+                return None
+
+            # OCR the text
+            ocr_results = self._ocr_service.extract_text_from_image(
+                screenshot,
+                confidence_threshold=0.5,
+            )
+
+            filtered_results: list[OCRResult] = []
+            for result in ocr_results:
+                # Filter results based on regex patterns
+                # fmt: off
+                valid_text = (
+                    self.BATTLE_TIMESTAMP_TIME_REGEX.match(result.text) or
+                    self.BATTLE_TIMESTAMP_DATETIME_REGEX.match(result.text)
+                )
+                # fmt: on
+
+                # Filter results to only those in the right half of the screen
+                valid_position = (
+                    result.origin.x > window_center.x
+                    and result.origin.y < window_center.y
+                )
+
+                if valid_text and valid_position:
+                    filtered_results.append(result)
+
+            # Sort results vertically, with the lowest y-coordinate first
+            sorted_results = sorted(
+                filtered_results, key=lambda result: result.origin.y, reverse=True
+            )
+
+            if sorted_results:
+                result = sorted_results[0]  # Take the first result (closest to center)
+
+                # Try to parse the timestamp from the OCR result
+                try:
+                    datetime_match = self.BATTLE_TIMESTAMP_DATETIME_REGEX.search(
+                        result.text
+                    )
+                    if datetime_match:
+                        battle_timestamp = datetime.strptime(
+                            f"{datetime_match.group(1)} {datetime_match.group(2)} {datetime_match.group(3)} {datetime_match.group(4)} {datetime_match.group(5)} {datetime_match.group(6)}",
+                            "%B %d %Y %H %M %S",
+                        )
+                except ValueError as e:
+                    try:
+                        time_match = self.BATTLE_TIMESTAMP_TIME_REGEX.search(
+                            result.text
+                        )
+                        if time_match:
+                            battle_timestamp = datetime.strptime(
+                                f"{time_match.group(1)} {time_match.group(2)} {time_match.group(3)}",
+                                "%H %M %S",
+                            ).replace(
+                                year=datetime.now().year,
+                                month=datetime.now().month,
+                                day=datetime.now().day,
+                            )
+                    except ValueError as e:
+                        logger.error(f"Failed to parse timestamp: {e}")
+                        battle_timestamp = None
+            else:
+                logger.warning(
+                    "No valid timestamp found in OCR results, scrolling up to try again"
+                )
+                self._hid_service.scroll_mouse(1)
+                tries += 1
+
+        # Scroll back down to restore the original position
+        if tries > 0:
+            logger.info(f"Restoring original position after {tries} tries")
+            self._hid_service.scroll_mouse(tries * -1)
+
+        # Set the timezone to the current system timezone
+        if battle_timestamp:
+            battle_timestamp.replace(tzinfo=datetime.now().astimezone().tzinfo)
+
+        return battle_timestamp
 
     def go_to_next_battle(self) -> bool:
         """

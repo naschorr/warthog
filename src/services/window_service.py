@@ -7,9 +7,12 @@ import sys
 import time
 from typing import Optional
 
+import cv2
+import numpy as np
 import psutil
 import win32gui
 import win32con
+from PIL import ImageGrab
 from pywinauto import Desktop
 from pywinauto.controls.uiawrapper import UIAWrapper
 
@@ -57,6 +60,19 @@ class WindowService:
             logger.info(f"Window with title '{window_ref}' not found.")
             return None
 
+    def get_window_dimensions(self, window_ref: WindowRef) -> tuple[int, int]:
+        """
+        Returns the dimensions (width, height) of a given window.
+        """
+        window = self._resolve_window_ref(window_ref)
+        if not window:
+            raise ValueError("Window reference is invalid or not found.")
+
+        rect = window.rectangle()
+        width = rect.width()
+        height = rect.height()
+        return width, height
+
     def get_window_center(self, window_ref: WindowRef) -> Coordinate:
         """
         Returns the coordinate of the center of a given window.
@@ -65,9 +81,9 @@ class WindowService:
         if not window:
             raise ValueError("Window reference is invalid or not found.")
 
-        rect = window.rectangle()
-        center_x = int(rect.left + rect.width() / 2)
-        center_y = int(rect.top + rect.height() / 2)
+        dimensions = self.get_window_dimensions(window)
+        center_x = int(dimensions[0] / 2)
+        center_y = int(dimensions[1] / 2)
         return Coordinate(center_x, center_y)
 
     def _get_current_process_id(self) -> int:
@@ -246,3 +262,49 @@ class WindowService:
         except Exception as e:
             logger.error(f"Error checking if window is active: {e}")
             return False
+
+    def capture_screenshot(
+        self,
+        window_ref: WindowRef,
+        region: Optional[tuple[Coordinate, Coordinate]] = None,
+    ) -> Optional[np.ndarray]:
+        """
+        Capture a screenshot of the window or a specific region within the window.
+        """
+        try:
+            # Resolve the window reference
+            window = self._resolve_window_ref(window_ref)
+            if not window:
+                raise ValueError("Window reference is invalid or not found.")
+
+            # Calculate region to capture
+            if region:
+                bottom_left = region[0]
+                top_right = region[1]
+                bottom_left_x = bottom_left.x
+                bottom_left_y = bottom_left.y
+                top_right_x = top_right.x
+                top_right_y = top_right.y
+            else:
+                # Capture entire window
+                rect = window.rectangle()
+                bottom_left_x = rect.left
+                bottom_left_y = rect.bottom
+                top_right_x = rect.right
+                top_right_y = rect.top
+
+            # Capture the screenshot
+            screenshot = np.array(
+                ImageGrab.grab(
+                    bbox=(bottom_left_x, bottom_left_y, top_right_x, top_right_y)
+                )
+            )
+
+            # Convert BGR to RGB
+            screenshot = cv2.cvtColor(screenshot, cv2.COLOR_BGR2RGB)
+
+            return screenshot
+
+        except Exception as e:
+            logger.error(f"Error capturing screenshot: {e}")
+            return None

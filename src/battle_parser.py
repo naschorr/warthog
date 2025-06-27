@@ -4,6 +4,7 @@ logger = logging.getLogger(__name__)
 
 import re
 import traceback
+from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Set, Callable, Any
 
 from models.battle_models.currency_models import Currency
@@ -177,7 +178,9 @@ class BattleParser:
     def __init__(self):
         self.used_vehicles: Set[str] = set()
 
-    def parse_battle(self, text: str) -> Optional[Battle]:
+    def parse_battle(
+        self, text: str, *, timestamp: Optional[datetime] = None
+    ) -> Optional[Battle]:
         """
         Parse the battle data from clipboard text.
 
@@ -208,6 +211,7 @@ class BattleParser:
 
             # Initialize battle object
             battle = Battle(
+                timestamp=timestamp,
                 session=session,
                 mission_name=mission_name,
                 mission_type=mission_type,

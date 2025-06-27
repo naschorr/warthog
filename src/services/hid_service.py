@@ -80,6 +80,15 @@ class HIDService:
         # Ensure we end up exactly at the destination
         self._mouse.position = destination.to_tuple()
 
+    def scroll_mouse(self, y: int = 0, *, x: int = 0):
+        """Scroll the mouse wheel."""
+
+        if x != 0 or y != 0:
+            self._mouse.scroll(x, y)
+            self._delay(
+                self._config.delay_config.key_press_delay
+            )  # Reuse the keypress delay for mouse scrolls
+
     def click_mouse(self, button=Button.left, *, count=1):
         """
         Click the mouse with specified button.
