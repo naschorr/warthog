@@ -7,8 +7,6 @@ from datetime import datetime
 from typing import Optional
 from pathlib import Path
 
-import colorama
-from colorama import Fore, Style
 import pyperclip
 from pywinauto import clipboard
 
@@ -17,9 +15,6 @@ from models.battle_models import Battle
 from battle_parser import BattleParser
 from services import WindowService
 from warthunder_client import WarThunderClientManager
-
-# Initialize colorama
-colorama.init()
 
 
 class Warthog:
@@ -99,9 +94,7 @@ class Warthog:
 
         # If battle data is provided during construction, use it directly
         if self.battle_data_path:
-            logger.info(
-                f"{Fore.GREEN}Using provided battle data from {self.battle_data_path}{Style.RESET_ALL}"
-            )
+            logger.info(f"Using provided battle data from {self.battle_data_path}")
             with open(self.battle_data_path, "r", encoding="utf-8") as f:
                 battle_data = f.read()
 
@@ -110,23 +103,21 @@ class Warthog:
             battle_data = self.wt_client.copy_battle_data()
             if not battle_data:
                 logger.error(
-                    f"{Fore.RED}No battle data copied. Please ensure you are in the Battles tab.{Style.RESET_ALL}"
+                    f"No battle data copied. Please ensure you are in the Battles tab."
                 )
-                battle_data = ""
+                return None
             timestamp = self.wt_client.get_battle_timestamp()
 
         # Parse the battle data
         battle = self.parser.parse_battle(battle_data, timestamp=timestamp)
         if not battle:
-            logger.warning(
-                f"{Fore.YELLOW}Failed to parse battle {self.current_battle}. Skipping.{Style.RESET_ALL}"
-            )
+            logger.warning(f"Failed to parse battle {self.current_battle}. Skipping.")
             return None
 
         # Check for duplicates
         if self.is_duplicate(battle):
             logger.info(
-                f"{Fore.YELLOW}Battle {self.current_battle} is a duplicate (session: {battle.session}). Skipping.{Style.RESET_ALL}"
+                f"Battle {self.current_battle} is a duplicate (session: {battle.session}). Skipping."
             )
             return None
 
@@ -144,9 +135,7 @@ class Warthog:
 
     def start_collection(self):
         """Start the battle data collection process."""
-        logger.info(
-            f"{Fore.GREEN}Starting War Thunder battle data collection{Style.RESET_ALL}"
-        )
+        logger.info(f"Starting War Thunder battle data collection")
         print(f"\nWar Thunder Stats Collector")
         print(f"===========================")
         print(f"\nStarting collection process...\n")
@@ -155,28 +144,22 @@ class Warthog:
         try:
             self.original_clipboard = clipboard.GetData()
             logger.info(
-                f"{Fore.BLUE}Saved original clipboard content ({len(self.original_clipboard) if self.original_clipboard else 0} characters){Style.RESET_ALL}"
+                f"Saved original clipboard content ({len(self.original_clipboard) if self.original_clipboard else 0} characters)"
             )
         except Exception as e:
-            logger.warning(
-                f"{Fore.YELLOW}Could not save clipboard content: {e}{Style.RESET_ALL}"
-            )
+            logger.warning(f"Could not save clipboard content: {e}")
 
         self.is_running = True
 
         if self.battle_data_path is None:
             # Navigate to the Battles tab
             if not self.wt_client.navigate_to_battles_tab():
-                logger.error(
-                    f"{Fore.RED}Failed to navigate to Battles tab. Stopping collection.{Style.RESET_ALL}"
-                )
+                logger.error(f"Failed to navigate to Battles tab. Stopping collection.")
                 return
 
             ## Select the first battle
             if not self.wt_client.select_battle(0):
-                logger.error(
-                    f"{Fore.RED}Failed to select the first battle. Stopping collection.{Style.RESET_ALL}"
-                )
+                logger.error(f"Failed to select the first battle. Stopping collection.")
                 return
 
             battle_count = self.config.warthunder_ui_navigation_config.battle_count
@@ -189,7 +172,7 @@ class Warthog:
         while self.is_running and self.current_battle < battle_count:
             self.current_battle += 1
             progress = f"({self.current_battle}/{self.config.warthunder_ui_navigation_config.battle_count})"
-            logger.info(f"{Fore.CYAN}Processing battle {progress}{Style.RESET_ALL}")
+            logger.info(f"Processing battle {progress}")
 
             try:
                 battle = self.get_battle()
@@ -200,35 +183,31 @@ class Warthog:
 
                     outcome = "Victory" if battle.victory else "Defeat"
                     logger.info(
-                        f"{Fore.GREEN}Successfully processed battle: '{outcome} in the [{battle.mission_type}] {battle.mission_name} mission - {battle.session}'{Style.RESET_ALL}"
+                        f"Successfully processed battle: '{outcome} in the [{battle.mission_type}] {battle.mission_name} mission - {battle.session}'"
                     )
                 else:
                     logger.warning(
-                        f"{Fore.YELLOW}Skipping battle {self.current_battle + 1} due to parsing error or duplicate.{Style.RESET_ALL}"
+                        f"Skipping battle {self.current_battle + 1} due to parsing error or duplicate."
                     )
 
                 # Check if we need to go to the next battle
                 if self.current_battle < battle_count:
                     if not self.wt_client.go_to_next_battle():
                         logger.error(
-                            f"{Fore.RED}Failed to navigate to next battle. Stopping collection.{Style.RESET_ALL}"
+                            f"Failed to navigate to next battle. Stopping collection."
                         )
                         break
 
             except Exception as e:
-                logger.error(
-                    f"{Fore.RED}Error processing battle {self.current_battle + 1}: {e}{Style.RESET_ALL}"
-                )
+                logger.error(f"Error processing battle {self.current_battle + 1}: {e}")
                 # Try to continue with the next battle
                 if not self.wt_client.go_to_next_battle():
                     logger.error(
-                        f"{Fore.RED}Failed to navigate to next battle after error. Stopping collection.{Style.RESET_ALL}"
+                        f"Failed to navigate to next battle after error. Stopping collection."
                     )
                     break
 
-        logger.info(
-            f"{Fore.GREEN}Collection completed. Processed {self.current_battle} battles.{Style.RESET_ALL}"
-        )
+        logger.info(f"Collection completed. Processed {self.current_battle} battles.")
 
     def stop_collection(self):
         """Stop the collection process."""
@@ -240,16 +219,12 @@ class Warthog:
             try:
                 pyperclip.copy(self.original_clipboard)
                 logger.info(
-                    f"{Fore.BLUE}Restored original clipboard content ({len(self.original_clipboard)} characters){Style.RESET_ALL}"
+                    f"Restored original clipboard content ({len(self.original_clipboard)} characters)"
                 )
             except Exception as e:
-                logger.warning(
-                    f"{Fore.YELLOW}Failed to restore clipboard content: {e}{Style.RESET_ALL}"
-                )
+                logger.warning(f"Failed to restore clipboard content: {e}")
         else:
-            logger.info(
-                f"{Fore.BLUE}No original clipboard content to restore{Style.RESET_ALL}"
-            )
+            logger.info(f"No original clipboard content to restore")
 
         # Flash the window in the taskbar to notify the user that the process is complete.
         self.window_service.flash_window()
@@ -299,7 +274,6 @@ def run_collection():
         logger.info("Collection process interrupted by user")
     finally:
         warthog.stop_collection()
-        colorama.deinit()
 
 
 if __name__ == "__main__":
