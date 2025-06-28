@@ -83,11 +83,23 @@ class HIDService:
     def scroll_mouse(self, y: int = 0, *, x: int = 0):
         """Scroll the mouse wheel."""
 
-        if x != 0 or y != 0:
-            self._mouse.scroll(x, y)
-            self._delay(
-                self._config.delay_config.key_press_delay
-            )  # Reuse the keypress delay for mouse scrolls
+        if y != 0:
+            logger.debug(
+                f"Scrolling mouse {'up' if y > 0 else 'down'} by {abs(y)} step{'s' if y != 0 else ''}"
+            )
+            for _ in range(abs(y)):
+                self._mouse.scroll(0, y // abs(y))  # Scroll one step at a time
+                # Delay after each scroll step
+                # Reuse the keypress delay for mouse scrolls
+                self._delay(self._config.delay_config.key_press_delay)
+
+        if x != 0:
+            logger.debug(
+                f"Scrolling mouse {'right' if x > 0 else 'left'} by {abs(x)} step{'s' if x != 0 else ''}"
+            )
+            for _ in range(abs(x)):
+                self._mouse.scroll(x // abs(x), 0)
+                self._delay(self._config.delay_config.key_press_delay)
 
     def click_mouse(self, button=Button.left, *, count=1):
         """

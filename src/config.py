@@ -128,6 +128,17 @@ class StorageConfig(BaseModel):
     )
 
 
+class OCRConfig(BaseModel):
+    """Configuration for OCR functionality."""
+
+    confidence_threshold: float = Field(
+        default=0.4,
+        ge=0.0,
+        le=1.0,
+        description="OCR confidence threshold (between 0 and 1.0). Confidence values below this will be ignored.",
+    )
+
+
 class AppConfig(BaseModel):
     """Main application configuration."""
 
@@ -138,6 +149,7 @@ class AppConfig(BaseModel):
     )
     logging_config: LoggingConfig = LoggingConfig()
     storage_config: StorageConfig = StorageConfig()
+    ocr_config: OCRConfig = OCRConfig()
 
 
 class ConfigManager:

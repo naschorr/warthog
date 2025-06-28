@@ -24,10 +24,10 @@ class WarThunderClientManager:
     ## Statics
 
     BATTLE_TIMESTAMP_TIME_REGEX = re.compile(
-        r"(\d{2})\s*[\Wi]\s*(\d{2})\s*[\Wi]\s*(\d{2})"
+        r"(\d{1,2})\s*[\Wi]\s*(\d{2})\s*[\Wi]\s*(\d{2})"
     )
     BATTLE_TIMESTAMP_DATETIME_REGEX = re.compile(
-        r"(\w+)\s*(\d{2})\s*[\Wi]\s*(\d{4})\s*(\d{2})\s*[\Wi]\s*(\d{2})\s*[\Wi]\s*(\d{2})",
+        r"(\w+)\s*(\d{2})\s*[\Wi]\s*(\d{4})\s*(\d{1,2})\s*[\Wi]?\s*(\d{2})\s*[\Wi]?\s*(\d{2})",
         re.IGNORECASE,
     )
 
@@ -188,16 +188,19 @@ class WarThunderClientManager:
         if not self._window_service.is_window_active(window):
             raise RuntimeError("Game window is not active")
 
+        # Initialize variables
+        battle_timestamp: Optional[datetime] = None
+
+        # Build the region to capture
         width, height = self._window_service.get_window_dimensions(window)
         window_center = self._window_service.get_window_center(window)
         screenshot_region = (
-            Coordinate(0, 0),
+            Coordinate(window_center.x, 0),
             Coordinate(width, window_center.y),
-        )  # Left side center, to upper right corner of the window
+        )
 
-        battle_timestamp: Optional[datetime] = None
         tries = 0
-        max_tries = 3
+        max_tries = 2  # todo: configure max tries
         while not battle_timestamp and tries < max_tries:
             # Get the screenshot
             screenshot = self._window_service.capture_screenshot(
@@ -208,29 +211,19 @@ class WarThunderClientManager:
                 return None
 
             # OCR the text
-            ocr_results = self._ocr_service.extract_text_from_image(
-                screenshot,
-                confidence_threshold=0.5,
-            )
+            ocr_results = self._ocr_service.extract_text_from_image(screenshot)
 
+            # Filter the OCR results down to candidate timestamps
             filtered_results: list[OCRResult] = []
             for result in ocr_results:
                 # Filter results based on regex patterns
                 # fmt: off
-                valid_text = (
+                if (
                     self.BATTLE_TIMESTAMP_TIME_REGEX.match(result.text) or
                     self.BATTLE_TIMESTAMP_DATETIME_REGEX.match(result.text)
-                )
-                # fmt: on
-
-                # Filter results to only those in the right half of the screen
-                valid_position = (
-                    result.origin.x > window_center.x
-                    and result.origin.y < window_center.y
-                )
-
-                if valid_text and valid_position:
+                ):
                     filtered_results.append(result)
+                # fmt: on
 
             # Sort results vertically, with the lowest y-coordinate first
             sorted_results = sorted(
@@ -250,8 +243,8 @@ class WarThunderClientManager:
                             f"{datetime_match.group(1)} {datetime_match.group(2)} {datetime_match.group(3)} {datetime_match.group(4)} {datetime_match.group(5)} {datetime_match.group(6)}",
                             "%B %d %Y %H %M %S",
                         )
-                except ValueError as e:
-                    try:
+
+                    if not battle_timestamp:
                         time_match = self.BATTLE_TIMESTAMP_TIME_REGEX.search(
                             result.text
                         )
@@ -264,25 +257,36 @@ class WarThunderClientManager:
                                 month=datetime.now().month,
                                 day=datetime.now().day,
                             )
-                    except ValueError as e:
-                        logger.error(f"Failed to parse timestamp: {e}")
-                        battle_timestamp = None
+                except Exception as e:
+                    logger.error(f"Failed to parse timestamp: {e}")
+                    battle_timestamp = None
+                    self._hid_service.scroll_mouse(1)
+                    self._delay(self._config.delay_config.battle_select_delay)
+                    tries += 1
             else:
                 logger.warning(
                     "No valid timestamp found in OCR results, scrolling up to try again"
                 )
                 self._hid_service.scroll_mouse(1)
+                self._delay(self._config.delay_config.battle_select_delay)
                 tries += 1
 
         # Scroll back down to restore the original position
         if tries > 0:
-            logger.info(f"Restoring original position after {tries} tries")
+            logger.info(
+                f"Restoring original position after {tries} retr{'ies' if tries != 0 else 'y'}"
+            )
             self._hid_service.scroll_mouse(tries * -1)
 
         # Set the timezone to the current system timezone
         if battle_timestamp:
             battle_timestamp.replace(tzinfo=datetime.now().astimezone().tzinfo)
 
+        # Log and return
+        if battle_timestamp:
+            logger.info(f"Timestamp found: {battle_timestamp}")
+        else:
+            logger.warning("No valid timestamp found")
         return battle_timestamp
 
     def go_to_next_battle(self) -> bool:

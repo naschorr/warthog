@@ -232,12 +232,12 @@ class WindowService:
             # Wait for the window to become active
             time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
 
-            # Verify window is active
-            if not self.is_window_active(window.window_text()):
-                logger.info(
-                    f"Window not active after activation attempt: {window.window_text()}"
-                )
-                return False
+            # todo: Verify window is active
+            # if not self.is_window_active(window):
+            #     logger.info(
+            #         f"Window not active after activation attempt: {window.window_text()}"
+            #     )
+            #     return False
 
             # Wait for the window to become active
             time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
@@ -258,7 +258,9 @@ class WindowService:
             if not window:
                 raise ValueError("Window reference is invalid or not found.")
 
-            return window is not None
+            self.activate_window(window)
+
+            return True
         except Exception as e:
             logger.error(f"Error checking if window is active: {e}")
             return False
@@ -276,6 +278,10 @@ class WindowService:
             window = self._resolve_window_ref(window_ref)
             if not window:
                 raise ValueError("Window reference is invalid or not found.")
+
+            # Ensure the window is active
+            if not self.is_window_active(window):
+                self.activate_window(window)
 
             # Calculate region to capture
             if region:
