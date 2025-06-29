@@ -123,8 +123,8 @@ class LoggingConfig(BaseModel):
 class StorageConfig(BaseModel):
     """Data storage configuration."""
 
-    data_dir: str = Field(
-        default="data", description="Directory to store collected battle data."
+    output_dir: str = Field(
+        default="output", description="Directory to store collected battle data."
     )
 
 

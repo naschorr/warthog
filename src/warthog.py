@@ -38,10 +38,10 @@ class Warthog:
         self.wt_client = WarThunderClientManager()
         self.parser = BattleParser()
         self.battle_data_path = battle_data_path
-        self.data_dir = (
+        self.output_dir = (
             Path(output_dir)
             if output_dir
-            else Path(self.config.storage_config.data_dir)
+            else Path(self.config.storage_config.output_dir)
         )
         self.allow_overwrite = allow_overwrite
         self.is_running = False
@@ -82,9 +82,9 @@ class Warthog:
         """Load the most recent battle sessions to avoid duplicates."""
         try:
             # Create data directory if it doesn't exist
-            self.data_dir.mkdir(parents=True, exist_ok=True)
+            self.output_dir.mkdir(parents=True, exist_ok=True)
 
-            data_files = list(self.data_dir.glob("*.json"))
+            data_files = list(self.output_dir.glob("*.json"))
             # Sort by modification time (most recent first)
             data_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
 
@@ -142,7 +142,7 @@ class Warthog:
     def save_battle(self, battle: Battle) -> Path:
         """Save a battle to the data directory."""
         try:
-            file_path = battle.save_to_file(self.data_dir)
+            file_path = battle.save_to_file(self.output_dir)
             logger.info(f"Saved battle data to {file_path}")
             return file_path
         except Exception as e:

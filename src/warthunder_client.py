@@ -274,7 +274,7 @@ class WarThunderClientManager:
         # Scroll back down to restore the original position
         if tries > 0:
             logger.info(
-                f"Restoring original position after {tries} retr{'ies' if tries != 0 else 'y'}"
+                f"Restoring original position after {tries} retr{'ies' if tries != 1 else 'y'}"
             )
             self._hid_service.scroll_mouse(tries * -1)
 

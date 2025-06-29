@@ -4,7 +4,7 @@
         "window_title": "War Thunder"
     },
     "storage": {
-        "data_dir": "../data",
+        "output_dir": "../output",
         "recent_battles_count": 25
     },
     "delays": {
