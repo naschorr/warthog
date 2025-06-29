@@ -71,7 +71,10 @@ class Warthog:
             # Load the session IDs from the most recent files
             count = 0
             for file_path in data_files:
-                if count >= self.config.warthunder_ui_navigation_config.battle_count:
+                if (
+                    count
+                    >= self.config.warthunder_ui_navigation_config.max_battle_count
+                ):
                     break
 
                 # Extract session ID from filename
@@ -86,7 +89,7 @@ class Warthog:
 
     def is_duplicate(self, battle: Battle) -> bool:
         """Check if a battle is a duplicate of one we've already seen."""
-        return battle.session in self.recent_sessions and not self.allow_overwrite
+        return battle.session in self.recent_sessions
 
     def get_battle(self) -> Optional[Battle]:
         battle_data = ""
@@ -112,13 +115,6 @@ class Warthog:
         battle = self.parser.parse_battle(battle_data, timestamp=timestamp)
         if not battle:
             logger.warning(f"Failed to parse battle {self.current_battle}. Skipping.")
-            return None
-
-        # Check for duplicates
-        if self.is_duplicate(battle):
-            logger.info(
-                f"Battle {self.current_battle} is a duplicate (session: {battle.session}). Skipping."
-            )
             return None
 
         return battle
@@ -149,8 +145,6 @@ class Warthog:
         except Exception as e:
             logger.warning(f"Could not save clipboard content: {e}")
 
-        self.is_running = True
-
         if self.battle_data_path is None:
             # Navigate to the Battles tab
             if not self.wt_client.navigate_to_battles_tab():
@@ -162,36 +156,63 @@ class Warthog:
                 logger.error(f"Failed to select the first battle. Stopping collection.")
                 return
 
-            battle_count = self.config.warthunder_ui_navigation_config.battle_count
+            max_battle_count = (
+                self.config.warthunder_ui_navigation_config.max_battle_count
+            )
 
         else:
-            battle_count = 1
+            max_battle_count = 1
 
         # Start collecting data for each battle
+        self.is_running = True
         self.current_battle = 0
-        while self.is_running and self.current_battle < battle_count:
+        last_battle: Optional[Battle] = None
+        while self.is_running and self.current_battle < max_battle_count:
             self.current_battle += 1
-            progress = f"({self.current_battle}/{self.config.warthunder_ui_navigation_config.battle_count})"
+            progress = f"({self.current_battle}/{max_battle_count})"
             logger.info(f"Processing battle {progress}")
 
             try:
                 battle = self.get_battle()
+
+                # Check and see if the last battle processed is the same as the current one.
+                # This happens when you've reached the last battle in the last and there's not a next one to go to.
+                if battle and last_battle and battle == last_battle:
+                    logger.info(
+                        f"Processed same battle (session: {battle.session}), so the end of the collection process has been reached."
+                    )
+                    self.is_running = False
+                    continue
+
                 if battle:
+                    # Check for duplicates from previous sessions
+                    if self.is_duplicate(battle):
+                        if not self.allow_overwrite:
+                            logger.info(
+                                f"Battle {self.current_battle} is a duplicate (session: {battle.session}). Skipping."
+                            )
+                            continue
+                        else:
+                            logger.info(
+                                f"Battle {self.current_battle} is a duplicate (session: {battle.session}), but overwriting is allowed."
+                            )
+
                     # Save the battle and update our list of recent sessions
                     self.save_battle(battle)
                     self.recent_sessions.add(battle.session)
+                    last_battle = battle
 
                     outcome = "Victory" if battle.victory else "Defeat"
                     logger.info(
-                        f"Successfully processed battle: '{outcome} in the [{battle.mission_type}] {battle.mission_name} mission - {battle.session}'"
+                        f"Successfully processed battle: '{outcome} in the [{battle.mission_type}] {battle.mission_name} mission' (session: {battle.session})"
                     )
                 else:
                     logger.warning(
-                        f"Skipping battle {self.current_battle + 1} due to parsing error or duplicate."
+                        f"Skipping battle {self.current_battle} due to parsing error or duplicate."
                     )
 
                 # Check if we need to go to the next battle
-                if self.current_battle < battle_count:
+                if self.current_battle < max_battle_count:
                     if not self.wt_client.go_to_next_battle():
                         logger.error(
                             f"Failed to navigate to next battle. Stopping collection."
@@ -199,7 +220,7 @@ class Warthog:
                         break
 
             except Exception as e:
-                logger.error(f"Error processing battle {self.current_battle + 1}: {e}")
+                logger.error(f"Error processing battle {self.current_battle}: {e}")
                 # Try to continue with the next battle
                 if not self.wt_client.go_to_next_battle():
                     logger.error(

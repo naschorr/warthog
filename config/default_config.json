@@ -20,9 +20,9 @@
         "keypress_max_ms": 400
     },
     "navigation": {
-        "up_arrow_count": 25,
+        "max_battle_count": 30,
+        "max_up_arrow_count": 30,
         "left_arrow_count": 11,
-        "battle_count": 25,
         "retry_attempts": 3,
         "retry_delay_ms": 1000
     },

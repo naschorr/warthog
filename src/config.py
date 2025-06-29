@@ -95,11 +95,11 @@ class WarThunderConfig(BaseModel):
 class WarThunderUiNavigationConfig(BaseModel):
     """Settings for navigating the game UI."""
 
-    battle_count: int = Field(
-        default=25, description="Number of battles to collect data from."
+    max_battle_count: int = Field(
+        default=30, description="Number of battles to collect data from."
     )
-    up_arrow_count: int = Field(
-        default=25,
+    max_up_arrow_count: int = Field(
+        default=30,
         description="Number of times to press the up arrow key when resetting the 'Battles' tab.",
     )
     left_arrow_count: int = Field(

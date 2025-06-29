@@ -44,6 +44,22 @@ class Battle(SerializableModel):
     skill_bonus: list[SkillBonusEntry] = Field(default_factory=list)
     summary: BattleSummary = Field(default_factory=BattleSummary)
 
+    # Lifecycle
+
+    def __init__(self, **data):
+        super().__init__(**data)
+
+    # Magic Methods
+
+    def __eq__(self, other) -> bool:
+        """Check if two battles are equal based on their session ID."""
+        if not isinstance(other, Battle):
+            raise TypeError("Comparison must be with another Battle instance")
+
+        return self.session == other.session
+
+    # Methods
+
     def save_to_file(self, directory: Path) -> Path:
         """Save the battle to a JSON file in the specified directory."""
         filename = f"{self.session}.json"
@@ -53,6 +69,3 @@ class Battle(SerializableModel):
             f.write(self.to_json())
 
         return file_path
-
-    def __init__(self, **data):
-        super().__init__(**data)
