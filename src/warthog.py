@@ -2,6 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+import warnings
 import argparse
 from datetime import datetime
 from typing import Optional
@@ -21,6 +22,8 @@ class Warthog:
     """
     Main class to orchestrate the collection of battle data from War Thunder.
     """
+
+    # Lifecycle
 
     def __init__(
         self,
@@ -48,6 +51,8 @@ class Warthog:
 
         self.load_recent_sessions()
 
+    # Methods
+
     def setup_logging(self):
         """Configure logging based on config settings."""
         log_level = getattr(
@@ -56,6 +61,21 @@ class Warthog:
         logging.basicConfig(
             level=log_level,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        )
+
+        # Suppress warnings from specific dependencies
+        noisy_loggers = [
+            "torch.utils.data.dataloader",
+            # Add more noisy loggers as needed
+        ]
+
+        for logger_name in noisy_loggers:
+            specific_logger = logging.getLogger(logger_name)
+            specific_logger.setLevel(logging.ERROR)  # Only show ERROR or higher
+
+        warnings.filterwarnings(
+            "ignore",
+            message=".*'pin_memory' argument is set as true but no accelerator.*",
         )
 
     def load_recent_sessions(self):

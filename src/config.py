@@ -117,7 +117,7 @@ class LoggingConfig(BaseModel):
     file_level: str = Field(
         default="DEBUG", description="Logging level for file output."
     )
-    log_file: str = Field(default="wtstats.log", description="File to write logs to.")
+    log_file: str = Field(default="warthog.log", description="File to write logs to.")
 
 
 class StorageConfig(BaseModel):
