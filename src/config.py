@@ -88,7 +88,12 @@ class WarThunderConfig(BaseModel):
     """Game-specific settings."""
 
     window_title: str = Field(
-        default="War Thunder", description="Title of the War Thunder game window."
+        default="War Thunder",
+        description="Title of the War Thunder game window. Supports regex strings for window titles.",
+    )
+    country_flag_directory: Path = Field(
+        default=Path("data/country_flags"),
+        description="Directory containing country flag images for template matching.",
     )
 
 

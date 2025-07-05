@@ -50,7 +50,7 @@ class WindowService:
             return window_ref
         elif isinstance(window_ref, str):
             desktop = Desktop(backend=self.UIA_BACKEND)
-            windows = desktop.windows(title=window_ref)
+            windows = desktop.windows(title_re=window_ref)
 
             if windows:
                 window = windows[0]

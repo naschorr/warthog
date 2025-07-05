@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run: Warthog (Overwrite)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/warthog.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "stopOnEntry": false,
+            "redirectOutput": true,
+            "args": [
+                "--overwrite"
+            ]
+        },
+        {
             "name": "Run: Warthog",
             "type": "debugpy",
             "request": "launch",
@@ -15,7 +31,9 @@
             "cwd": "${workspaceFolder}",
             "env": {"PYTHONPATH": "${workspaceFolder}"},
             "stopOnEntry": false,
-            "redirectOutput": true
+            "redirectOutput": true,
+            "args": [
+            ]
         },
         {
             "name": "Run: Warthog - Test File 1",
