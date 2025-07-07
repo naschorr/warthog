@@ -55,18 +55,19 @@ class WarThunderClientManager:
         Returns:
             bool: True if navigation was successful, False otherwise.
         """
-        if not self._window_service.activate_window(
-            self._config.warthunder_config.window_title
-        ):
-            logger.error("Failed to activate game window for navigation")
-            return False
-
-        ## Grab a reference to the game window
+        # Grab a reference to the game window
         window = self._window_service.get_window(
             self._config.warthunder_config.window_title
         )
         if not window:
-            logger.error("Game window activated, but then not found")
+            logger.error(
+                f"Unable to find game window with title: '{self._config.warthunder_config.window_title}'"
+            )
+            return False
+
+        # Activate the game window
+        if not self._window_service.activate_window(window):
+            logger.error("Failed to activate game window for navigation")
             return False
 
         # Smoothly move the cursor to the center of the window using ease-in-out, then click to select the Messages UI.
@@ -83,12 +84,30 @@ class WarThunderClientManager:
         try:
             logger.info("Navigating to Battles tab")
 
+            # Get battle data from currently selected battle
+            previous_battle_data = self.copy_battle_data()
+
             # Press Up Arrow multiple times to ensure we're at the top
             logger.info("Selecting Messages tab row")
-            self._hid_service.press_key(
-                Key.up,
-                times=self._config.warthunder_ui_navigation_config.up_arrow_count,
+            logger.debug(
+                f"Pressing Up Arrow a maximum of {self._config.warthunder_ui_navigation_config.max_up_arrow_count} times"
             )
+            counter = 0
+            message_tab_row_reached = False
+            while (
+                counter
+                < self._config.warthunder_ui_navigation_config.max_up_arrow_count
+                and not message_tab_row_reached
+            ):
+                self._hid_service.press_key(Key.up)
+                current_battle_data = self.copy_battle_data()
+                if previous_battle_data and previous_battle_data == current_battle_data:
+                    logger.debug(
+                        f"Battle data is no longer changing, the Messages tab row should be selected now."
+                    )
+                    message_tab_row_reached = True
+                previous_battle_data = current_battle_data
+                counter += 1
 
             # Press Left Arrow multiple times to ensure we're at the leftmost tab
             logger.info("Selecting left-most Messages tab")
@@ -202,7 +221,7 @@ class WarThunderClientManager:
         )
 
         tries = 0
-        max_tries = 2  # todo: configure max tries
+        max_tries = 4  # todo: configure max tries
         while not battle_timestamp and tries < max_tries:
             # Get the screenshot
             screenshot = self._window_service.capture_screenshot(
@@ -289,6 +308,7 @@ class WarThunderClientManager:
             logger.info(f"Timestamp found: {battle_timestamp}")
         else:
             logger.warning("No valid timestamp found")
+
         return battle_timestamp
 
     def go_to_next_battle(self) -> bool:
