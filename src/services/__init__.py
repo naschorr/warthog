@@ -7,5 +7,6 @@ This module contains service classes that provide functionality to the applicati
 from .hid_service import HIDService
 from .window_service import WindowService
 from .ocr_service import OCRService
+from .vehicle_service import VehicleService
 
-__all__ = ["HIDService", "WindowService", "OCRService"]
+__all__ = ["HIDService", "WindowService", "OCRService", "VehicleService"]

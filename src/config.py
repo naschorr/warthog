@@ -10,6 +10,8 @@ from abc import ABC
 
 from pydantic import BaseModel, Field
 
+from enums import BattleType
+
 
 class BaseDelayConfig(BaseModel, ABC):
     min_ms: int = 0
@@ -91,9 +93,10 @@ class WarThunderConfig(BaseModel):
         default="War Thunder",
         description="Title of the War Thunder game window. Supports regex strings for window titles.",
     )
-    country_flag_directory: Path = Field(
-        default=Path("data/country_flags"),
-        description="Directory containing country flag images for template matching.",
+    battle_type: BattleType = Field(
+        default=BattleType.REALISTIC,
+        description="What kind of battles are being collected?",
+        examples=[BattleType.ARCADE, BattleType.REALISTIC, BattleType.SIMULATION],
     )
 
 
@@ -137,10 +140,19 @@ class OCRConfig(BaseModel):
     """Configuration for OCR functionality."""
 
     confidence_threshold: float = Field(
-        default=0.4,
+        default=0.3,
         ge=0.0,
         le=1.0,
         description="OCR confidence threshold (between 0 and 1.0). Confidence values below this will be ignored.",
+    )
+
+
+class VehicleServiceConfig(BaseModel):
+    """Configuration for the Vehicle Service."""
+
+    processed_vehicle_data_directory_path: Path = Field(
+        default=Path("data") / "processed_vehicle_data",
+        description="Path to the directory containing processed vehicle data files.",
     )
 
 
@@ -155,6 +167,7 @@ class AppConfig(BaseModel):
     logging_config: LoggingConfig = LoggingConfig()
     storage_config: StorageConfig = StorageConfig()
     ocr_config: OCRConfig = OCRConfig()
+    vehicle_service_config: VehicleServiceConfig = VehicleServiceConfig()
 
 
 class ConfigManager:

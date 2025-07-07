@@ -1,5 +1,7 @@
 import logging
 
+from cv2 import flann
+
 logger = logging.getLogger(__name__)
 
 import warnings
@@ -11,10 +13,11 @@ from pathlib import Path
 import pyperclip
 from pywinauto import clipboard
 
-from src.config import get_config
+from config import get_config
+from enums import BattleType
 from models.battle_models import Battle
 from battle_parser import BattleParser
-from services import WindowService
+from services import WindowService, VehicleService
 from warthunder_client import WarThunderClientManager
 
 
@@ -35,8 +38,17 @@ class Warthog:
         self.config = get_config()
         self.setup_logging()
         self.window_service = WindowService()
+
+        # Init the VehicleService
+        processed_vehicle_data_dir = (
+            self.config.vehicle_service_config.processed_vehicle_data_directory_path
+        )
+        processed_vehicle_data = list(processed_vehicle_data_dir.glob("*.json"))
+        processed_vehicle_data.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        self._vehicle_service = VehicleService(processed_vehicle_data[0])
+
         self.wt_client = WarThunderClientManager()
-        self.parser = BattleParser()
+        self.parser = BattleParser(self._vehicle_service)
         self.battle_data_path = battle_data_path
         self.output_dir = (
             Path(output_dir)
@@ -44,6 +56,7 @@ class Warthog:
             else Path(self.config.storage_config.output_dir)
         )
         self.allow_overwrite = allow_overwrite
+        self._battle_type: BattleType = self.config.warthunder_config.battle_type
         self.is_running = False
         self.current_battle = 0
         self.recent_sessions = set()
@@ -132,7 +145,9 @@ class Warthog:
             timestamp = self.wt_client.get_battle_timestamp()
 
         # Parse the battle data
-        battle = self.parser.parse_battle(battle_data, timestamp=timestamp)
+        battle = self.parser.parse_battle(
+            battle_data, battle_type=self._battle_type, timestamp=timestamp
+        )
         if not battle:
             logger.warning(f"Failed to parse battle {self.current_battle}. Skipping.")
             return None

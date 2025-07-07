@@ -24,10 +24,12 @@ class WarThunderClientManager:
     ## Statics
 
     BATTLE_TIMESTAMP_TIME_REGEX = re.compile(
-        r"(\d{1,2})\s*[\Wi]\s*(\d{2})\s*[\Wi]\s*(\d{2})"
+        r"(\d{1,2})\s*[\Wi]?\s*(\d{2})\s*[\Wi]?\s*(\d{2})",
+        re.IGNORECASE,
     )
     BATTLE_TIMESTAMP_DATETIME_REGEX = re.compile(
-        r"(\w+)\s*(\d{2})\s*[\Wi]\s*(\d{4})\s*(\d{1,2})\s*[\Wi]?\s*(\d{2})\s*[\Wi]?\s*(\d{2})",
+        r"(\w+)\s*(\d{1,2})\s*[\Wi]?\s*(\d{4})\s*"
+        + BATTLE_TIMESTAMP_TIME_REGEX.pattern,
         re.IGNORECASE,
     )
 

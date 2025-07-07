@@ -82,6 +82,9 @@ class OCRService:
 
             # Filter out results below the confidence threshold
             if confidence_threshold and float(confidence) < confidence_threshold:
+                logger.debug(
+                    f"Skipping result '{text.strip()}' with confidence {confidence} below threshold {confidence_threshold}"
+                )
                 continue
 
             # Build a bounding box from the raw EasyOCR values

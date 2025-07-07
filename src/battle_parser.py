@@ -4,9 +4,13 @@ logger = logging.getLogger(__name__)
 
 import re
 import traceback
+from collections import Counter
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Set, Callable, Any
+from typing import Dict, List, Optional, Tuple, Callable, Any
 
+from enums import Country, BattleType
+from services.vehicle_service import VehicleService
+from models.vehicle_models import Vehicle
 from models.battle_models.currency_models import Currency
 from models.battle_models import (
     Battle,
@@ -130,6 +134,18 @@ class BattleParser:
         SectionDefinition(
             "Skill Bonus", r"skill bonus", "_parse_skill_bonus_entries", "skill_bonus"
         ),
+        SectionDefinition(
+            "Researched Unit",
+            r"researched unit",
+            "_parse_summary",
+            "summary.research.research_unit",
+        ),
+        SectionDefinition(
+            "Researching Progress",
+            r"researching progress",
+            "_parse_summary",
+            "summary.research.research_progress",
+        ),
     ]
 
     # Damage entry patterns
@@ -175,11 +191,17 @@ class BattleParser:
     SESSION_PATTERN = re.compile(r"Session: ([a-f0-9]+)")
     TOTAL_PATTERN = re.compile(r"Total: (.+)")
 
-    def __init__(self):
-        self.used_vehicles: Set[str] = set()
+    def __init__(self, vehicle_service: VehicleService):
+        self._vehicle_service = vehicle_service
+        self.player_vehicle_names: set[str] = set()
+        self.enemy_vehicle_names: set[str] = set()
 
     def parse_battle(
-        self, text: str, *, timestamp: Optional[datetime] = None
+        self,
+        text: str,
+        *,
+        battle_type: BattleType,
+        timestamp: Optional[datetime] = None,
     ) -> Optional[Battle]:
         """
         Parse the battle data from clipboard text.
@@ -198,7 +220,8 @@ class BattleParser:
             lines = text.splitlines()
 
             # Reset used vehicles for this battle
-            self.used_vehicles = set()
+            self.player_vehicle_names = set()
+            self.enemy_vehicle_names = set()
 
             # Parse header (first line)
             mission_type, mission_name, victory = self._parse_header(lines[0])
@@ -227,11 +250,49 @@ class BattleParser:
                 if section_name:
                     self._process_section(section_name, section, battle)
 
-            # Add vehicle list
-            battle.vehicles = list(self.used_vehicles)
-
             # Parse summary
             battle.summary = self._parse_summary(lines)
+
+            # Get hydrated vehicle data for the player and enemies...
+            player_vehicle_data = self._get_player_vehicles()
+            enemy_vehicle_data = self._get_enemy_vehicles()
+
+            # ...and process the player's vehicles...
+            if player_vehicle_data:
+                # Set the player's country based on the first vehicle found (They should all be the same country)
+                battle.country = player_vehicle_data[0].country
+
+                # Save the player vehicles in the battle object
+                battle.player_vehicles = [
+                    vehicle.name for vehicle in player_vehicle_data
+                ]
+
+                # Get the maximum battle rating for the player's vehicles
+                player_battle_rating = max(
+                    [
+                        getattr(vehicle.battle_rating, battle_type.value.lower())
+                        for vehicle in player_vehicle_data
+                    ]
+                )
+                battle.player_battle_rating = player_battle_rating
+            else:
+                raise ValueError("No player vehicles found in battle data")
+
+            # ...and process the enemy's vehicles
+            if enemy_vehicle_data:
+                # Save the enemy vehicles in the battle object
+                battle.enemy_vehicles = list(self.enemy_vehicle_names)
+
+                # Get the maximum battle rating for the enemy vehicles
+                enemy_battle_rating = max(
+                    [
+                        getattr(vehicle.battle_rating, battle_type.value.lower())
+                        for vehicle in enemy_vehicle_data
+                    ]
+                )
+                battle.enemy_battle_rating = enemy_battle_rating
+            else:
+                raise ValueError("No enemy vehicles found in battle data")
 
             return battle
 
@@ -352,8 +413,9 @@ class BattleParser:
                     sl=parts[5].strip(), rp=parts[6].strip()
                 )
 
-                # Track the vehicle used
-                self.used_vehicles.add(attack_vehicle)
+                # Track the vehicles used in the battle
+                self.player_vehicle_names.add(attack_vehicle)
+                self.enemy_vehicle_names.add(target_vehicle)
 
                 entry = DamageEntry(
                     timestamp=timestamp,
@@ -401,8 +463,9 @@ class BattleParser:
                 # Create currency object from SL string
                 currency = Currency.from_strings(sl=parts[4].strip())
 
-                # Track the vehicle used
-                self.used_vehicles.add(scout_vehicle)
+                # Track the vehicles used/seen in the battle
+                self.player_vehicle_names.add(scout_vehicle)
+                self.enemy_vehicle_names.add(target_vehicle)
 
                 entry = ScoutingEntry(
                     timestamp=timestamp,
@@ -457,8 +520,9 @@ class BattleParser:
                     sl=parts[4].strip(), rp=parts[5].strip() if len(parts) > 5 else ""
                 )
 
-                # Track the vehicle used
-                self.used_vehicles.add(scout_vehicle)
+                # Track the vehicles used
+                self.player_vehicle_names.add(scout_vehicle)
+                self.enemy_vehicle_names.add(target_vehicle)
 
                 entry = ScoutingDestructionEntry(
                     timestamp=timestamp,
@@ -510,7 +574,7 @@ class BattleParser:
                     mission_points = 0
 
                 # Track the vehicle used
-                self.used_vehicles.add(vehicle)
+                self.player_vehicle_names.add(vehicle)
 
                 # Create currency object from extracted currency values
                 currency = Currency.from_strings(
@@ -592,7 +656,7 @@ class BattleParser:
                 vehicle = parts[0].strip()
 
                 # Track the vehicle used
-                self.used_vehicles.add(vehicle)
+                self.player_vehicle_names.add(vehicle)
 
                 # Create currency object from extracted currency values
                 currency = Currency.from_strings(
@@ -645,7 +709,7 @@ class BattleParser:
                 time_str = parts[2].strip()
 
                 # Track the vehicle used
-                self.used_vehicles.add(vehicle)
+                self.player_vehicle_names.add(vehicle)
 
                 # Create currency object using from_strings
                 currency = Currency.from_strings(rp=parts[3].strip())
@@ -682,7 +746,7 @@ class BattleParser:
                 tier = parts[1].strip()
 
                 # Track the vehicle used
-                self.used_vehicles.add(vehicle)
+                self.player_vehicle_names.add(vehicle)
 
                 # Create currency object from extracted currency values
                 currency = Currency.from_strings(rp=parts[2].strip())
@@ -823,3 +887,55 @@ class BattleParser:
                 return match.group(1).strip()
 
         return None
+
+    def _get_player_vehicles(self) -> list[Vehicle]:
+        """Get the hydrated player vehicles from the processed member data."""
+
+        # Get hydrated vehicle data
+        player_vehicle_data: list[Vehicle] = []
+        for vehicle_name in self.player_vehicle_names:
+            # Attempt to find the vehicle by name
+            found_vehicles = self._vehicle_service.get_vehicles_by_name(
+                vehicle_name, exact_match=True
+            )
+            if found_vehicles:
+                player_vehicle_data.extend(found_vehicles)
+            else:
+                logger.warning(f"Vehicle not found: {vehicle_name}")
+        if not player_vehicle_data:
+            raise ValueError("No player vehicles found in battle data")
+
+        # Count the number of vehicles returned per country, and assume the most commonly used country is the player's country
+        vehicle_counter = Counter([vehicle for vehicle in player_vehicle_data])
+        country = vehicle_counter.most_common(1)[0][0].country
+
+        # Filter vehicles by the player's country
+        player_vehicle_data = [
+            vehicle for vehicle in player_vehicle_data if vehicle.country == country
+        ]
+
+        # Sanity check that we have the expected number of player vehicles
+        if len(player_vehicle_data) != len(self.player_vehicle_names):
+            raise ValueError(
+                f"Mismatch in player vehicles: {len(player_vehicle_data)} found, "
+                f"{len(self.player_vehicle_names)} expected"
+            )
+
+        return player_vehicle_data
+
+    def _get_enemy_vehicles(self) -> list[Vehicle]:
+        """Get the hydrated enemy vehicles from the processed member data."""
+
+        # Get hydrated vehicle data
+        enemy_vehicle_data: list[Vehicle] = []
+        for vehicle_name in self.enemy_vehicle_names:
+            # Attempt to find the vehicle by name
+            found_vehicles = self._vehicle_service.get_vehicles_by_name(
+                vehicle_name, exact_match=True
+            )
+            if found_vehicles:
+                enemy_vehicle_data.extend(found_vehicles)
+            else:
+                logger.warning(f"Enemy vehicle not found: {vehicle_name}")
+
+        return enemy_vehicle_data
