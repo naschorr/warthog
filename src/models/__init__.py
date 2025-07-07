@@ -1,7 +1,5 @@
 """
-Data models for representing War Thunder battle data.
-
-This module re-exports models from specialized model modules.
+Basic models for representing data.
 """
 
 from .coordinate import Coordinate

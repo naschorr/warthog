@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from .base_models import SerializableModel
 from .currency_models import Currency
 
 
