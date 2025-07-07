@@ -24,4 +24,4 @@ It's ridiculous that detailed battle information isn't presented anywhere, so he
 - Pick the "Run: Warthog" launch option
 - Click "Start Debugging"
 
-Data is stored by default in `warthog/data`. Tools to explore and graph that data are coming soon(tm).
+Processed data is stored by default in `warthog/output`. Tools to explore and graph that data are coming soon(tm).
