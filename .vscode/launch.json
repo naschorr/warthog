@@ -36,6 +36,25 @@
             ]
         },
         {
+            "name": "Run: War Thunder Vehicle Data Processor",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/warthunder_vehicle_data_processor.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "stopOnEntry": false,
+            "redirectOutput": true,
+            "args": [
+                "--wpcost-blkx", "${workspaceFolder}/data/mined/wpcost.blkx",
+                "--unittags-blkx", "${workspaceFolder}/data/mined/unittags.blkx",
+                "--units-csv", "${workspaceFolder}/data/mined/units.csv",
+                "--output", "${workspaceFolder}/data/processed_vehicle_data/processed_vehicle_data.2.47.0.43.json"
+            ]
+        },
+        {
             "name": "Run: Warthog - Test File 1",
             "type": "debugpy",
             "request": "launch",
