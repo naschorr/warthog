@@ -104,10 +104,7 @@ class Warthog:
             # Load the session IDs from the most recent files
             count = 0
             for file_path in data_files:
-                if (
-                    count
-                    >= self.config.warthunder_ui_navigation_config.max_battle_count
-                ):
+                if count >= self.config.warthunder_config.max_battle_count:
                     break
 
                 # Extract session ID from filename
@@ -191,10 +188,7 @@ class Warthog:
                 logger.error(f"Failed to select the first battle. Stopping collection.")
                 return
 
-            max_battle_count = (
-                self.config.warthunder_ui_navigation_config.max_battle_count
-            )
-
+            max_battle_count = self.config.warthunder_config.max_battle_count
         else:
             max_battle_count = 1
 

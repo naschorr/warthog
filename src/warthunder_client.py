@@ -221,7 +221,7 @@ class WarThunderClientManager:
         )
 
         tries = 0
-        max_tries = 4  # todo: configure max tries
+        max_tries = self._config.warthunder_config.max_battle_parse_tries
         while not battle_timestamp and tries < max_tries:
             # Get the screenshot
             screenshot = self._window_service.capture_screenshot(

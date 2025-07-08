@@ -98,14 +98,18 @@ class WarThunderConfig(BaseModel):
         description="What kind of battles are being collected?",
         examples=[BattleType.ARCADE, BattleType.REALISTIC, BattleType.SIMULATION],
     )
+    max_battle_count: int = Field(
+        default=30, description="Number of battles to collect data from."
+    )
+    max_battle_parse_tries: int = Field(
+        default=4,
+        description="Maximum number of attempts to parse a battle before giving up.",
+    )
 
 
 class WarThunderUiNavigationConfig(BaseModel):
     """Settings for navigating the game UI."""
 
-    max_battle_count: int = Field(
-        default=30, description="Number of battles to collect data from."
-    )
     max_up_arrow_count: int = Field(
         default=30,
         description="Number of times to press the up arrow key when resetting the 'Battles' tab.",
