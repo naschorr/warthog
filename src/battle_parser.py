@@ -188,6 +188,7 @@ class BattleParser:
     EARNINGS_PATTERN = re.compile(r"Earned: (\d+) SL, (\d+) CRP")
     ACTIVITY_PATTERN = re.compile(r"Activity: (\d+)%")
     DAMAGED_VEHICLES_PATTERN = re.compile(r"Damaged Vehicles: (.+)")
+    BACKUP_VEHICLES_SPENT_PATTERN = re.compile(r"Backup vehicles spent: (.+)")
     REPAIR_COST_PATTERN = re.compile(r"Automatic repair of all vehicles: -(\d+) SL")
     AMMO_COST_PATTERN = re.compile(r"Automatic purchasing of ammo and .+?: -(\d+) SL")
     RESEARCHED_UNIT_PATTERN = re.compile(r"Researched unit:")
@@ -600,6 +601,42 @@ class BattleParser:
 
         return entries
 
+    def _parse_landing_entries(self, lines: List[str]) -> List[LandingEntry]:
+        """Parse aircraft landing entries."""
+        entries = []
+
+        # Skip the first line (header)
+        for line in lines[1:]:
+            if not line.strip():
+                continue
+
+            # Split by multiple whitespace (4+ spaces)
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
+            if len(parts) >= 3:  # Ensure we have enough parts
+                # Format: timestamp, vehicle, rp_reward
+                timestamp = parts[0].strip()
+                vehicle = parts[1].strip()
+                rp_str = parts[2].strip()
+
+                # Track the vehicle used
+                self.player_vehicle_names.add(vehicle)
+
+                # Create currency object from RP string
+                currency = Currency.from_strings(rp=rp_str)
+
+                entry = LandingEntry(
+                    timestamp=timestamp,
+                    vehicle=vehicle,
+                    currency=currency,
+                )
+                entries.append(entry)
+            else:
+                logger.warning(
+                    f"Could not parse landing entry (insufficient parts): {line}"
+                )
+
+        return entries
+
     def _parse_award_entries(self, lines: List[str]) -> List[AwardEntry]:
         """Parse award entries."""
         entries = []
@@ -802,7 +839,15 @@ class BattleParser:
             damaged_match = self.DAMAGED_VEHICLES_PATTERN.search(line)
             if damaged_match:
                 vehicles = [v.strip() for v in damaged_match.group(1).split(",")]
+                self.player_vehicle_names.update(vehicles)
                 summary.damaged_vehicles = vehicles
+
+            # Backup vehicles spent
+            backup_match = self.BACKUP_VEHICLES_SPENT_PATTERN.search(line)
+            if backup_match:
+                vehicles = [v.strip() for v in backup_match.group(1).split(",")]
+                self.player_vehicle_names.update(vehicles)
+                summary.backup_vehicles_spent = vehicles
 
             # Repair cost
             repair_match = self.REPAIR_COST_PATTERN.search(line)
@@ -943,39 +988,3 @@ class BattleParser:
                 logger.warning(f"Enemy vehicle not found: {vehicle_name}")
 
         return enemy_vehicle_data
-
-    def _parse_landing_entries(self, lines: List[str]) -> List[LandingEntry]:
-        """Parse aircraft landing entries."""
-        entries = []
-
-        # Skip the first line (header)
-        for line in lines[1:]:
-            if not line.strip():
-                continue
-
-            # Split by multiple whitespace (4+ spaces)
-            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
-            if len(parts) >= 3:  # Ensure we have enough parts
-                # Format: timestamp, vehicle, rp_reward
-                timestamp = parts[0].strip()
-                vehicle = parts[1].strip()
-                rp_str = parts[2].strip()
-
-                # Track the vehicle used
-                self.player_vehicle_names.add(vehicle)
-
-                # Create currency object from RP string
-                currency = Currency.from_strings(rp=rp_str)
-
-                entry = LandingEntry(
-                    timestamp=timestamp,
-                    vehicle=vehicle,
-                    currency=currency,
-                )
-                entries.append(entry)
-            else:
-                logger.warning(
-                    f"Could not parse landing entry (insufficient parts): {line}"
-                )
-
-        return entries

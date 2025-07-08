@@ -20,6 +20,7 @@ class BattleSummary(BaseModel):
     total_currency: Currency = Field(default_factory=Currency)
     activity_percentage: float = Field(default=0.0, ge=0.0, le=1.0)
     damaged_vehicles: list[str] = Field(default_factory=list)
+    backup_vehicles_spent: list[str] = Field(default_factory=list)
     repair_cost: int = 0
     ammo_cost: int = 0
     research: Research = Field(default_factory=Research)
