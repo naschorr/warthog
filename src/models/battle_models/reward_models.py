@@ -38,7 +38,7 @@ class ResearchProgress(BaseModel):
 class Research(BaseModel):
     """Represents research progress for a specific vehicle."""
 
-    research_unit: Optional[ResearchUnit] = None
+    research_units: list[ResearchUnit] = Field(default_factory=list)
     research_progress: list[ResearchProgress] = Field(default_factory=list)
 
 

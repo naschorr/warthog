@@ -142,7 +142,7 @@ class BattleParser:
             "Researched Unit",
             r"researched unit",
             "_parse_summary",
-            "summary.research.research_unit",
+            "summary.research.research_units",
         ),
         SectionDefinition(
             "Researching Progress",
@@ -820,6 +820,9 @@ class BattleParser:
         """Parse the battle summary from the text."""
         summary = BattleSummary()
 
+        # Track if we're in the researched units section
+        in_researched_units = False
+
         # We need to parse these sections from the bottom portion of the text
         for index, line in enumerate(lines):
             # Earnings
@@ -859,15 +862,28 @@ class BattleParser:
             if ammo_match:
                 summary.ammo_cost = int(ammo_match.group(1))
 
-            # Researched unit
-            research_match = self.RESEARCHED_UNIT_PATTERN.search(line)
-            if research_match:
-                parts = lines[index + 1].split(":", 1)
-                research_unit = ResearchUnit(
-                    unit=parts[0].strip(),
-                    currency=Currency.from_strings(rp=parts[1].strip()),
-                )
-                summary.research.research_unit = research_unit
+            # Researched units section
+            researched_match = self.RESEARCHED_UNIT_PATTERN.search(line)
+            if researched_match:
+                in_researched_units = True
+                continue
+
+            # If we're in the researched units section, parse unit lines
+            if in_researched_units:
+                # Check if this line contains a unit and RP value
+                if ":" in line and "RP" in line:
+                    parts = line.split(":", 1)
+                    if len(parts) == 2:
+                        unit_name = parts[0].strip()
+                        rp_value = parts[1].strip()
+                        research_unit = ResearchUnit(
+                            unit=unit_name,
+                            currency=Currency.from_strings(rp=rp_value),
+                        )
+                        summary.research.research_units.append(research_unit)
+                else:
+                    # Stop parsing researched units if we hit a line that doesn't match the format
+                    in_researched_units = False
 
             # Research progress
             progress_match = self.RESEARCH_PROGRESS_PATTERN.search(line)
