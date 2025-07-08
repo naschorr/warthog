@@ -5,7 +5,7 @@ This module contains models that were relocated from the parent models package.
 """
 
 # Import and re-export all models explicitly
-from .activity_models import ActivityEntry, TimePlayedEntry, CaptureEntry
+from .activity_models import ActivityEntry, TimePlayedEntry, CaptureEntry, LandingEntry
 from .battle_models import BattleSummary, Battle
 from .currency_models import Currency
 from .damage_models import DamageEntry, DamageSection
@@ -30,6 +30,7 @@ __all__ = [
     "ActivityEntry",
     "TimePlayedEntry",
     "CaptureEntry",
+    "LandingEntry",
     "AwardEntry",
     "SkillBonusEntry",
     "Research",

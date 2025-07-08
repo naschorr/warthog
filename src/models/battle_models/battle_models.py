@@ -9,7 +9,7 @@ from models.serializable_model import SerializableModel
 from .currency_models import Currency
 from .damage_models import DamageSection
 from .scouting_models import ScoutingSection
-from .activity_models import ActivityEntry, TimePlayedEntry, CaptureEntry
+from .activity_models import ActivityEntry, TimePlayedEntry, CaptureEntry, LandingEntry
 from .reward_models import AwardEntry, SkillBonusEntry, Research, BoosterInfo
 
 
@@ -55,6 +55,7 @@ class Battle(SerializableModel):
     damage: DamageSection = Field(default_factory=DamageSection)
     scouting: ScoutingSection = Field(default_factory=ScoutingSection)
     captures: list[CaptureEntry] = Field(default_factory=list)
+    landings: list[LandingEntry] = Field(default_factory=list)
     awards: list[AwardEntry] = Field(default_factory=list)
     activity: list[ActivityEntry] = Field(default_factory=list)
     time_played: list[TimePlayedEntry] = Field(default_factory=list)

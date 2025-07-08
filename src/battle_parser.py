@@ -27,6 +27,7 @@ from models.battle_models import (
     BoosterInfo,
     ScoutingEntry,
     ScoutingDestructionEntry,
+    LandingEntry,
 )
 
 
@@ -120,6 +121,9 @@ class BattleParser:
         ),
         SectionDefinition(
             "Capture", r"capture of zones", "_parse_capture_entries", "captures"
+        ),
+        SectionDefinition(
+            "Landings", r"landings", "_parse_landing_entries", "landings"
         ),
         SectionDefinition("Awards", r"awards", "_parse_award_entries", "awards"),
         SectionDefinition(
@@ -939,3 +943,39 @@ class BattleParser:
                 logger.warning(f"Enemy vehicle not found: {vehicle_name}")
 
         return enemy_vehicle_data
+
+    def _parse_landing_entries(self, lines: List[str]) -> List[LandingEntry]:
+        """Parse aircraft landing entries."""
+        entries = []
+
+        # Skip the first line (header)
+        for line in lines[1:]:
+            if not line.strip():
+                continue
+
+            # Split by multiple whitespace (4+ spaces)
+            parts = [part for part in re.split(r"\s{4,}", line.strip()) if part]
+            if len(parts) >= 3:  # Ensure we have enough parts
+                # Format: timestamp, vehicle, rp_reward
+                timestamp = parts[0].strip()
+                vehicle = parts[1].strip()
+                rp_str = parts[2].strip()
+
+                # Track the vehicle used
+                self.player_vehicle_names.add(vehicle)
+
+                # Create currency object from RP string
+                currency = Currency.from_strings(rp=rp_str)
+
+                entry = LandingEntry(
+                    timestamp=timestamp,
+                    vehicle=vehicle,
+                    currency=currency,
+                )
+                entries.append(entry)
+            else:
+                logger.warning(
+                    f"Could not parse landing entry (insufficient parts): {line}"
+                )
+
+        return entries
