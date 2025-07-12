@@ -822,6 +822,8 @@ class BattleParser:
 
         # Track if we're in the researched units section
         in_researched_units = False
+        # Track if we're in the used items section
+        in_used_items = False
 
         # We need to parse these sections from the bottom portion of the text
         for index, line in enumerate(lines):
@@ -884,6 +886,95 @@ class BattleParser:
                 else:
                     # Stop parsing researched units if we hit a line that doesn't match the format
                     in_researched_units = False
+
+            # Used items section
+            if line.strip() == "Used items:":
+                in_used_items = True
+                in_researched_units = False  # Exit researched units section
+                continue
+
+            # If we're in the used items section, parse booster lines
+            if in_used_items:
+                line_stripped = line.strip()
+
+                # Check if this line starts a booster category (SL or RP)
+                if line_stripped.startswith("Active boosters"):
+                    booster_category = (
+                        "SL"
+                        if "SL:" in line_stripped
+                        else "RP" if "RP:" in line_stripped else None
+                    )
+                    if booster_category:
+                        # Look ahead to parse boosters in this category
+                        j = index + 1
+
+                        while j < len(lines) and not lines[j].strip().startswith(
+                            "Active boosters"
+                        ):
+                            booster_line = lines[j].strip()
+
+                            # Skip empty lines and "Common:" summary lines
+                            if not booster_line or booster_line.startswith("Common:"):
+                                j += 1
+                                continue
+
+                            # Parse booster lines starting with "*"
+                            if booster_line.startswith("*"):
+                                # Extract target and percentage from lines like:
+                                # "* Personal booster: +15%RP" or "* Public booster: +10%RP"
+                                target = None
+                                percentage = None
+
+                                if "Personal booster" in booster_line:
+                                    target = "Personal"
+                                elif "Public booster" in booster_line:
+                                    target = "Public"
+
+                                # Try to extract percentage from the same line
+                                percentage_match = re.search(r"\+(\d+)%", booster_line)
+                                if percentage_match:
+                                    percentage = int(percentage_match.group(1)) / 100.0
+
+                                # If we found a target but no percentage, look for it in the next line
+                                if target and not percentage:
+                                    # Look ahead for the percentage in the next line
+                                    next_j = j + 1
+                                    if next_j < len(lines):
+                                        next_line = lines[next_j].strip()
+                                        if (
+                                            next_line.startswith("+")
+                                            and booster_category in next_line
+                                        ):
+                                            percentage_match = re.search(
+                                                r"\+(\d+)%", next_line
+                                            )
+                                            if percentage_match:
+                                                percentage = (
+                                                    int(percentage_match.group(1))
+                                                    / 100.0
+                                                )
+
+                                # Create booster if we have both target and percentage
+                                if target and percentage:
+                                    booster = BoosterInfo(
+                                        type=booster_category,
+                                        percentage=percentage,
+                                        target=target,
+                                    )
+                                    summary.boosters.append(booster)
+
+                            j += 1
+
+                # Exit used items section if we hit a different section
+                elif (
+                    line_stripped
+                    and not line_stripped.startswith("Active boosters")
+                    and not line_stripped.startswith("Common:")
+                    and not line_stripped.startswith("*")
+                    and not "gives" in line_stripped
+                    and not line_stripped.startswith("+")
+                ):
+                    in_used_items = False
 
             # Research progress
             progress_match = self.RESEARCH_PROGRESS_PATTERN.search(line)

@@ -45,7 +45,6 @@ class Research(BaseModel):
 class BoosterInfo(BaseModel):
     """Represents information about an active booster."""
 
-    type: str
-    rarity: str
-    percentage: int
-    description: Optional[str] = None
+    type: str  # "SL" or "RP"
+    percentage: float  # The individual booster's percentage as a decimal (0.1 = 10%)
+    target: str  # "Personal" or "Public"
