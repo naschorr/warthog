@@ -15,9 +15,9 @@ from models import Coordinate, OCRResult
 from services import WindowService, HIDService, OCRService
 
 
-class WarThunderClientManager:
+class WarThunderClientService:
     """
-    Handles War Thunder specific operations including UI navigation,
+    Service that handles War Thunder specific operations including UI navigation,
     keyboard interactions, and data retrieval via clipboard.
     """
 

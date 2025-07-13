@@ -16,9 +16,9 @@ from pywinauto import clipboard
 from config import get_config
 from enums import BattleType
 from models.battle_models import Battle
-from battle_parser import BattleParser
+from services.battle_parser_service import BattleParserService
 from services import WindowService, VehicleService
-from warthunder_client import WarThunderClientManager
+from services.warthunder_client_service import WarThunderClientService
 
 
 class Warthog:
@@ -47,8 +47,8 @@ class Warthog:
         processed_vehicle_data.sort(key=lambda p: p.stat().st_mtime, reverse=True)
         self._vehicle_service = VehicleService(processed_vehicle_data[0])
 
-        self.wt_client = WarThunderClientManager()
-        self.parser = BattleParser(self._vehicle_service)
+        self.wt_client = WarThunderClientService()
+        self.parser = BattleParserService(self._vehicle_service)
         self.battle_data_path = battle_data_path
         self.output_dir = (
             Path(output_dir)

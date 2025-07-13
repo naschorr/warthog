@@ -57,9 +57,9 @@ class SectionDefinition:
         self.is_direct_value = is_direct_value
 
 
-class BattleParser:
+class BattleParserService:
     """
-    Parser for War Thunder battle data, extracting structured information
+    Service for parsing War Thunder battle data, extracting structured information
     from the clipboard text format.
     """
 
