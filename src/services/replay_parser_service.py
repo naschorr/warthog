@@ -114,7 +114,7 @@ class ReplayParserService:
         offset += 4
 
         # Read set size
-        replay.set_size = struct.unpack("<I", replay_data[offset : offset + 4])[0]
+        _set_size = struct.unpack("<I", replay_data[offset : offset + 4])[0]
         offset += 4
 
         # Skip 32 bytes
@@ -147,6 +147,7 @@ class ReplayParserService:
         logger.info(f"Parsed replay header: {replay.session_id} - {replay.level} ({replay.battle_type})")
 
         # Parse results if we have wt_ext_cli
+        results = {}
         if self._wt_ext_cli_path and rez_offset > 0:
             try:
                 logger.debug("Unpacking results replay_data using wt_ext_cli")
@@ -158,6 +159,10 @@ class ReplayParserService:
                 logger.error(f"Error unpacking results: {e}")
         else:
             logger.debug("No results data available in replay file")
+
+        # Build the author player object
+        author_user_id = results.get("authorUserId", "")
+        replay.author = next((player for player in replay.players if player.user_id == author_user_id))
 
         return replay
 
@@ -254,8 +259,6 @@ class ReplayParserService:
         """
         replay.status = results.get("status", "left")
         replay.time_played = results.get("timePlayed", 0.0)
-        replay.author_user_id = results.get("authorUserId", "")
-        replay.author = results.get("author", "")
         players_array = results.get("player", [])
         ui_scripts_data = results.get("uiScriptsData", {})
         players_info = ui_scripts_data.get("playersInfo", {})

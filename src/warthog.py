@@ -289,23 +289,6 @@ class Warthog:
             logger.error(f"Error parsing replay file {replay_file_path}: {e}")
             return None
 
-    def save_replay_data(self, replay: Replay) -> Path:
-        """Save replay data to the output directory as JSON."""
-        try:
-            filename = f"{replay.session_id}.json"
-            file_path = self.output_dir / "replay" / filename
-
-            # Convert replay to JSON and save
-            replay_json = replay.model_dump_json(indent=2)
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(replay_json)
-
-            logger.info(f"Saved replay data to {file_path}")
-            return file_path
-        except Exception as e:
-            logger.error(f"Error saving replay data: {e}")
-            raise
-
     def process_replay_file(self, replay_file: Path) -> Optional[Replay]:
         """Process a single replay file."""
         replay = self.get_replay(replay_file)
@@ -321,7 +304,7 @@ class Warthog:
                     )
 
             # Save the replay data
-            self.save_replay_data(replay)
+            replay.save_to_file(self.output_dir / "replay")
             self.recent_sessions.add(replay.session_id)
             return replay
 

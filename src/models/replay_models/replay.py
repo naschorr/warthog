@@ -2,8 +2,10 @@
 War Thunder replay model.
 """
 
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime
+from pathlib import Path
+
 from pydantic import Field, field_validator, field_serializer
 
 from enums import BattleType
@@ -23,7 +25,6 @@ class Replay(SerializableModel):
     environment: str = Field(default="")
     visibility: str = Field(default="")
     session_type: int = Field(default=0)
-    set_size: int = Field(default=0)
     loc_name: str = Field(default="")
     start_time: Optional[datetime] = Field(default=None)
     end_time: Optional[datetime] = Field(default=None)
@@ -31,12 +32,11 @@ class Replay(SerializableModel):
     score_limit: int = Field(default=0)
     battle_class: str = Field(default="")
     battle_kill_streak: str = Field(default="")
-
-    # Results fields
     status: str = Field(default="left")
     time_played: float = Field(default=0.0)
-    author_user_id: str = Field(default="")
-    author: str = Field(default="")
+
+    # Results fields
+    author: Player = Field(default_factory=Player)
     players: list[Player] = Field(default_factory=list)
 
     # Pydantic De/Serialization
@@ -57,3 +57,20 @@ class Replay(SerializableModel):
     def serialize_battle_type(cls, v: BattleType) -> str:
         """Serialize battle type to its string value."""
         return v.value if isinstance(v, BattleType) else str(v)
+
+    # Methods
+
+    def save_to_file(self, directory: Path) -> Path:
+        """Save the replay to a file."""
+        file_name_parts = ["replay"]
+        if self.start_time:
+            file_name_parts.append(self.start_time.strftime("%Y-%m-%d"))
+            file_name_parts.append(self.start_time.strftime("%H-%M-%S"))
+        file_name_parts.append(self.session_id)
+
+        file_path = directory / f"{'_'.join(file_name_parts)}.json"
+        replay_json = self.model_dump_json(indent=2)
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(replay_json)
+
+        return file_path
