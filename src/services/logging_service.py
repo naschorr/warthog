@@ -23,8 +23,6 @@ class LoggingService:
 
     def __init__(self, logging_config: LoggingConfig):
         self.logging_config = logging_config
-        self._log_formatter = logging.Formatter(self.LOG_FORMAT)
-        self._log_file_path = Path("logs") / self.LOG_FILE_NAME
 
         # Suppress warnings from specific dependencies
         self._noisy_loggers = [
@@ -75,30 +73,30 @@ class LoggingService:
     def _init_logging(self, logging_config: Optional[LoggingConfig] = None):
         """Initialize logging configuration."""
 
-        # Get log levels
-        console_level = getattr(
-            logging, logging_config.console_level.upper() if logging_config else str(self.DEFAULT_CONSOLE_LOG_LEVEL)
-        )
-        file_level = getattr(
-            logging, logging_config.file_level.upper() if logging_config else str(self.DEFAULT_FILE_LOG_LEVEL)
-        )
-
         # Create root logger and formatter
         root_logger = logging.getLogger()
         root_logger.setLevel(logging.DEBUG)  # Set to lowest level, the individual handlers will filter
         root_logger.handlers.clear()
+        formatter = logging.Formatter(self.LOG_FORMAT)
 
         # Console handler
-        console_log_handler = self._init_console_logger(console_level, self._log_formatter)
+        console_level = getattr(
+            logging, logging_config.console_level.upper() if logging_config else str(self.DEFAULT_CONSOLE_LOG_LEVEL)
+        )
+        console_log_handler = self._init_console_logger(console_level, formatter)
         root_logger.addHandler(console_log_handler)
 
         # File handler
-        file_log_handler = self._init_file_logger(self._log_file_path, file_level, self._log_formatter)
+        file_level = getattr(
+            logging, logging_config.file_level.upper() if logging_config else str(self.DEFAULT_FILE_LOG_LEVEL)
+        )
+        log_file_path = (
+            Path(self.logging_config.log_file) if self.logging_config.log_file else Path("logs") / self.LOG_FILE_NAME
+        )
+        file_log_handler = self._init_file_logger(log_file_path, file_level, formatter)
         root_logger.addHandler(file_log_handler)
 
         # Initialize log filters
         self._init_log_filters()
 
-        logger.info(
-            f"Logging initialized - Console: {self.logging_config.console_level}, File: {self.logging_config.file_level} ({self._log_file_path})"
-        )
+        logger.info(f"Logging initialized - Console: {console_level}, File: {file_level} ({log_file_path})")
