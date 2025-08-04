@@ -2,7 +2,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import warnings
 import argparse
 from datetime import datetime
 from typing import Optional
@@ -71,10 +70,15 @@ class Warthog:
             )
 
         # Init the output path and validate it
-        self.output_dir = Path(output_dir) if output_dir else Path(self.config.storage_config.output_dir)
-        if not self.output_dir.exists():
-            logger.info(f"Output directory {self.output_dir} does not exist. Creating it.")
-            self.output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir = Path(output_dir) if output_dir else Path(self.config.storage_config.output_dir)
+        self.battle_output_dir = output_dir / "battle"
+        self.replay_output_dir = output_dir / "replay"
+        if not self.battle_output_dir.exists():
+            logger.info(f"Output directory {self.battle_output_dir} does not exist. Creating it.")
+            self.battle_output_dir.mkdir(parents=True, exist_ok=True)
+        if not self.replay_output_dir.exists():
+            logger.info(f"Output directory {self.replay_output_dir} does not exist. Creating it.")
+            self.replay_output_dir.mkdir(parents=True, exist_ok=True)
 
         ## Member init
         self._mode = mode
@@ -103,10 +107,10 @@ class Warthog:
         """Load recent battle data sessions to avoid duplicates."""
         try:
             # Create data directory if it doesn't exist
-            self.output_dir.mkdir(parents=True, exist_ok=True)
+            self.battle_output_dir.mkdir(parents=True, exist_ok=True)
 
             # Look for battle data JSON files
-            battle_files = list(self.output_dir.glob("*.json"))
+            battle_files = list(self.battle_output_dir.glob("*.json"))
             battle_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
 
             # Load session IDs from recent battle files
@@ -129,57 +133,23 @@ class Warthog:
         """Load recent replay data sessions to avoid duplicates."""
         try:
             # Create data directory if it doesn't exist
-            self.output_dir.mkdir(parents=True, exist_ok=True)
+            self.replay_output_dir.mkdir(parents=True, exist_ok=True)
 
             # Look for JSON files that might be replay-generated
-            json_files = list(self.output_dir.glob("*.json"))
+            json_files = list(self.replay_output_dir.glob("*.json"))
             json_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
 
-            count = 0
             for file_path in json_files:
-                if count >= self.config.battle_config.warthunder_config.max_battle_count:
-                    break
-
                 try:
-                    # Try to determine if this is a replay file by checking its content
                     with open(file_path, "r", encoding="utf-8") as f:
-                        import json
-
-                        data = json.load(f)
-
-                    # Check if this looks like replay data vs battle data
-                    # Replay data has different structure than battle data
-                    if self._is_replay_data_file(data):
-                        session_id = file_path.stem
-                        self.recent_sessions.add(session_id)
-                        count += 1
-
+                        replay = Replay.model_validate_json(f.read())
+                        self.recent_sessions.add(replay.session_id)
                 except Exception as e:
                     logger.debug(f"Could not parse {file_path} as JSON: {e}")
                     continue
 
         except Exception as e:
             logger.error(f"Error loading recent replay data: {e}")
-
-    def _is_replay_data_file(self, data: dict) -> bool:
-        """Determine if a JSON file contains replay data vs battle data."""
-        # Replay data has fields like 'version', 'level', 'players', etc.
-        # Battle data has fields like 'mission_name', 'victory', 'damage', etc.
-        replay_indicators = [
-            "version",
-            "level",
-            "battle_type",
-            "players",
-            "status",
-            "time_played",
-        ]
-        battle_indicators = ["mission_name", "victory", "damage", "session"]
-
-        replay_score = sum(1 for field in replay_indicators if field in data)
-        battle_score = sum(1 for field in battle_indicators if field in data)
-
-        # If it has more replay indicators than battle indicators, consider it replay data
-        return replay_score > battle_score
 
     def is_duplicate(self, battle_or_replay: Battle | Replay) -> bool:
         """Check if a battle or replay is a duplicate of one we've already seen."""
@@ -218,7 +188,7 @@ class Warthog:
     def save_battle(self, battle: Battle) -> Path:
         """Save a battle to the data directory."""
         try:
-            file_path = battle.save_to_file(self.output_dir / "battle")
+            file_path = battle.save_to_file(self.battle_output_dir)
             logger.info(f"Saved battle data to {file_path}")
             return file_path
         except Exception as e:
@@ -254,7 +224,7 @@ class Warthog:
                     )
 
             # Save the replay data
-            replay.save_to_file(self.output_dir / "replay")
+            replay.save_to_file(self.replay_output_dir)
             self.recent_sessions.add(replay.session_id)
             return replay
 
