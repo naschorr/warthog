@@ -7,13 +7,14 @@ from typing import Optional
 from pathlib import Path
 
 from src.config import LoggingConfig
+from utilities import get_root_directory
 
 
 class LoggingService:
 
     # STATICS
 
-    ROOT_DIR = Path(__file__).parent.parent.parent  # I don't love this, but it's fine for now
+    ROOT_DIR = get_root_directory()
     DEFAULT_CONSOLE_LOG_LEVEL = logging.INFO
     DEFAULT_FILE_LOG_LEVEL = logging.DEBUG
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
