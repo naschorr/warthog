@@ -1,9 +1,5 @@
 import logging
 
-from cv2 import flann
-
-from src import config
-
 logger = logging.getLogger(__name__)
 
 import warnings
@@ -19,9 +15,14 @@ from config import get_config
 from enums import BattleType, AppMode
 from models.battle_models import Battle
 from models.replay_models import Replay
-from services.battle_parser_service import BattleParserService
-from services import WindowService, VehicleService, ReplayParserService
-from services.warthunder_client_service import WarThunderClientService
+from services import (
+    WindowService,
+    VehicleService,
+    ReplayParserService,
+    WarThunderClientService,
+    BattleParserService,
+    LoggingService,
+)
 
 
 class Warthog:
@@ -45,9 +46,9 @@ class Warthog:
         mode: AppMode,
     ):
         self.config = get_config()
-        self.setup_logging()
 
         # Init services
+        self.logging_service = LoggingService(self.config.logging_config)
         self.window_service = WindowService()
         self.wt_client = WarThunderClientService()
 
@@ -86,57 +87,6 @@ class Warthog:
         self.load_recent_sessions()
 
     # Methods
-
-    def setup_logging(self):
-        """Configure logging based on config settings."""
-        # Get log levels from config
-        console_level = getattr(logging, self.config.logging_config.console_level.upper(), logging.INFO)
-        file_level = getattr(logging, self.config.logging_config.file_level.upper(), logging.DEBUG)
-
-        # Create root logger
-        root_logger = logging.getLogger()
-        root_logger.setLevel(logging.DEBUG)  # Set to lowest level, handlers will filter
-        root_logger.handlers.clear()
-
-        # Create formatter
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(console_level)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
-
-        # File handler
-        log_file_path = Path(self.config.logging_config.log_file)
-        # If not absolute, make it relative to the output directory
-        if not log_file_path.is_absolute():
-            log_file_path = Path(self.ROOT_DIR) / log_file_path
-        log_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-        file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
-        file_handler.setLevel(file_level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-
-        logger.info(
-            f"Logging configured - Console: {self.config.logging_config.console_level}, File: {self.config.logging_config.file_level} ({log_file_path})"
-        )
-
-        # Suppress warnings from specific dependencies
-        noisy_loggers = [
-            "torch.utils.data.dataloader",
-            # Add more noisy loggers as needed
-        ]
-
-        for logger_name in noisy_loggers:
-            specific_logger = logging.getLogger(logger_name)
-            specific_logger.setLevel(logging.ERROR)  # Only show ERROR or higher
-
-        warnings.filterwarnings(
-            "ignore",
-            message=".*'pin_memory' argument is set as true but no accelerator.*",
-        )
 
     def load_recent_sessions(self):
         """Load recent sessions based on the configured mode."""

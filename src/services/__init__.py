@@ -11,6 +11,7 @@ from .vehicle_service import VehicleService
 from .battle_parser_service import BattleParserService
 from .warthunder_client_service import WarThunderClientService
 from .replay_parser_service import ReplayParserService
+from .logging_service import LoggingService
 
 __all__ = [
     "HIDService",
@@ -20,4 +21,5 @@ __all__ = [
     "BattleParserService",
     "WarThunderClientService",
     "ReplayParserService",
+    "LoggingService",
 ]
