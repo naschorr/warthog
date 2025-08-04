@@ -22,6 +22,7 @@ from services import (
     WarThunderClientService,
     BattleParserService,
     LoggingService,
+    WtExtCliClientService,
 )
 
 
@@ -51,6 +52,7 @@ class Warthog:
         self.logging_service = LoggingService(self.config.logging_config)
         self.window_service = WindowService()
         self.wt_client = WarThunderClientService()
+        self.wt_ext_cli_client = WtExtCliClientService(self.config.replay_config.wt_ext_cli_path)
 
         processed_vehicle_data_dir = self.config.vehicle_service_config.processed_vehicle_data_directory_path
         processed_vehicle_data = list(processed_vehicle_data_dir.glob("*.json"))
@@ -58,9 +60,7 @@ class Warthog:
         self._vehicle_service = VehicleService(processed_vehicle_data[0])
 
         self.battle_parser_service = BattleParserService(self._vehicle_service)
-        self.replay_parser_service = ReplayParserService(
-            self._vehicle_service, self.config.replay_config.wt_ext_cli_path
-        )
+        self.replay_parser_service = ReplayParserService(self._vehicle_service, self.wt_ext_cli_client)
 
         # Init the input paths and validate them
         self._data_path = data_path

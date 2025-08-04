@@ -12,6 +12,7 @@ from pathlib import Path
 from enums import BattleType, PlatformType, Country
 from models.replay_models import Replay, Player
 from services.vehicle_service import VehicleService
+from services.wt_ext_cli_client_service import WtExtCliClientService
 
 
 class ReplayParserService:
@@ -24,12 +25,12 @@ class ReplayParserService:
 
     MAGIC = b"\xe5\xac\x00\x10"
 
-    def __init__(self, vehicle_service: VehicleService, wt_ext_cli_path: Path):
+    def __init__(self, vehicle_service: VehicleService, wt_ext_cli_client_service: WtExtCliClientService):
         """
         Initialize the replay parser service.
         """
         self._vehicle_service = vehicle_service
-        self._wt_ext_cli_path = wt_ext_cli_path
+        self._wt_ext_cli_client_service = wt_ext_cli_client_service
 
     def parse_replay_data(self, replay_data: bytes) -> Replay:
         """
@@ -148,13 +149,10 @@ class ReplayParserService:
 
         # Parse results if we have wt_ext_cli
         results = {}
-        if self._wt_ext_cli_path and rez_offset > 0:
+        if rez_offset > 0:
             try:
-                logger.debug("Unpacking results replay_data using wt_ext_cli")
-                results = self._unpack_results(rez_offset, replay_data)
+                results = self._wt_ext_cli_client_service.unpack_raw_blk(replay_data[rez_offset:])
                 self._parse_results(replay, results)
-                player_count = len(replay.players) if replay.players else 0
-                logger.info(f"Successfully parsed results for {player_count} players")
             except Exception as e:
                 logger.error(f"Error unpacking results: {e}")
         else:
@@ -202,52 +200,6 @@ class ReplayParserService:
         if null_index != -1:
             string_data = string_data[:null_index]
         return string_data.decode("utf-8", errors="ignore")
-
-    def _unpack_results(self, offset: int, data: bytes) -> Dict[str, Any]:
-        """
-        Unpack results using wt_ext_cli.
-
-        Args:
-            offset: Byte offset where results data starts
-            data: Complete replay file data
-
-        Returns:
-            Parsed JSON results data
-
-        Raises:
-            RuntimeError: If wt_ext_cli fails to parse the data
-        """
-        if not self._wt_ext_cli_path:
-            return {}
-
-        data_after_rez = data[offset:]
-
-        try:
-            # Run wt_ext_cli
-            result = subprocess.run(
-                [
-                    self._wt_ext_cli_path,
-                    "--unpack_raw_blk",
-                    "--stdout",
-                    "--format",
-                    "Json",
-                    "--stdin",
-                ],
-                input=data_after_rez,
-                capture_output=True,
-                timeout=30,
-            )
-
-            if result.returncode != 0:
-                error_msg = result.stderr.decode("utf-8", errors="ignore") if result.stderr else "Unknown error"
-                raise RuntimeError(f"wt_ext_cli failed with return code {result.returncode}: {error_msg}")
-
-            return json.loads(result.stdout)
-
-        except subprocess.TimeoutExpired:
-            raise RuntimeError("wt_ext_cli timed out after 30 seconds")
-        except json.JSONDecodeError as e:
-            raise RuntimeError(f"Failed to parse wt_ext_cli JSON output: {e}")
 
     def _parse_results(self, replay: Replay, results: dict[str, Any]) -> None:
         """

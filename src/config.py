@@ -160,9 +160,8 @@ class BattleConfig(BaseModel):
 class ReplayConfig(BaseModel):
     """Configuration for replay collection and processing."""
 
-    ## TODO: system specific paths, or maybe just a recursive search for wt_ext_cli
-    wt_ext_cli_path: Path = Field(
-        default=Path("src") / "bin" / "wt_ext_cli-x86_64-pc-windows-msvc" / "wt_ext_cli.exe",
+    wt_ext_cli_path: Optional[Path] = Field(
+        default=None,
         description="Path to the wt_ext_cli executable for parsing War Thunder replay blk data.",
     )
 

@@ -12,6 +12,7 @@ from .battle_parser_service import BattleParserService
 from .warthunder_client_service import WarThunderClientService
 from .replay_parser_service import ReplayParserService
 from .logging_service import LoggingService
+from .wt_ext_cli_client_service import WtExtCliClientService
 
 __all__ = [
     "HIDService",
@@ -22,4 +23,5 @@ __all__ = [
     "WarThunderClientService",
     "ReplayParserService",
     "LoggingService",
+    "WtExtCliClientService",
 ]
