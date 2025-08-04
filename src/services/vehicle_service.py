@@ -31,9 +31,7 @@ class VehicleService:
     def _load_vehicle_data(self, vehicle_data_path: Path) -> dict[str, Vehicle]:
         """Load vehicle data from the processed JSON file."""
         if not self._vehicle_data_path.exists():
-            raise ValueError(
-                f"Vehicle data file not found at {self._vehicle_data_path}"
-            )
+            raise ValueError(f"Vehicle data file not found at {self._vehicle_data_path}")
 
         with open(self._vehicle_data_path, "r", encoding="utf-8") as file:
             raw_data = json.load(file)
@@ -72,19 +70,17 @@ class VehicleService:
         vehicle_matches = []
 
         # Check if name contains country specification in format "Name (Country)"
-        country_match_candidate = self.VEHICLE_NAME_COUNTRY_REGEX.match(
-            search_vehicle_name
-        )
+        country_match_candidate = self.VEHICLE_NAME_COUNTRY_REGEX.match(search_vehicle_name)
         country_match_found = False
         if country_match_candidate:
             # Validate the country
             country_name_candidate = country_match_candidate.group(2).strip()
             if country_name_candidate:
-                for country_enum in Country:
-                    if country_enum.value.lower() == country_name_candidate.lower():
-                        search_vehicle_country = country_enum
-                        country_match_found = True
-                        break
+                try:
+                    search_vehicle_country = Country.get_country_by_name(country_name_candidate)
+                    country_match_found = True
+                except ValueError:
+                    logger.warning(f"Invalid country name '{country_name_candidate}' in vehicle name '{name}'")
 
             # If a valid country was found, then we can also use the extracted name when searching
             if country_match_found:
@@ -99,14 +95,12 @@ class VehicleService:
 
             if exact_match:
                 if search_vehicle_name == candidate_vehicle_name and (
-                    search_vehicle_country is None
-                    or search_vehicle_country == candidate_vehicle.country
+                    search_vehicle_country is None or search_vehicle_country == candidate_vehicle.country
                 ):
                     vehicle_matches.append(candidate_vehicle)
             else:
                 if search_vehicle_name in candidate_vehicle_name and (
-                    search_vehicle_country is None
-                    or search_vehicle_country == candidate_vehicle.country
+                    search_vehicle_country is None or search_vehicle_country == candidate_vehicle.country
                 ):
                     vehicle_matches.append(candidate_vehicle)
 

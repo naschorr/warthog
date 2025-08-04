@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Optional
 from abc import ABC
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
-from enums import BattleType
+from enums import BattleType, AppMode
 
 
 class BaseDelayConfig(BaseModel, ABC):
@@ -35,12 +35,8 @@ class ForegroundDelayConfig(BaseDelayConfig):
 
 
 class KeyPressDelayConfig(BaseDelayConfig):
-    min_ms: int = Field(
-        default=50, description="Minimum delay in milliseconds for key presses."
-    )
-    max_ms: int = Field(
-        default=150, description="Maximum delay in milliseconds for key presses."
-    )
+    min_ms: int = Field(default=50, description="Minimum delay in milliseconds for key presses.")
+    max_ms: int = Field(default=150, description="Maximum delay in milliseconds for key presses.")
 
 
 class BattleSelectDelayConfig(BaseDelayConfig):
@@ -98,9 +94,7 @@ class WarThunderConfig(BaseModel):
         description="What kind of battles are being collected?",
         examples=[BattleType.ARCADE, BattleType.REALISTIC, BattleType.SIMULATION],
     )
-    max_battle_count: int = Field(
-        default=30, description="Number of battles to collect data from."
-    )
+    max_battle_count: int = Field(default=30, description="Number of battles to collect data from.")
     max_battle_parse_tries: int = Field(
         default=4,
         description="Maximum number of attempts to parse a battle before giving up.",
@@ -120,26 +114,6 @@ class WarThunderUiNavigationConfig(BaseModel):
     )
 
 
-class LoggingConfig(BaseModel):
-    """Logging configuration."""
-
-    console_level: str = Field(
-        default="DEBUG", description="Logging level for console output."
-    )
-    file_level: str = Field(
-        default="DEBUG", description="Logging level for file output."
-    )
-    log_file: str = Field(default="warthog.log", description="File to write logs to.")
-
-
-class StorageConfig(BaseModel):
-    """Data storage configuration."""
-
-    output_dir: str = Field(
-        default="output", description="Directory to store collected battle data."
-    )
-
-
 class OCRConfig(BaseModel):
     """Configuration for OCR functionality."""
 
@@ -151,6 +125,20 @@ class OCRConfig(BaseModel):
     )
 
 
+class LoggingConfig(BaseModel):
+    """Logging configuration."""
+
+    console_level: str = Field(default="DEBUG", description="Logging level for console output.")
+    file_level: str = Field(default="DEBUG", description="Logging level for file output.")
+    log_file: str = Field(default="logs/warthog.log", description="File to write logs to.")
+
+
+class StorageConfig(BaseModel):
+    """Data storage configuration."""
+
+    output_dir: str = Field(default="output", description="Directory to store collected battle data.")
+
+
 class VehicleServiceConfig(BaseModel):
     """Configuration for the Vehicle Service."""
 
@@ -160,18 +148,50 @@ class VehicleServiceConfig(BaseModel):
     )
 
 
-class AppConfig(BaseModel):
-    """Main application configuration."""
+class BattleConfig(BaseModel):
+    """Configuration for battle data collection and processing."""
 
     delay_config: DelayConfig = DelayConfig()
     warthunder_config: WarThunderConfig = WarThunderConfig()
-    warthunder_ui_navigation_config: WarThunderUiNavigationConfig = (
-        WarThunderUiNavigationConfig()
+    warthunder_ui_navigation_config: WarThunderUiNavigationConfig = WarThunderUiNavigationConfig()
+    ocr_config: OCRConfig = OCRConfig()
+
+
+class ReplayConfig(BaseModel):
+    """Configuration for replay collection and processing."""
+
+    ## TODO: system specific paths, or maybe just a recursive search for wt_ext_cli
+    wt_ext_cli_path: Path = Field(
+        default=Path("src") / "bin" / "wt_ext_cli-x86_64-pc-windows-msvc" / "wt_ext_cli.exe",
+        description="Path to the wt_ext_cli executable for parsing War Thunder replay blk data.",
     )
+
+
+class AppConfig(BaseModel):
+    """Main application configuration."""
+
     logging_config: LoggingConfig = LoggingConfig()
     storage_config: StorageConfig = StorageConfig()
-    ocr_config: OCRConfig = OCRConfig()
     vehicle_service_config: VehicleServiceConfig = VehicleServiceConfig()
+
+    mode: AppMode = Field(
+        default=AppMode.REPLAY,
+        description="Application mode: battle data collection or replay parsing.",
+        examples=[AppMode.BATTLE, AppMode.REPLAY],
+    )
+
+    battle_config: Optional[BattleConfig] = None
+    replay_config: Optional[ReplayConfig] = None
+
+    @model_validator(mode="after")
+    def validate_mode_specific_configs(self):
+        """Ensure appropriate configs are set based on mode."""
+        if self.mode == AppMode.BATTLE and self.battle_config is None:
+            self.battle_config = BattleConfig()
+        elif self.mode == AppMode.REPLAY and self.replay_config is None:
+            self.replay_config = ReplayConfig()
+
+        return self
 
 
 class ConfigManager:
@@ -186,9 +206,7 @@ class ConfigManager:
 
         # Prevent creating multiple instances directly
         if ConfigManager._SINGLETON_INSTANCE is not None:
-            logger.warning(
-                "ConfigManager is a singleton! Use ConfigManager.get_instance() instead."
-            )
+            logger.warning("ConfigManager is a singleton! Use ConfigManager.get_instance() instead.")
             return
         else:
             ConfigManager._SINGLETON_INSTANCE = self
@@ -231,9 +249,7 @@ class ConfigManager:
                 return AppConfig(**config_data)
 
             # If no config files found, create a default config
-            logger.info(
-                "No configuration files found, default configuration will be used."
-            )
+            logger.info("No configuration files found, default configuration will be used.")
             return AppConfig()
 
         except Exception as e:

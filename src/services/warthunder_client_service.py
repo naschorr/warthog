@@ -28,8 +28,7 @@ class WarThunderClientService:
         re.IGNORECASE,
     )
     BATTLE_TIMESTAMP_DATETIME_REGEX = re.compile(
-        r"(\w+)\s*(\d{1,2})\s*[\Wi]?\s*(\d{4})\s*"
-        + BATTLE_TIMESTAMP_TIME_REGEX.pattern,
+        r"(\w+)\s*(\d{1,2})\s*[\Wi]?\s*(\d{4})\s*" + BATTLE_TIMESTAMP_TIME_REGEX.pattern,
         re.IGNORECASE,
     )
 
@@ -56,12 +55,10 @@ class WarThunderClientService:
             bool: True if navigation was successful, False otherwise.
         """
         # Grab a reference to the game window
-        window = self._window_service.get_window(
-            self._config.warthunder_config.window_title
-        )
+        window = self._window_service.get_window(self._config.battle_config.warthunder_config.window_title)
         if not window:
             logger.error(
-                f"Unable to find game window with title: '{self._config.warthunder_config.window_title}'"
+                f"Unable to find game window with title: '{self._config.battle_config.warthunder_config.window_title}'"
             )
             return False
 
@@ -72,14 +69,12 @@ class WarThunderClientService:
 
         # Smoothly move the cursor to the center of the window using ease-in-out, then click to select the Messages UI.
         logger.info("Moving cursor to window center")
-        self._hid_service.move_cursor_ease_in_out(
-            self._window_service.get_window_center(window)
-        )
+        self._hid_service.move_cursor_ease_in_out(self._window_service.get_window_center(window))
         logger.info("Clicking to select Messages interface")
         self._hid_service.click_mouse()
 
         ## Final bit of wait after the click has gone through to ensure the UI is ready.
-        self._delay(self._config.delay_config.foreground_delay)
+        self._delay(self._config.battle_config.delay_config.foreground_delay)
 
         try:
             logger.info("Navigating to Battles tab")
@@ -90,21 +85,18 @@ class WarThunderClientService:
             # Press Up Arrow multiple times to ensure we're at the top
             logger.info("Selecting Messages tab row")
             logger.debug(
-                f"Pressing Up Arrow a maximum of {self._config.warthunder_ui_navigation_config.max_up_arrow_count} times"
+                f"Pressing Up Arrow a maximum of {self._config.battle_config.warthunder_ui_navigation_config.max_up_arrow_count} times"
             )
             counter = 0
             message_tab_row_reached = False
             while (
-                counter
-                < self._config.warthunder_ui_navigation_config.max_up_arrow_count
+                counter < self._config.battle_config.warthunder_ui_navigation_config.max_up_arrow_count
                 and not message_tab_row_reached
             ):
                 self._hid_service.press_key(Key.up)
                 current_battle_data = self.copy_battle_data()
                 if previous_battle_data and previous_battle_data == current_battle_data:
-                    logger.debug(
-                        f"Battle data is no longer changing, the Messages tab row should be selected now."
-                    )
+                    logger.debug(f"Battle data is no longer changing, the Messages tab row should be selected now.")
                     message_tab_row_reached = True
                 previous_battle_data = current_battle_data
                 counter += 1
@@ -113,7 +105,7 @@ class WarThunderClientService:
             logger.info("Selecting left-most Messages tab")
             self._hid_service.press_key(
                 Key.left,
-                times=self._config.warthunder_ui_navigation_config.left_arrow_count,
+                times=self._config.battle_config.warthunder_ui_navigation_config.left_arrow_count,
             )
 
             # Press Right Arrow once to select the Battles tab (second tab)
@@ -121,14 +113,14 @@ class WarThunderClientService:
             self._hid_service.press_key(Key.right)
 
             # Delay to allow the UI to update
-            self._delay(self._config.delay_config.tab_switch_delay)
+            self._delay(self._config.battle_config.delay_config.tab_switch_delay)
 
             # Select the Battles tab
             logger.info("Selecting Battles tab")
             self._hid_service.press_key(Key.space)
 
             # Delay to allow the UI to update
-            self._delay(self._config.delay_config.tab_switch_delay)
+            self._delay(self._config.battle_config.delay_config.tab_switch_delay)
 
             logger.info("Successfully navigated to Battles tab")
             return True
@@ -149,14 +141,12 @@ class WarThunderClientService:
         """
         try:
             # Press Down Arrow the specified number of times
-            for _ in range(
-                index + 1
-            ):  # +1 because we need to move from the tab to the first battle
+            for _ in range(index + 1):  # +1 because we need to move from the tab to the first battle
                 self._hid_service.press_key(Key.down)
-                self._delay(self._config.delay_config.battle_select_delay)
+                self._delay(self._config.battle_config.delay_config.battle_select_delay)
 
             # Delay to allow the UI to update
-            self._delay(self._config.delay_config.battle_select_delay)
+            self._delay(self._config.battle_config.delay_config.battle_select_delay)
 
             return True
 
@@ -180,7 +170,7 @@ class WarThunderClientService:
             self._hid_service.press_key_combination([Key.ctrl, "c"])
 
             # Delay to allow the clipboard to be populated
-            self._delay(self._config.delay_config.clipboard_delay)
+            self._delay(self._config.battle_config.delay_config.clipboard_delay)
 
             # Get clipboard contents
             clipboard_data = clipboard.GetData()
@@ -200,9 +190,7 @@ class WarThunderClientService:
         """
         Get the timestamp of the currently selected battle.
         """
-        window = self._window_service.get_window(
-            self._config.warthunder_config.window_title
-        )
+        window = self._window_service.get_window(self._config.battle_config.warthunder_config.window_title)
         if not window:
             raise RuntimeError("Game window not found")
 
@@ -221,12 +209,10 @@ class WarThunderClientService:
         )
 
         tries = 0
-        max_tries = self._config.warthunder_config.max_battle_parse_tries
+        max_tries = self._config.battle_config.warthunder_config.max_battle_parse_tries
         while not battle_timestamp and tries < max_tries:
             # Get the screenshot
-            screenshot = self._window_service.capture_screenshot(
-                window, region=screenshot_region
-            )
+            screenshot = self._window_service.capture_screenshot(window, region=screenshot_region)
             if screenshot is None:
                 logger.error("Failed to capture screenshot")
                 return None
@@ -247,18 +233,14 @@ class WarThunderClientService:
                 # fmt: on
 
             # Sort results vertically, with the lowest y-coordinate first
-            sorted_results = sorted(
-                filtered_results, key=lambda result: result.origin.y, reverse=True
-            )
+            sorted_results = sorted(filtered_results, key=lambda result: result.origin.y, reverse=True)
 
             if sorted_results:
                 result = sorted_results[0]  # Take the first result (closest to center)
 
                 # Try to parse the timestamp from the OCR result
                 try:
-                    datetime_match = self.BATTLE_TIMESTAMP_DATETIME_REGEX.search(
-                        result.text
-                    )
+                    datetime_match = self.BATTLE_TIMESTAMP_DATETIME_REGEX.search(result.text)
                     if datetime_match:
                         battle_timestamp = datetime.strptime(
                             f"{datetime_match.group(1)} {datetime_match.group(2)} {datetime_match.group(3)} {datetime_match.group(4)} {datetime_match.group(5)} {datetime_match.group(6)}",
@@ -266,9 +248,7 @@ class WarThunderClientService:
                         )
 
                     if not battle_timestamp:
-                        time_match = self.BATTLE_TIMESTAMP_TIME_REGEX.search(
-                            result.text
-                        )
+                        time_match = self.BATTLE_TIMESTAMP_TIME_REGEX.search(result.text)
                         if time_match:
                             battle_timestamp = datetime.strptime(
                                 f"{time_match.group(1)} {time_match.group(2)} {time_match.group(3)}",
@@ -282,21 +262,17 @@ class WarThunderClientService:
                     logger.error(f"Failed to parse timestamp: {e}")
                     battle_timestamp = None
                     self._hid_service.scroll_mouse(1)
-                    self._delay(self._config.delay_config.battle_select_delay)
+                    self._delay(self._config.battle_config.delay_config.battle_select_delay)
                     tries += 1
             else:
-                logger.warning(
-                    "No valid timestamp found in OCR results, scrolling up to try again"
-                )
+                logger.warning("No valid timestamp found in OCR results, scrolling up to try again")
                 self._hid_service.scroll_mouse(1)
-                self._delay(self._config.delay_config.battle_select_delay)
+                self._delay(self._config.battle_config.delay_config.battle_select_delay)
                 tries += 1
 
         # Scroll back down to restore the original position
         if tries > 0:
-            logger.info(
-                f"Restoring original position after {tries} retr{'ies' if tries != 1 else 'y'}"
-            )
+            logger.info(f"Restoring original position after {tries} retr{'ies' if tries != 1 else 'y'}")
             self._hid_service.scroll_mouse(tries * -1)
 
         # Set the timezone to the current system timezone
@@ -324,7 +300,7 @@ class WarThunderClientService:
             self._hid_service.press_key(Key.down)
 
             # Delay to allow the UI to update
-            self._delay(self._config.delay_config.battle_select_delay)
+            self._delay(self._config.battle_config.delay_config.battle_select_delay)
 
             return True
 

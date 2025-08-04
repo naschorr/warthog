@@ -275,7 +275,7 @@ class BattleParserService:
                 # Get the maximum battle rating for the player's vehicles
                 player_battle_rating = max(
                     [
-                        getattr(vehicle.battle_rating, battle_type.value.lower())
+                        getattr(vehicle.battle_rating, battle_type.value)
                         for vehicle in player_vehicle_data
                     ]
                 )
@@ -291,7 +291,7 @@ class BattleParserService:
                 # Get the maximum battle rating for the enemy vehicles
                 enemy_battle_rating = max(
                     [
-                        getattr(vehicle.battle_rating, battle_type.value.lower())
+                        getattr(vehicle.battle_rating, battle_type.value)
                         for vehicle in enemy_vehicle_data
                     ]
                 )

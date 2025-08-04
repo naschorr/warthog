@@ -29,9 +29,7 @@ class OCRService:
         self._languages = ["en"]
 
         try:
-            self._reader = easyocr.Reader(
-                self._languages, gpu=self._is_cuda_available()
-            )
+            self._reader = easyocr.Reader(self._languages, gpu=self._is_cuda_available())
             logger.info("EasyOCR initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize EasyOCR: {e}")
@@ -64,7 +62,7 @@ class OCRService:
 
         # Load configured defaults
         if confidence_threshold is None:
-            confidence_threshold = self._config.ocr_config.confidence_threshold
+            confidence_threshold = self._config.battle_config.ocr_config.confidence_threshold
 
         # Get intermediate results
         raw_results = []

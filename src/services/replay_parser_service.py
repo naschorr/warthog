@@ -1,0 +1,373 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+import struct
+import json
+import subprocess
+from datetime import datetime
+from typing import Dict, Any
+from pathlib import Path
+
+from enums import BattleType, PlatformType, Country
+from models.replay_models import Replay, Player
+from services.vehicle_service import VehicleService
+
+
+class ReplayParserService:
+    """
+    Service for parsing War Thunder replay files (.wrpl).
+
+    This service can extract metadata and player data from War Thunder replay files.
+    For full results parsing, it requires the wt_ext_cli tool.
+    """
+
+    MAGIC = b"\xe5\xac\x00\x10"
+
+    def __init__(self, vehicle_service: VehicleService, wt_ext_cli_path: Path):
+        """
+        Initialize the replay parser service.
+        """
+        self._vehicle_service = vehicle_service
+        self._wt_ext_cli_path = wt_ext_cli_path
+
+    def parse_replay_data(self, replay_data: bytes) -> Replay:
+        """
+        Parse War Thunder replay data from bytes.
+
+        Args:
+            data: Raw bytes from a .wrpl file
+
+        Returns:
+            Replay object containing parsed replay information
+
+        Raises:
+            ValueError: If the data is not a valid replay file
+        """
+        replay = Replay()
+
+        # Check magic number
+        if replay_data[:4] != self.MAGIC:
+            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+
+        offset = 4
+
+        # Read version
+        replay.version = struct.unpack("<I", replay_data[offset : offset + 4])[0]
+        offset += 4
+        logger.debug(f"Replay version: {replay.version}")
+
+        # Read level (128 bytes)
+        replay.level = self._read_string(replay_data, offset, 128)
+        replay.level = replay.level.replace("levels/", "").replace(".bin", "")
+        offset += 128
+
+        # Read level settings (260 bytes)
+        replay.level_settings = self._read_string(replay_data, offset, 260)
+        offset += 260
+
+        # Read battle type (128 bytes)
+        _battle_type_alt = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        # Read environment (128 bytes)
+        replay.environment = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        # Read visibility (32 bytes)
+        replay.visibility = self._read_string(replay_data, offset, 32)
+        offset += 32
+
+        # Read rez offset
+        rez_offset = struct.unpack("<I", replay_data[offset : offset + 4])[0]
+        offset += 4
+
+        # Read difficulty
+        difficulty_byte = replay_data[offset]
+        difficulty_value = int(difficulty_byte & 0x0F)
+        if difficulty_value == 0:
+            replay.battle_type = BattleType.ARCADE
+        elif difficulty_value == 5:
+            replay.battle_type = BattleType.REALISTIC
+        elif difficulty_value == 10:
+            replay.battle_type = BattleType.SIMULATION
+        else:
+            replay.battle_type = BattleType.UNKNOWN
+        offset += 1
+
+        # Skip 35 bytes
+        offset += 35
+
+        # Read session type
+        replay.session_type = replay_data[offset]
+        offset += 1
+
+        # Skip 7 bytes
+        offset += 7
+
+        # Read session ID (as 64-bit unsigned int, convert to hex)
+        session_id_int = struct.unpack("<Q", replay_data[offset : offset + 8])[0]
+        replay.session_id = format(session_id_int, "x")
+        offset += 8
+
+        # Skip 4 bytes
+        offset += 4
+
+        # Read set size
+        replay.set_size = struct.unpack("<I", replay_data[offset : offset + 4])[0]
+        offset += 4
+
+        # Skip 32 bytes
+        offset += 32
+
+        # Read loc name (128 bytes)
+        replay.loc_name = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        # Read start time, time limit, score limit
+        start_time = struct.unpack("<I", replay_data[offset : offset + 4])[0]
+        replay.start_time = datetime.fromtimestamp(start_time)
+        offset += 4
+        replay.time_limit_minutes = struct.unpack("<I", replay_data[offset : offset + 4])[0]
+        offset += 4
+        replay.score_limit = struct.unpack("<I", replay_data[offset : offset + 4])[0]
+        offset += 4
+
+        # Skip 48 bytes
+        offset += 48
+
+        # Read battle class (128 bytes)
+        replay.battle_class = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        # Read battle kill streak (128 bytes)
+        replay.battle_kill_streak = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        logger.info(f"Parsed replay header: {replay.session_id} - {replay.level} ({replay.battle_type})")
+
+        # Parse results if we have wt_ext_cli
+        if self._wt_ext_cli_path and rez_offset > 0:
+            try:
+                logger.debug("Unpacking results replay_data using wt_ext_cli")
+                results = self._unpack_results(rez_offset, replay_data)
+                self._parse_results(replay, results)
+                player_count = len(replay.players) if replay.players else 0
+                logger.info(f"Successfully parsed results for {player_count} players")
+            except Exception as e:
+                logger.error(f"Error unpacking results: {e}")
+        else:
+            logger.debug("No results data available in replay file")
+
+        return replay
+
+    def parse_replay_file(self, file_path: Path) -> Replay:
+        """
+        Parse a War Thunder replay file.
+
+        Args:
+            file_path: Path to the .wrpl replay file
+
+        Returns:
+            Replay object containing parsed replay information
+
+        Raises:
+            FileNotFoundError: If the replay file doesn't exist
+            ValueError: If the file is not a valid replay file
+        """
+        if not file_path.exists():
+            raise FileNotFoundError(f"Replay file not found: {file_path}")
+
+        logger.info(f"Parsing replay file: {file_path}")
+
+        try:
+            with open(file_path, "rb") as f:
+                data = f.read()
+            replay = self.parse_replay_data(data)
+            replay.end_time = datetime.strptime(file_path.stem[1:], "%Y.%m.%d %H.%M.%S")
+            return replay
+        except Exception as e:
+            logger.error(f"Error parsing replay file {file_path}: {e}")
+            raise
+
+    def _read_string(self, data: bytes, offset: int, length: int) -> str:
+        """Read a null-terminated string from the data."""
+        string_data = data[offset : offset + length]
+        null_index = string_data.find(b"\x00")
+        if null_index != -1:
+            string_data = string_data[:null_index]
+        return string_data.decode("utf-8", errors="ignore")
+
+    def _unpack_results(self, offset: int, data: bytes) -> Dict[str, Any]:
+        """
+        Unpack results using wt_ext_cli.
+
+        Args:
+            offset: Byte offset where results data starts
+            data: Complete replay file data
+
+        Returns:
+            Parsed JSON results data
+
+        Raises:
+            RuntimeError: If wt_ext_cli fails to parse the data
+        """
+        if not self._wt_ext_cli_path:
+            return {}
+
+        data_after_rez = data[offset:]
+
+        try:
+            # Run wt_ext_cli
+            result = subprocess.run(
+                [
+                    self._wt_ext_cli_path,
+                    "--unpack_raw_blk",
+                    "--stdout",
+                    "--format",
+                    "Json",
+                    "--stdin",
+                ],
+                input=data_after_rez,
+                capture_output=True,
+                timeout=30,
+            )
+
+            if result.returncode != 0:
+                error_msg = result.stderr.decode("utf-8", errors="ignore") if result.stderr else "Unknown error"
+                raise RuntimeError(f"wt_ext_cli failed with return code {result.returncode}: {error_msg}")
+
+            return json.loads(result.stdout)
+
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("wt_ext_cli timed out after 30 seconds")
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"Failed to parse wt_ext_cli JSON output: {e}")
+
+    def _parse_results(self, replay: Replay, results: dict[str, Any]) -> None:
+        """
+        Parse the results JSON data and populate the replay object.
+
+        Args:
+            replay: Replay object to populate (in place)
+            results: Parsed JSON results from wt_ext_cli
+        """
+        replay.status = results.get("status", "left")
+        replay.time_played = results.get("timePlayed", 0.0)
+        replay.author_user_id = results.get("authorUserId", "")
+        replay.author = results.get("author", "")
+        players_array = results.get("player", [])
+        ui_scripts_data = results.get("uiScriptsData", {})
+        players_info = ui_scripts_data.get("playersInfo", {})
+
+        for player_data in players_array:
+            user_id = str(player_data.get("userId", ""))
+
+            # Find matching player info
+            player_info = None
+            for info_key, info_value in players_info.items():
+                if str(info_value.get("id", "")) == user_id:
+                    player_info = info_value
+                    break
+
+            if player_info:
+                player = self._create_player_from_json(player_info, player_data, replay.battle_type)
+                replay.players.append(player)
+            else:
+                logger.warning(f"No player info found for user ID: {user_id}")
+
+    def _get_player_battle_rating(self, lineup: list[str], battle_type: BattleType) -> float:
+        """
+        Get the battle rating for a player's vehicle lineup.
+        """
+        vehicles = []
+        for vehicle in lineup:
+            vehicle = self._vehicle_service.get_vehicles_by_internal_name(vehicle)
+            if vehicle:
+                vehicles.append(vehicle)
+
+        battle_rating = max((v.battle_rating for v in vehicles if v.battle_rating is not None))
+
+        if battle_type == BattleType.ARCADE:
+            return battle_rating.arcade
+        elif battle_type == BattleType.REALISTIC:
+            return battle_rating.realistic
+        elif battle_type == BattleType.SIMULATION:
+            return battle_rating.simulation
+
+        raise ValueError(f"Unknown battle type: {battle_type}")
+
+    def _create_player_from_json(
+        self, player_info: Dict[str, Any], player_data: Dict[str, Any], battle_type: BattleType
+    ) -> Player:
+        """Create a Player object from JSON data."""
+        player = Player()
+
+        # Player identity fields
+        player.user_id = str(player_info.get("id", ""))
+        player.squadron_id = str(player_info.get("clanId", ""))
+        player.squadron_tag = player_info.get("clanTag", "")
+
+        # Clean up username and platform
+        username = player_info.get("name", "")
+        platform = player_info.get("platform", "")
+        player.platform = platform
+        if "xbox" in platform.lower():
+            player.username = username.split("@")[0]
+            player.platform_type = PlatformType.XBOXLIVE
+        elif "ps" in platform.lower():
+            player.username = username.split("@")[0]
+            player.platform_type = PlatformType.PSN
+        elif "win" in platform.lower():
+            player.username = username.split("@")[0]
+            player.platform_type = PlatformType.PC
+        elif "mac" in platform.lower():
+            player.username = username.split("@")[0]
+            player.platform_type = PlatformType.PC
+        elif "linux" in platform.lower():
+            player.username = username.split("@")[0]
+            player.platform_type = PlatformType.PC
+        else:
+            raise ValueError(f"Unknown platform type: {platform}")
+
+        # Clean up squadron data
+        if player.squadron_id == "-1":
+            player.squadron_id = None
+        if not player.squadron_tag:
+            player.squadron_tag = None
+
+        # Set the country
+        player.country = Country.get_country_by_name(player_info.get("country", ""))
+
+        # Vehicle lineup
+        crafts = player_info.get("crafts", {})
+        player.lineup = list(crafts.values())
+
+        # Replay metadata
+        player.team = player_data.get("team")
+        player.squad = player_data.get("squadId")
+        player.auto_squad = bool(player_data.get("autoSquad", 1))
+        player.tier = player_info.get("tier")
+        player.rank = player_info.get("rank")
+        player.m_rank = player_info.get("mrank")
+        player.wait_time = player_info.get("wait_time", 0.0)
+        player.battle_rating = self._get_player_battle_rating(player.lineup, battle_type)
+
+        # Kill statistics
+        player.kills.air = player_data.get("kills", 0)
+        player.kills.ground = player_data.get("groundKills", 0)
+        player.kills.naval = player_data.get("navalKills", 0)
+        player.kills.team = player_data.get("teamKills", 0)
+        player.kills.ai_air = player_data.get("aiKills", 0)
+        player.kills.ai_ground = player_data.get("aiGroundKills", 0)
+        player.kills.ai_naval = player_data.get("aiNavalKills", 0)
+
+        player.assists = player_data.get("assists", 0)
+        player.deaths = player_data.get("deaths", 0)
+        player.capture_zone = player_data.get("captureZone", 0)
+        player.damage_zone = player_data.get("damageZone", 0)
+        player.score = player_data.get("score", 0)
+        player.award_damage = player_data.get("awardDamage", 0)
+        player.missile_evades = player_data.get("missileEvades", 0)
+
+        return player

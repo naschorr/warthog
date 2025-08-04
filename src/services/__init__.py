@@ -8,5 +8,16 @@ from .hid_service import HIDService
 from .window_service import WindowService
 from .ocr_service import OCRService
 from .vehicle_service import VehicleService
+from .battle_parser_service import BattleParserService
+from .warthunder_client_service import WarThunderClientService
+from .replay_parser_service import ReplayParserService
 
-__all__ = ["HIDService", "WindowService", "OCRService", "VehicleService"]
+__all__ = [
+    "HIDService",
+    "WindowService",
+    "OCRService",
+    "VehicleService",
+    "BattleParserService",
+    "WarThunderClientService",
+    "ReplayParserService",
+]

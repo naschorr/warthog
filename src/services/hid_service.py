@@ -36,9 +36,7 @@ class HIDService:
         """
         return Coordinate(*self._mouse.position)
 
-    def move_cursor_ease_in_out(
-        self, destination: Coordinate, base_delay_seconds: float = 0.001
-    ) -> None:
+    def move_cursor_ease_in_out(self, destination: Coordinate, base_delay_seconds: float = 0.001) -> None:
         """
         Smoothly moves the cursor to the destination coordinates using an ease-in-out movement pattern.
         The cursor starts slowly, accelerates in the middle, and slows down as it approaches the destination.
@@ -51,9 +49,7 @@ class HIDService:
         start = self.get_cursor_position()
 
         # Calculate distance
-        distance = int(
-            math.sqrt((destination.x - start.x) ** 2 + (destination.y - start.y) ** 2)
-        )
+        distance = int(math.sqrt((destination.x - start.x) ** 2 + (destination.y - start.y) ** 2))
         distance = distance // 4
 
         # Skip if we're close enough to the destination
@@ -84,22 +80,18 @@ class HIDService:
         """Scroll the mouse wheel."""
 
         if y != 0:
-            logger.debug(
-                f"Scrolling mouse {'up' if y > 0 else 'down'} by {abs(y)} step{'s' if y != 0 else ''}"
-            )
+            logger.debug(f"Scrolling mouse {'up' if y > 0 else 'down'} by {abs(y)} step{'s' if y != 0 else ''}")
             for _ in range(abs(y)):
                 self._mouse.scroll(0, y // abs(y))  # Scroll one step at a time
                 # Delay after each scroll step
                 # Reuse the keypress delay for mouse scrolls
-                self._delay(self._config.delay_config.key_press_delay)
+                self._delay(self._config.battle_config.delay_config.key_press_delay)
 
         if x != 0:
-            logger.debug(
-                f"Scrolling mouse {'right' if x > 0 else 'left'} by {abs(x)} step{'s' if x != 0 else ''}"
-            )
+            logger.debug(f"Scrolling mouse {'right' if x > 0 else 'left'} by {abs(x)} step{'s' if x != 0 else ''}")
             for _ in range(abs(x)):
                 self._mouse.scroll(x // abs(x), 0)
-                self._delay(self._config.delay_config.key_press_delay)
+                self._delay(self._config.battle_config.delay_config.key_press_delay)
 
     def click_mouse(self, button=Button.left, *, count=1):
         """
@@ -112,7 +104,7 @@ class HIDService:
         for _ in range(count):
             self._mouse.click(button)
             self._delay(
-                self._config.delay_config.key_press_delay
+                self._config.battle_config.delay_config.key_press_delay
             )  # Reuse the keypress delay for mouse clicks
 
     def press_key(self, key: KeyInput, *, times: int = 1, dwell_ms: int = 100) -> None:
@@ -129,13 +121,11 @@ class HIDService:
                 self._keyboard.press(key)
                 time.sleep(dwell_s)
                 self._keyboard.release(key)
-                self._delay(self._config.delay_config.key_press_delay)
+                self._delay(self._config.battle_config.delay_config.key_press_delay)
         except Exception as e:
             logger.error(f"Error pressing key: '{key}', {e}")
 
-    def press_key_combination(
-        self, keys: list[KeyInput], *, dwell_ms: int = 100
-    ) -> None:
+    def press_key_combination(self, keys: list[KeyInput], *, dwell_ms: int = 100) -> None:
         """
         Press a combination of keys simultaneously (like Ctrl+C).
 

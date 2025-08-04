@@ -129,12 +129,9 @@ class WindowService:
                     for window in windows:
                         ## Does the window's PID match up with the one we're looking for, and is the window's class valid?
                         if window.process_id() == pid and not any(
-                            block in window.class_name()
-                            for block in self.WINDOW_CLASS_NAME_CONTAINS_BLOCK_LIST
+                            block in window.class_name() for block in self.WINDOW_CLASS_NAME_CONTAINS_BLOCK_LIST
                         ):
-                            logger.info(
-                                f"Found window for PID {pid}: {window.window_text()}"
-                            )
+                            logger.info(f"Found window for PID {pid}: {window.window_text()}")
                             return window
                 except Exception as e:
                     logger.debug(f"Could not find window for PID {pid}: {e}")
@@ -230,7 +227,7 @@ class WindowService:
             window.set_focus()
 
             # Wait for the window to become active
-            time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
+            time.sleep(self._config.battle_config.delay_config.foreground_delay.random_delay_seconds)
 
             # todo: Verify window is active
             # if not self.is_window_active(window):
@@ -240,7 +237,7 @@ class WindowService:
             #     return False
 
             # Wait for the window to become active
-            time.sleep(self._config.delay_config.foreground_delay.random_delay_seconds)
+            time.sleep(self._config.battle_config.delay_config.foreground_delay.random_delay_seconds)
 
             logger.info(f"Window activated: {window.window_text()}")
             return True
@@ -300,11 +297,7 @@ class WindowService:
                 top_right_y = rect.top
 
             # Capture the screenshot
-            screenshot = np.array(
-                ImageGrab.grab(
-                    bbox=(bottom_left_x, bottom_left_y, top_right_x, top_right_y)
-                )
-            )
+            screenshot = np.array(ImageGrab.grab(bbox=(bottom_left_x, bottom_left_y, top_right_x, top_right_y)))
 
             # Convert BGR to RGB
             screenshot = cv2.cvtColor(screenshot, cv2.COLOR_BGR2RGB)
