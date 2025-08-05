@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from utilities import get_root_directory
+from src.utilities import get_root_directory
 
 
 class WtExtCliClientService:

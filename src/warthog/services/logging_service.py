@@ -6,8 +6,8 @@ import warnings
 from typing import Optional
 from pathlib import Path
 
-from src.config import LoggingConfig
-from utilities import get_root_directory
+from config import LoggingConfig
+from src.utilities import get_root_directory
 
 
 class LoggingService:

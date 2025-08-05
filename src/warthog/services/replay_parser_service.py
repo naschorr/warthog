@@ -3,14 +3,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 import struct
-import json
-import subprocess
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Callable
 from pathlib import Path
 
 from enums import BattleType, PlatformType, Country
 from models.replay_models import Replay, Player
+from models.vehicle_models import BattleRating
 from services.vehicle_service import VehicleService
 from services.wt_ext_cli_client_service import WtExtCliClientService
 
@@ -152,11 +151,11 @@ class ReplayParserService:
         if rez_offset > 0:
             try:
                 results = self._wt_ext_cli_client_service.unpack_raw_blk(replay_data[rez_offset:])
-                self._parse_results(replay, results)
             except Exception as e:
                 logger.error(f"Error unpacking results: {e}")
         else:
             logger.debug("No results data available in replay file")
+        self._parse_results(replay, results)
 
         # Build the author player object
         author_user_id = results.get("authorUserId", "")
@@ -235,13 +234,55 @@ class ReplayParserService:
         """
         Get the battle rating for a player's vehicle lineup.
         """
+        battle_rating = self._get_transformed_player_battle_rating(max, lineup, battle_type)
+        if battle_rating is not None:
+            return battle_rating
+
+        raise ValueError(f"Unable to determine battle rating for lineup: {lineup} and battle_type: {battle_type}")
+
+    def _get_player_min_battle_rating(self, lineup: list[str], battle_type: BattleType) -> float:
+        """
+        Get the minimum battle rating for a player's vehicle lineup.
+        """
+        battle_rating = self._get_transformed_player_battle_rating(min, lineup, battle_type)
+        if battle_rating is not None:
+            return battle_rating
+
+        raise ValueError(
+            f"Unable to determine minimum battle rating for lineup: {lineup} and battle_type: {battle_type}"
+        )
+
+    def _get_player_mean_battle_rating(self, lineup: list[str], battle_type: BattleType) -> float:
+        """
+        Get the mean battle rating for a player's vehicle lineup.
+        """
+
+        def compute_battle_rating_mean(battle_ratings: list[BattleRating]) -> BattleRating:
+            return BattleRating(
+                arcade=round(sum(br.arcade for br in battle_ratings) / len(battle_ratings), 2),
+                realistic=round(sum(br.realistic for br in battle_ratings) / len(battle_ratings), 2),
+                simulation=round(sum(br.simulation for br in battle_ratings) / len(battle_ratings), 2),
+            )
+
+        battle_rating = self._get_transformed_player_battle_rating(compute_battle_rating_mean, lineup, battle_type)
+        if battle_rating is not None:
+            return battle_rating
+
+        raise ValueError(f"Unable to determine mean battle rating for lineup: {lineup} and battle_type: {battle_type}")
+
+    def _get_transformed_player_battle_rating(
+        self, transform_func: Callable, lineup: list[str], battle_type: BattleType
+    ) -> float:
+        """
+        Get the battle rating for a player's vehicle lineup.
+        """
         vehicles = []
         for vehicle in lineup:
             vehicle = self._vehicle_service.get_vehicles_by_internal_name(vehicle)
             if vehicle:
                 vehicles.append(vehicle)
 
-        battle_rating = max((v.battle_rating for v in vehicles if v.battle_rating is not None))
+        battle_rating = transform_func(list(v.battle_rating for v in vehicles if v.battle_rating is not None))
 
         if battle_type == BattleType.ARCADE:
             return battle_rating.arcade
@@ -307,6 +348,8 @@ class ReplayParserService:
         player.m_rank = player_info.get("mrank")
         player.wait_time = player_info.get("wait_time", 0.0)
         player.battle_rating = self._get_player_battle_rating(player.lineup, battle_type)
+        player.min_battle_rating = self._get_player_min_battle_rating(player.lineup, battle_type)
+        player.mean_battle_rating = self._get_player_mean_battle_rating(player.lineup, battle_type)
 
         # Kill statistics
         player.kills.air = player_data.get("kills", 0)
