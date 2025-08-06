@@ -11,6 +11,7 @@ from .vehicle_service import VehicleService
 from .battle_parser_service import BattleParserService
 from .warthunder_client_service import WarThunderClientService
 from .replay_parser_service import ReplayParserService
+from .replay_manager_service import ReplayManagerService
 from .logging_service import LoggingService
 from .wt_ext_cli_client_service import WtExtCliClientService
 
@@ -22,6 +23,7 @@ __all__ = [
     "BattleParserService",
     "WarThunderClientService",
     "ReplayParserService",
+    "ReplayManagerService",
     "LoggingService",
     "WtExtCliClientService",
 ]
