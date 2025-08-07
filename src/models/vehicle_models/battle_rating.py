@@ -16,13 +16,3 @@ class BattleRating(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
-
-    # Magic Methods
-
-    def __gt__(self, other: "BattleRating") -> bool:
-        """Check if this battle rating is greater than another."""
-        return self.arcade > other.arcade and self.realistic > other.realistic and self.simulation > other.simulation
-
-    def __ge__(self, other: "BattleRating") -> bool:
-        """Check if this battle rating is greater than or equal to another."""
-        return self.arcade >= other.arcade and self.realistic >= other.realistic and self.simulation >= other.simulation

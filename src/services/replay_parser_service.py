@@ -257,12 +257,8 @@ class ReplayParserService:
         Get the mean battle rating for a player's vehicle lineup.
         """
 
-        def compute_battle_rating_mean(battle_ratings: list[BattleRating]) -> BattleRating:
-            return BattleRating(
-                arcade=round(sum(br.arcade for br in battle_ratings) / len(battle_ratings), 2),
-                realistic=round(sum(br.realistic for br in battle_ratings) / len(battle_ratings), 2),
-                simulation=round(sum(br.simulation for br in battle_ratings) / len(battle_ratings), 2),
-            )
+        def compute_battle_rating_mean(battle_ratings: list[float]) -> float:
+            return round(sum(battle_ratings) / len(battle_ratings), 2)
 
         battle_rating = self._get_transformed_player_battle_rating(compute_battle_rating_mean, lineup, battle_type)
         if battle_rating is not None:
@@ -277,21 +273,24 @@ class ReplayParserService:
         Get the battle rating for a player's vehicle lineup.
         """
         vehicles = []
-        for vehicle in lineup:
-            vehicle = self._vehicle_service.get_vehicles_by_internal_name(vehicle)
+        for vehicle_name in lineup:
+            vehicle = self._vehicle_service.get_vehicles_by_internal_name(vehicle_name)
             if vehicle:
                 vehicles.append(vehicle)
 
-        battle_rating = transform_func(list(v.battle_rating for v in vehicles if v.battle_rating is not None))
+        battle_ratings = []
+        for vehicle in vehicles:
+            if battle_type == BattleType.ARCADE:
+                battle_ratings.append(vehicle.battle_rating.arcade)
+            elif battle_type == BattleType.REALISTIC:
+                battle_ratings.append(vehicle.battle_rating.realistic)
+            elif battle_type == BattleType.SIMULATION:
+                battle_ratings.append(vehicle.battle_rating.simulation)
+            else:
+                raise ValueError(f"Unknown battle type: {battle_type}")
 
-        if battle_type == BattleType.ARCADE:
-            return battle_rating.arcade
-        elif battle_type == BattleType.REALISTIC:
-            return battle_rating.realistic
-        elif battle_type == BattleType.SIMULATION:
-            return battle_rating.simulation
-
-        raise ValueError(f"Unknown battle type: {battle_type}")
+        battle_rating = transform_func(battle_ratings)
+        return battle_rating
 
     def _create_player_from_json(
         self, player_info: Dict[str, Any], player_data: Dict[str, Any], battle_type: BattleType
