@@ -7,13 +7,9 @@ from typing import Optional
 from pathlib import Path
 
 from config import get_config
-from enums import AppMode
 from services import (
-    WindowService,
     VehicleService,
     ReplayParserService,
-    WarThunderClientService,
-    BattleParserService,
     LoggingService,
     WtExtCliClientService,
     ReplayManagerService,
@@ -34,7 +30,6 @@ class Warthog:
         data_dir_path: Optional[Path] = None,
         output_dir: Optional[Path] = None,
         allow_overwrite=False,
-        mode: AppMode,
     ):
         self.config = get_config()
         LoggingService(self.config.logging_config)
@@ -55,12 +50,9 @@ class Warthog:
             self.replay_output_dir.mkdir(parents=True, exist_ok=True)
 
         ## Member init
-        self._mode = mode
         self._allow_overwrite = allow_overwrite
 
         # Init services
-        self.window_service = WindowService()
-        self.wt_client = WarThunderClientService()
         self.wt_ext_cli_client = WtExtCliClientService(
             self.config.replay_config.wt_ext_cli_path if self.config.replay_config else None
         )
@@ -70,7 +62,6 @@ class Warthog:
         processed_vehicle_data.sort(key=lambda p: p.stat().st_mtime, reverse=True)
         self._vehicle_service = VehicleService(processed_vehicle_data[0])
 
-        self.battle_parser_service = BattleParserService(self._vehicle_service)
         self.replay_parser_service = ReplayParserService(self._vehicle_service, self.wt_ext_cli_client)
         self.replay_manager_service = ReplayManagerService(
             self.replay_parser_service,
@@ -134,21 +125,12 @@ def parse_arguments():
         help="Path to output directory to store processed JSON battle data",
     )
 
-    parser.add_argument(
-        "--mode",
-        "-m",
-        type=str.lower,
-        choices=list(map(lambda x: x.value, AppMode._member_map_.values())),
-        help="Collection mode: battle (collect battle data), replay (parse replay files), or both",
-    )
-
     return parser.parse_args()
 
 
 def run_collection():
     """Run the collection process."""
     args = parse_arguments()
-    config = get_config()
 
     # Create warthog instance with CLI options
     warthog = Warthog(
@@ -156,7 +138,6 @@ def run_collection():
         data_dir_path=Path(args.data_dir_path) if args.data_dir_path else None,
         output_dir=args.output,
         allow_overwrite=args.overwrite,
-        mode=AppMode(args.mode) if args.mode else config.battle_config.warthunder_config.mode,
     )
 
     try:

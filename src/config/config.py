@@ -2,127 +2,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import random
 import json
 from pathlib import Path
 from typing import Optional
-from abc import ABC
 
-from pydantic import BaseModel, Field, model_validator
-
-from enums import BattleType, AppMode
-
-
-class BaseDelayConfig(BaseModel, ABC):
-    min_ms: int = 0
-    max_ms: int = 1000
-
-    @property
-    def random_delay_seconds(self) -> float:
-        """Generate a random delay between min_ms and max_ms in seconds."""
-        return random.randint(self.min_ms, self.max_ms) / 1000.0
-
-
-class ForegroundDelayConfig(BaseDelayConfig):
-    min_ms: int = Field(
-        default=1000,
-        description="Minimum delay in milliseconds for foreground operations.",
-    )
-    max_ms: int = Field(
-        default=2000,
-        description="Maximum delay in milliseconds for foreground operations.",
-    )
-
-
-class KeyPressDelayConfig(BaseDelayConfig):
-    min_ms: int = Field(default=50, description="Minimum delay in milliseconds for key presses.")
-    max_ms: int = Field(default=150, description="Maximum delay in milliseconds for key presses.")
-
-
-class BattleSelectDelayConfig(BaseDelayConfig):
-    min_ms: int = Field(
-        default=100,
-        description="Minimum delay in milliseconds for battle selection operations.",
-    )
-    max_ms: int = Field(
-        default=500,
-        description="Maximum delay in milliseconds for battle selection operations.",
-    )
-
-
-class TabSwitchDelayConfig(BaseDelayConfig):
-    min_ms: int = Field(
-        default=250,
-        description="Minimum delay in milliseconds for tab switching operations.",
-    )
-    max_ms: int = Field(
-        default=500,
-        description="Maximum delay in milliseconds for tab switching operations.",
-    )
-
-
-class ClipboardDelayConfig(BaseDelayConfig):
-    min_ms: int = Field(
-        default=150,
-        description="Minimum delay in milliseconds for clipboard operations.",
-    )
-    max_ms: int = Field(
-        default=300,
-        description="Maximum delay in milliseconds for clipboard operations.",
-    )
-
-
-class DelayConfig(BaseModel):
-    """Delay settings for various operations."""
-
-    foreground_delay: ForegroundDelayConfig = ForegroundDelayConfig()
-    key_press_delay: KeyPressDelayConfig = KeyPressDelayConfig()
-    battle_select_delay: BattleSelectDelayConfig = BattleSelectDelayConfig()
-    tab_switch_delay: TabSwitchDelayConfig = TabSwitchDelayConfig()
-    clipboard_delay: ClipboardDelayConfig = ClipboardDelayConfig()
-
-
-class WarThunderConfig(BaseModel):
-    """Game-specific settings."""
-
-    window_title: str = Field(
-        default="War Thunder",
-        description="Title of the War Thunder game window. Supports regex strings for window titles.",
-    )
-    battle_type: BattleType = Field(
-        default=BattleType.REALISTIC,
-        description="What kind of battles are being collected?",
-        examples=[BattleType.ARCADE, BattleType.REALISTIC, BattleType.SIMULATION],
-    )
-    max_battle_count: int = Field(default=30, description="Number of battles to collect data from.")
-    max_battle_parse_tries: int = Field(
-        default=4,
-        description="Maximum number of attempts to parse a battle before giving up.",
-    )
-
-
-class WarThunderUiNavigationConfig(BaseModel):
-    """Settings for navigating the game UI."""
-
-    max_up_arrow_count: int = Field(
-        default=30,
-        description="Number of times to press the up arrow key when resetting the 'Battles' tab.",
-    )
-    left_arrow_count: int = Field(
-        default=11,
-        description="Number of times to press the left arrow key when resetting the 'Battles' tab.",
-    )
-
-
-class OCRConfig(BaseModel):
-    """Configuration for OCR functionality."""
-
-    confidence_threshold: float = Field(
-        default=0.3,
-        ge=0.0,
-        le=1.0,
-        description="OCR confidence threshold (between 0 and 1.0). Confidence values below this will be ignored.",
-    )
+from pydantic import BaseModel, Field
 
 
 class LoggingConfig(BaseModel):
@@ -148,15 +32,6 @@ class VehicleServiceConfig(BaseModel):
     )
 
 
-class BattleConfig(BaseModel):
-    """Configuration for battle data collection and processing."""
-
-    delay_config: DelayConfig = DelayConfig()
-    warthunder_config: WarThunderConfig = WarThunderConfig()
-    warthunder_ui_navigation_config: WarThunderUiNavigationConfig = WarThunderUiNavigationConfig()
-    ocr_config: OCRConfig = OCRConfig()
-
-
 class ReplayConfig(BaseModel):
     """Configuration for replay collection and processing."""
 
@@ -172,25 +47,7 @@ class AppConfig(BaseModel):
     logging_config: LoggingConfig = LoggingConfig()
     storage_config: StorageConfig = StorageConfig()
     vehicle_service_config: VehicleServiceConfig = VehicleServiceConfig()
-
-    mode: AppMode = Field(
-        default=AppMode.REPLAY,
-        description="Application mode: battle data collection or replay parsing.",
-        examples=[AppMode.BATTLE, AppMode.REPLAY],
-    )
-
-    battle_config: Optional[BattleConfig] = None
     replay_config: Optional[ReplayConfig] = None
-
-    @model_validator(mode="after")
-    def validate_mode_specific_configs(self):
-        """Ensure appropriate configs are set based on mode."""
-        if self.mode == AppMode.BATTLE and self.battle_config is None:
-            self.battle_config = BattleConfig()
-        elif self.mode == AppMode.REPLAY and self.replay_config is None:
-            self.replay_config = ReplayConfig()
-
-        return self
 
 
 class ConfigManager:
