@@ -232,5 +232,3 @@ class ReplayManagerService:
             logger.warning(f"Replay {replay.session_id} already exists, skipping storage")
             path, _ = self._loaded_replays[replay.session_id]
             return path
-
-        return None

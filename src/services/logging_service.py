@@ -6,7 +6,7 @@ import warnings
 from typing import Optional
 from pathlib import Path
 
-from config import LoggingConfig
+from configuration import LoggingConfig
 from src.utilities import get_root_directory
 
 
@@ -18,7 +18,6 @@ class LoggingService:
     DEFAULT_CONSOLE_LOG_LEVEL = logging.INFO
     DEFAULT_FILE_LOG_LEVEL = logging.DEBUG
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    LOG_FILE_NAME = "warthog.log"
 
     # Lifecycle
 
@@ -52,7 +51,6 @@ class LoggingService:
         # Relative log paths should be relative to the ROOT_DIR, while absolute paths are used as is.
         if not log_file_path.is_absolute():
             log_file_path = Path(self.ROOT_DIR) / log_file_path
-        log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
         file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
         file_handler.setLevel(log_level)
@@ -91,9 +89,7 @@ class LoggingService:
         file_level = getattr(
             logging, logging_config.file_level.upper() if logging_config else str(self.DEFAULT_FILE_LOG_LEVEL)
         )
-        log_file_path = (
-            Path(self.logging_config.log_file) if self.logging_config.log_file else Path("logs") / self.LOG_FILE_NAME
-        )
+        log_file_path = self.logging_config.log_file
         file_log_handler = self._init_file_logger(log_file_path, file_level, formatter)
         root_logger.addHandler(file_log_handler)
 

@@ -6,7 +6,7 @@ import argparse
 from typing import Optional
 from pathlib import Path
 
-from config import get_config
+from configuration import get_config
 from services import (
     VehicleService,
     ReplayParserService,
@@ -26,48 +26,43 @@ class Warthog:
     def __init__(
         self,
         *,
-        data_path: Optional[Path] = None,
-        data_dir_path: Optional[Path] = None,
+        replay_file_path: Optional[Path] = None,
+        replay_dir_path: Optional[Path] = None,
         output_dir: Optional[Path] = None,
         allow_overwrite=False,
     ):
-        self.config = get_config()
-        LoggingService(self.config.logging_config)
+        # Bootstrapping
+        self._config = get_config()
+        LoggingService(self._config.logging_config)
 
         # Init the input paths and validate them
-        self._data_path = data_path
-        self._data_dir_path = data_dir_path
-        if self._data_path is None and self._data_dir_path is None:
+        self._replay_file_path = replay_file_path
+        self._replay_dir_path = replay_dir_path or self._config.war_thunder_config.replay_dir
+        if self._replay_file_path is None and self._replay_dir_path is None:
             raise ValueError(
-                f"Neither data path: {self._data_path} nor data directory: {self._data_dir_path} provided."
+                f"Neither replay file path: {self._replay_file_path} nor replay directory: {self._replay_dir_path} provided."
             )
 
-        # Init the output path and validate it
-        output_dir = Path(output_dir) if output_dir else Path(self.config.storage_config.output_dir)
-        self.replay_output_dir = output_dir / "replay"
-        if not self.replay_output_dir.exists():
-            logger.info(f"Output directory {self.replay_output_dir} does not exist. Creating it.")
-            self.replay_output_dir.mkdir(parents=True, exist_ok=True)
+        # Init wt ext cli client service
+        self.wt_ext_cli_client = WtExtCliClientService(self._config.wt_ext_cli_service_config.wt_ext_cli_path)
 
-        ## Member init
-        self._allow_overwrite = allow_overwrite
-
-        # Init services
-        self.wt_ext_cli_client = WtExtCliClientService(
-            self.config.replay_config.wt_ext_cli_path if self.config.replay_config else None
-        )
-
-        processed_vehicle_data_dir = self.config.vehicle_service_config.processed_vehicle_data_directory_path
+        # Init the vehicle service
+        processed_vehicle_data_dir = self._config.vehicle_service_config.processed_vehicle_data_directory_path
         processed_vehicle_data = list(processed_vehicle_data_dir.glob("*.json"))
         processed_vehicle_data.sort(key=lambda p: p.stat().st_mtime, reverse=True)
         self._vehicle_service = VehicleService(processed_vehicle_data[0])
 
+        # Init the replay parser service
         self.replay_parser_service = ReplayParserService(self._vehicle_service, self.wt_ext_cli_client)
+
+        # Init the replay manager service
+        self._processed_replay_dir = output_dir or Path(self._config.replay_manager_service_config.processed_replay_dir)
+        overwrite_existing_replays = allow_overwrite or self._config.overwrite_existing_replays
         self.replay_manager_service = ReplayManagerService(
             self.replay_parser_service,
-            raw_replay_directory=self._data_dir_path,
-            processed_replay_directory=self.replay_output_dir,
-            allow_overwrite=allow_overwrite,
+            raw_replay_directory=self._replay_dir_path,
+            processed_replay_directory=self._processed_replay_dir,
+            allow_overwrite=overwrite_existing_replays,
         )
 
     # Methods
@@ -78,13 +73,13 @@ class Warthog:
         print(f"===========================")
         print(f"Starting collection process...\n")
 
-        if self._data_dir_path:
-            replay_map = self.replay_manager_service.ingest_raw_replay_files_from_directory(self._data_dir_path)
-            for _, replay in replay_map.items():
-                self.replay_manager_service.store_replay(replay)
-        elif self._data_path:
-            replay = self.replay_manager_service.ingest_raw_replay_file(self._data_path)
+        if self._replay_file_path:
+            replay = self.replay_manager_service.ingest_raw_replay_file(self._replay_file_path)
             if replay:
+                self.replay_manager_service.store_replay(replay)
+        elif self._replay_dir_path:
+            replay_map = self.replay_manager_service.ingest_raw_replay_files_from_directory(self._replay_dir_path)
+            for _, replay in replay_map.items():
                 self.replay_manager_service.store_replay(replay)
 
         logger.info(f"Data collection finished.")
@@ -99,30 +94,30 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="War Thunder Stats Collector")
 
     parser.add_argument(
-        "--data_path",
+        "--replay-file-path",
         "-f",
         type=str,
-        help="Path to data file for processing (ex: pre-existing battle data text file, or replay .wrpl file)",
+        help="Path to replay file to be processed (ex: /path/to/replay.wrpl)",
     )
 
     parser.add_argument(
-        "--data_dir_path",
+        "--replay-dir-path",
         "-d",
         type=str,
-        help="Path to data directory for processing (ex: pre-existing battle data text files, or replay .wrpl files)",
+        help="Path to directory containing replay files to be processed (ex: /path/to/replays/)",
     )
 
     parser.add_argument(
         "--overwrite",
         action="store_true",
-        help="Allow overwriting existing battle data (default: False)",
+        help="Allow overwriting existing replay data (default: False)",
     )
 
     parser.add_argument(
         "--output",
         "-o",
         type=str,
-        help="Path to output directory to store processed JSON battle data",
+        help="Path to output directory to store processed replay data",
     )
 
     return parser.parse_args()
@@ -134,8 +129,8 @@ def run_collection():
 
     # Create warthog instance with CLI options
     warthog = Warthog(
-        data_path=Path(args.data_path) if args.data_path else None,
-        data_dir_path=Path(args.data_dir_path) if args.data_dir_path else None,
+        replay_file_path=Path(args.replay_file_path) if args.replay_file_path else None,
+        replay_dir_path=Path(args.replay_dir_path) if args.replay_dir_path else None,
         output_dir=args.output,
         allow_overwrite=args.overwrite,
     )
