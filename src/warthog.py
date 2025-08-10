@@ -37,7 +37,7 @@ class Warthog:
         mode: AppMode,
     ):
         self.config = get_config()
-        self.logging_service = LoggingService(self.config.logging_config)
+        LoggingService(self.config.logging_config)
 
         # Init the input paths and validate them
         self._data_path = data_path
@@ -61,7 +61,9 @@ class Warthog:
         # Init services
         self.window_service = WindowService()
         self.wt_client = WarThunderClientService()
-        self.wt_ext_cli_client = WtExtCliClientService(self.config.replay_config.wt_ext_cli_path)
+        self.wt_ext_cli_client = WtExtCliClientService(
+            self.config.replay_config.wt_ext_cli_path if self.config.replay_config else None
+        )
 
         processed_vehicle_data_dir = self.config.vehicle_service_config.processed_vehicle_data_directory_path
         processed_vehicle_data = list(processed_vehicle_data_dir.glob("*.json"))
@@ -72,7 +74,8 @@ class Warthog:
         self.replay_parser_service = ReplayParserService(self._vehicle_service, self.wt_ext_cli_client)
         self.replay_manager_service = ReplayManagerService(
             self.replay_parser_service,
-            self.replay_output_dir,
+            raw_replay_directory=self._data_dir_path,
+            processed_replay_directory=self.replay_output_dir,
             allow_overwrite=allow_overwrite,
         )
 
@@ -85,11 +88,11 @@ class Warthog:
         print(f"Starting collection process...\n")
 
         if self._data_dir_path:
-            replay_map = self.replay_manager_service.ingest_replay_files_from_directory(self._data_dir_path)
+            replay_map = self.replay_manager_service.ingest_raw_replay_files_from_directory(self._data_dir_path)
             for _, replay in replay_map.items():
                 self.replay_manager_service.store_replay(replay)
         elif self._data_path:
-            replay = self.replay_manager_service.ingest_replay_file(self._data_path)
+            replay = self.replay_manager_service.ingest_raw_replay_file(self._data_path)
             if replay:
                 self.replay_manager_service.store_replay(replay)
 

@@ -5,6 +5,7 @@ logger = logging.getLogger(__name__)
 from pathlib import Path
 from typing import Optional
 
+from utilities import get_root_directory
 from models.replay_models import Replay
 from services.replay_parser_service import ReplayParserService
 
@@ -29,8 +30,9 @@ class ReplayManagerService:
     def __init__(
         self,
         replay_parser_service: ReplayParserService,
-        processed_replay_directory: Path,
         *,
+        raw_replay_directory: Optional[Path] = None,
+        processed_replay_directory: Path,
         allow_overwrite: bool = False,
     ):
         """
@@ -41,10 +43,27 @@ class ReplayManagerService:
             processed_replay_directory: Directory containing processed replay files
         """
         self._replay_parser_service = replay_parser_service
-        self._processed_replay_directory = processed_replay_directory
+        self._allow_overwrite = allow_overwrite
+
+        # Get the raw replay directory
+        if raw_replay_directory:
+            if raw_replay_directory.is_absolute():
+                self._raw_replay_directory = raw_replay_directory
+            else:
+                self._raw_replay_directory = get_root_directory() / raw_replay_directory
+            assert raw_replay_directory.exists(), f"Raw replay directory does not exist: {raw_replay_directory}"
+            assert raw_replay_directory.is_dir(), f"Raw replay directory is not a directory: {raw_replay_directory}"
+        else:
+            # The directory will be provided later
+            self._raw_replay_directory = raw_replay_directory
+
+        # Get the processed replay directory
+        if processed_replay_directory.is_absolute():
+            self._processed_replay_directory = processed_replay_directory
+        else:
+            self._processed_replay_directory = get_root_directory() / processed_replay_directory
         assert processed_replay_directory.exists(), f"Replay directory does not exist: {processed_replay_directory}"
         assert processed_replay_directory.is_dir(), f"Replay directory is not a directory: {processed_replay_directory}"
-        self._allow_overwrite = allow_overwrite
 
         self._loaded_session_ids, self._loaded_replays = self.load_processed_replays()
 
@@ -88,6 +107,24 @@ class ReplayManagerService:
         logger.info(f"Loaded {len(session_ids)} recent replay sessions from {self._processed_replay_directory}")
         return (session_ids, loaded_replays)
 
+    def discover_raw_replay_files(self, replay_directory: Optional[Path] = None) -> list[Path]:
+        """
+        Discover all replay files in a given directory.
+
+        Args:
+            replay_directory: Directory to search for replay files
+
+        Returns:
+            List of Paths to replay files found in the directory
+        """
+
+        if replay_directory is None:
+            replay_directory = self._raw_replay_directory
+        if replay_directory is None or not replay_directory.exists():
+            raise ValueError(f"Replay directory does not exist: {replay_directory}")
+
+        return list(replay_directory.glob(f"*{self.REPLAY_FILE_SUFFIX}"))
+
     def does_replay_exist(self, replay: Replay) -> bool:
         """
         Check if a replay's session ID has already been processed.
@@ -100,7 +137,7 @@ class ReplayManagerService:
         """
         return replay.session_id in self._loaded_session_ids
 
-    def ingest_replay_file(self, replay_file_path: Path) -> Optional[Replay]:
+    def ingest_raw_replay_file(self, replay_file_path: Path) -> Optional[Replay]:
         """
         Load and parse a single replay file.
 
@@ -135,7 +172,7 @@ class ReplayManagerService:
             logger.error(f"Error parsing replay file {replay_file_path}: {e}")
             return None
 
-    def ingest_replay_files_from_directory(self, replay_directory: Path) -> dict[str, Replay]:
+    def ingest_raw_replay_files_from_directory(self, replay_directory: Path) -> dict[str, Replay]:
         """
         Load and parse all replay files from a directory.
 
@@ -153,7 +190,7 @@ class ReplayManagerService:
             logger.error(f"Path is not a directory: {replay_directory}")
             return {}
 
-        replay_files = list(replay_directory.glob(f"*{self.REPLAY_FILE_SUFFIX}"))
+        replay_files = self.discover_raw_replay_files(replay_directory)
         if not replay_files:
             logger.warning(f"No replay files found in {replay_directory}")
             return {}
@@ -163,7 +200,7 @@ class ReplayManagerService:
         loaded_replays: dict[str, Replay] = {}
         for replay_file in replay_files:
             try:
-                replay = self.ingest_replay_file(replay_file)
+                replay = self.ingest_raw_replay_file(replay_file)
                 if replay:
                     loaded_replays[replay.session_id] = replay
             except Exception as e:
