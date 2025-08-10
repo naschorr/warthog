@@ -22,7 +22,7 @@ class LoggingService:
     # Lifecycle
 
     def __init__(self, logging_config: LoggingConfig):
-        self.logging_config = logging_config
+        self._config = logging_config
 
         # Suppress warnings from specific dependencies
         self._noisy_loggers = [
@@ -33,6 +33,10 @@ class LoggingService:
             ".*'pin_memory' argument is set as true but no accelerator.*"
             # Add more globbed warnings to ignore as needed
         ]
+
+        # Clear the log file if specified
+        if self._config.clear_logs_on_start and self._config.log_file.exists():
+            self._config.log_file.unlink()
 
         # Initialize logging!
         self._init_logging(logging_config)
@@ -89,7 +93,7 @@ class LoggingService:
         file_level = getattr(
             logging, logging_config.file_level.upper() if logging_config else str(self.DEFAULT_FILE_LOG_LEVEL)
         )
-        log_file_path = self.logging_config.log_file
+        log_file_path = self._config.log_file
         file_log_handler = self._init_file_logger(log_file_path, file_level, formatter)
         root_logger.addHandler(file_log_handler)
 
