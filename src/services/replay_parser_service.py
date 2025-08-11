@@ -186,7 +186,13 @@ class ReplayParserService:
             with open(file_path, "rb") as f:
                 data = f.read()
             replay = self.parse_replay_data(data)
-            replay.end_time = datetime.strptime(file_path.stem[1:], "%Y.%m.%d %H.%M.%S")
+
+            # Normal replays are prepended with a #, but saved ones aren't?
+            replay_timestamp = file_path.stem
+            if replay_timestamp.startswith("#"):
+                replay_timestamp = replay_timestamp[1:]
+
+            replay.end_time = datetime.strptime(replay_timestamp, "%Y.%m.%d %H.%M.%S")
             return replay
         except Exception as e:
             logger.error(f"Error parsing replay file {file_path}: {e}")
