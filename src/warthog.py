@@ -56,7 +56,7 @@ class Warthog:
         self.replay_parser_service = ReplayParserService(self._vehicle_service, self.wt_ext_cli_client)
 
         # Init the replay manager service
-        self._processed_replay_dir = output_dir or Path(self._config.replay_manager_service_config.processed_replay_dir)
+        self._processed_replay_dir = output_dir or self._config.replay_manager_service_config.processed_replay_dir
         overwrite_existing_replays = allow_overwrite or self._config.overwrite_existing_replays
         self.replay_manager_service = ReplayManagerService(
             self.replay_parser_service,
