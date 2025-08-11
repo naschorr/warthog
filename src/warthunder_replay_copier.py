@@ -6,7 +6,7 @@ import argparse
 import shutil
 from pathlib import Path
 
-from config import get_config
+from configuration import get_config
 from services.logging_service import LoggingService
 from services.replay_parser_service import ReplayParserService
 from services.replay_manager_service import ReplayManagerService
@@ -70,15 +70,14 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="War Thunder Replay File Copier")
 
     parser.add_argument(
-        "--replay_dir",
-        "-r",
+        "--replay-dir-path",
+        "-d",
         type=str,
-        required=True,
-        help="Path to the directory containing War Thunder replay files (.wrpl)",
+        help="Path to directory containing replay files to be processed (ex: /path/to/replays/)",
     )
 
     parser.add_argument(
-        "--output_dir",
+        "--output-dir-path",
         "-o",
         type=str,
         required=True,
@@ -100,16 +99,16 @@ def main():
     config = get_config()
     LoggingService(config.logging_config)
 
-    warthunder_replay_dir = Path(args.replay_dir)
-    processed_replay_dir = Path(config.storage_config.output_dir) / "replay"
-    copied_replay_dir = Path(args.output_dir)
+    warthunder_replay_dir = config.war_thunder_config.replay_dir or Path(args.replay_dir_path)
+    processed_replay_dir = Path(config.replay_manager_service_config.processed_replay_dir)
+    copied_replay_dir = Path(args.output_dir_path)
 
     processed_vehicle_data_dir = config.vehicle_service_config.processed_vehicle_data_directory_path
     processed_vehicle_data = list(processed_vehicle_data_dir.glob("*.json"))
     processed_vehicle_data.sort(key=lambda p: p.stat().st_mtime, reverse=True)
     vehicle_service = VehicleService(processed_vehicle_data[0])
 
-    wt_ext_cli_client = WtExtCliClientService(config.replay_config.wt_ext_cli_path if config.replay_config else None)
+    wt_ext_cli_client = WtExtCliClientService(config.wt_ext_cli_service_config.wt_ext_cli_path)
     replay_parser_service = ReplayParserService(vehicle_service, wt_ext_cli_client)
     replay_manager_service = ReplayManagerService(
         replay_parser_service,
