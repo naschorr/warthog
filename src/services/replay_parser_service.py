@@ -328,6 +328,9 @@ class ReplayParserService:
         elif "linux" in platform.lower():
             player.username = username.split("@")[0]
             player.platform_type = PlatformType.PC
+        elif "pc" in platform.lower():
+            player.username = username.split("@")[0]
+            player.platform_type = PlatformType.PC
         else:
             raise ValueError(f"Unknown platform type: {platform}")
 
