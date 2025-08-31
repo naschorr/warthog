@@ -46,6 +46,9 @@ class Player(SerializableModel):
 
     # Vehicle lineup
     lineup: list[str] = Field(default_factory=list)
+    is_premium: bool = Field(
+        default=False, description="Indicates if the player has any premium vehicles in their lineup"
+    )
 
     def model_post_init(self, __context) -> None:
         """Initialize lineup list if None."""

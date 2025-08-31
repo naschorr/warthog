@@ -13,11 +13,10 @@ class Vehicle(SerializableModel):
 
     name: str = Field(description="Name of the vehicle")
     country: Country = Field(description="Country that fielded the vehicle")
-    vehicle_type: Optional[VehicleType] = Field(
-        default=None, description="Type of the vehicle"
-    )
+    vehicle_type: Optional[VehicleType] = Field(default=None, description="Type of the vehicle")
     rank: int = Field(description="Rank of the vehicle", ge=1)
     battle_rating: BattleRating = Field(default_factory=BattleRating)
+    is_premium: bool = Field(description="Indicates if the vehicle is a premium vehicle")
 
     # Lifecycle
 
@@ -54,9 +53,7 @@ class Vehicle(SerializableModel):
 
     @field_validator("vehicle_type", mode="before")
     @classmethod
-    def validate_vehicle_type(
-        cls, v: Union[str, VehicleType, None]
-    ) -> Optional[VehicleType]:
+    def validate_vehicle_type(cls, v: Union[str, VehicleType, None]) -> Optional[VehicleType]:
         """Convert string vehicle type values to VehicleType enum."""
         if isinstance(v, str):
             for vehicle_type_enum in VehicleType:
