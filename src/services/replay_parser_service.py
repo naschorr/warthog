@@ -346,6 +346,7 @@ class ReplayParserService:
         # Vehicle lineup
         crafts = player_info.get("crafts", {})
         player.lineup = list(crafts.values())
+        player.is_premium = self._vehicle_service.is_vehicle_premium(player.lineup)
 
         # Replay metadata
         player.team = player_data.get("team")

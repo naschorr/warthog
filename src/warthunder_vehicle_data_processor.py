@@ -27,28 +27,28 @@ class WarThunderVehicleDataProcessor:
     def __init__(
         self,
         *,
-        wpcost_blkx_path: Path,
+        hangar_blkx_path: Path,
         unittags_blkx_path: Path,
+        wpcost_blkx_path: Path,
         units_csv_path: Path,
         output_path: Path,
     ):
-        self._wpcost_blkx_data = self._load_wpcost_blkx(wpcost_blkx_path)
+        self._hangar_blkx_data = self._load_hangar_blkx(hangar_blkx_path)
         self._unittags_blkx_data = self._load_unittags_blkx(unittags_blkx_path)
+        self._wpcost_blkx_data = self._load_wpcost_blkx(wpcost_blkx_path)
         self._units_csv_data = self._load_units_csv(units_csv_path)
         self._output_path = output_path
 
-        self._internal_name_to_shop_name_map = self._get_internal_name_to_shop_name_map(
-            self._units_csv_data
-        )
+        self._internal_name_to_shop_name_map = self._get_internal_name_to_shop_name_map(self._units_csv_data)
+        self._premium_vehicle_list = self._build_premium_vehicle_list(self._wpcost_blkx_data, self._hangar_blkx_data)
         self._internal_name_to_vehicle_map = self._build_internal_name_to_vehicle_map(
             self._internal_name_to_shop_name_map,
+            self._premium_vehicle_list,
             self._wpcost_blkx_data,
             self._unittags_blkx_data,
         )
 
-        self._store_vehicle_map_json(
-            self._internal_name_to_vehicle_map, self._output_path
-        )
+        self._store_vehicle_map_json(self._internal_name_to_vehicle_map, self._output_path)
 
     # Methods
 
@@ -102,9 +102,7 @@ class WarThunderVehicleDataProcessor:
         with open(file_path, "r", encoding="utf-8") as file:
             return json.load(file)
 
-    def _store_vehicle_map_json(
-        self, data: dict[str, Vehicle], output_path: Path
-    ) -> None:
+    def _store_vehicle_map_json(self, data: dict[str, Vehicle], output_path: Path) -> None:
         serializable_data = {key: vehicle.model_dump() for key, vehicle in data.items()}
         with open(output_path, "w", encoding="utf-8") as file:
             json.dump(serializable_data, file, indent=4, ensure_ascii=True)
@@ -136,9 +134,10 @@ class WarThunderVehicleDataProcessor:
 
         return output
 
-    def _get_internal_name_to_shop_name_map(
-        self, unit_csv_data: list[tuple[str, str]]
-    ) -> dict[str, str]:
+    def _load_hangar_blkx(self, hangar_blkx_path: Path) -> dict:
+        return self._load_json(hangar_blkx_path)
+
+    def _get_internal_name_to_shop_name_map(self, unit_csv_data: list[tuple[str, str]]) -> dict[str, str]:
         seen_internal_names = set()
         internal_name_to_shop_name_map: dict[str, str] = {}
         for raw_internal_name, shop_name in unit_csv_data:
@@ -156,9 +155,26 @@ class WarThunderVehicleDataProcessor:
 
         return internal_name_to_shop_name_map
 
-    def _calculate_battle_rating_from_economic_rating(
-        self, economic_rating: int
-    ) -> float:
+    def _build_premium_vehicle_list(self, wpcost_blkx_data: dict, hangar_blkx_data: dict) -> list[str]:
+        premium_vehicles = set()
+
+        for internal_name, vehicle_data in wpcost_blkx_data.items():
+            if not isinstance(vehicle_data, dict):
+                continue
+
+            if vehicle_data.get("costGold", 0) > 0:
+                premium_vehicles.add(internal_name)
+            elif vehicle_data.get("gift") is not None:
+                premium_vehicles.add(internal_name)
+
+        for vehicle in hangar_blkx_data.get("premiumVehicle", []):
+            unit_name = vehicle.get("unitName")
+            if unit_name:
+                premium_vehicles.add(unit_name)
+
+        return list(premium_vehicles)
+
+    def _calculate_battle_rating_from_economic_rating(self, economic_rating: int) -> float:
         return round(economic_rating / 3 + 1, 1)
 
     def _get_country_from_tags(self, tag_data: dict) -> Country:
@@ -263,37 +279,30 @@ class WarThunderVehicleDataProcessor:
     def _build_internal_name_to_vehicle_map(
         self,
         internal_name_to_shop_name_map: dict[str, str],
+        premium_vehicle_list: list[str],
         wpcost_blkx_data: dict,
         unittags_blkx_data: dict,
     ) -> dict[str, Vehicle]:
         output: dict[str, Vehicle] = {}
         for internal_name, shop_name in internal_name_to_shop_name_map.items():
             if internal_name not in wpcost_blkx_data:
-                logger.warning(
-                    f"Internal name '{internal_name}' not found in wpcost_blkx data. Skipping."
-                )
+                logger.warning(f"Internal name '{internal_name}' not found in wpcost_blkx data. Skipping.")
                 continue
 
             vehicle_data = wpcost_blkx_data.get(internal_name)
             if not vehicle_data:
-                logger.warning(
-                    f"Vehicle data for internal name '{internal_name}' is empty or missing. Skipping."
-                )
+                logger.warning(f"Vehicle data for internal name '{internal_name}' is empty or missing. Skipping.")
                 continue
 
             tag_data = unittags_blkx_data.get(internal_name)
             if not tag_data:
-                logger.warning(
-                    f"Tag data for internal name '{internal_name}' is empty or missing. Skipping."
-                )
+                logger.warning(f"Tag data for internal name '{internal_name}' is empty or missing. Skipping.")
                 continue
 
             country = self._get_country_from_tags(tag_data)
             vehicle_type = self._get_vehicle_type_from_tags(tag_data)
             battle_rating = {
-                "arcade": self._calculate_battle_rating_from_economic_rating(
-                    vehicle_data.get("economicRankArcade", 0)
-                ),
+                "arcade": self._calculate_battle_rating_from_economic_rating(vehicle_data.get("economicRankArcade", 0)),
                 "realistic": self._calculate_battle_rating_from_economic_rating(
                     vehicle_data.get("economicRankHistorical", 0)
                 ),
@@ -303,9 +312,7 @@ class WarThunderVehicleDataProcessor:
             }
             rank = vehicle_data.get("rank")
             if rank is None:
-                logger.warning(
-                    f"Rank for internal name '{internal_name}' is missing. Skipping..."
-                )
+                logger.warning(f"Rank for internal name '{internal_name}' is missing. Skipping...")
                 continue
 
             vehicle = Vehicle(
@@ -314,6 +321,7 @@ class WarThunderVehicleDataProcessor:
                 vehicle_type=vehicle_type,
                 rank=int(rank),
                 battle_rating=battle_rating,
+                is_premium=internal_name in premium_vehicle_list,
             )
 
             output[internal_name] = vehicle
@@ -344,13 +352,11 @@ def main():
         help="Path to unittags.blkx JSON file",
     )
 
-    parser.add_argument(
-        "--units-csv", type=Path, required=True, help="Path to units.csv file"
-    )
+    parser.add_argument("--hangar-blkx", type=Path, required=True, help="Path to hangar.blkx JSON file")
 
-    parser.add_argument(
-        "--output", type=Path, required=True, help="Path to output JSON file"
-    )
+    parser.add_argument("--units-csv", type=Path, required=True, help="Path to units.csv file")
+
+    parser.add_argument("--output", type=Path, required=True, help="Path to output JSON file")
 
     parser.add_argument(
         "--log-level",
@@ -381,6 +387,7 @@ def main():
         WarThunderVehicleDataProcessor(
             wpcost_blkx_path=args.wpcost_blkx,
             unittags_blkx_path=args.unittags_blkx,
+            hangar_blkx_path=args.hangar_blkx,
             units_csv_path=args.units_csv,
             output_path=args.output,
         )

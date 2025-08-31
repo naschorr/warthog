@@ -141,3 +141,15 @@ class VehicleService:
                 matches.append(vehicle)
 
         return matches
+
+    def is_vehicle_premium(self, vehicle_internal_names: list[str]) -> bool:
+        """
+        Check if any vehicle in a list of vehicles is premium.
+        """
+
+        for internal_name in vehicle_internal_names:
+            vehicle = self.get_vehicles_by_internal_name(internal_name)
+            if vehicle and vehicle.is_premium:
+                return True
+
+        return False
