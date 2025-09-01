@@ -1,7 +1,7 @@
 # Warthog
-**War Th**under L**og**ger: stats acquisition tool for the game client
+**War Th**under L**og**ger: data acquisition tool for War Thunder
 
-It's ridiculous that detailed battle information isn't presented anywhere, so here's a solution to acquire the data! Warthog will automatically drive War Thunder's UI to grab info about recent battles from the Battles tab of the Messages UI, then ingest that information into a useful JSON format before deduping and saving the data.
+It's ridiculous that detailed historical performance information isn't presented anywhere, so here's a solution to collect and process the data! Warthog crawls through the War Thunder replays stored locally, processes them into simple JSON models, and exposes that data for future analysis
 
 ## Prerequisites
 - Python 3.12 or greater installed
@@ -19,9 +19,20 @@ It's ridiculous that detailed battle information isn't presented anywhere, so he
     - Select the virtual environment's interpreter from the dropdown (it should have `venv` in it)
 
 ## Running It
-- Open project in VSCode
-- Navigate to the "Run and Debug" panel
-- Pick the "Run: Warthog" launch option
-- Click "Start Debugging"
+Warthog has a few different options, and they can be easily run inside VSCode:
 
-Processed data is stored by default in `warthog/output`. Tools to explore and graph that data are coming soon(tm).
+- Open the project in VSCode
+- Navigate to the "Run and Debug" panel (Ctrl+Shift+D)
+- Pick the launch option that corresponds to what you'd like to do (more info below).
+- Click "Start Debugging" (F5)
+
+When running it for the first time, I'd recommend running the [Vehicle Data Grabber](#vehicle-data-grabber), then the [Replay Data Grabber - War Thunder](#replay-data-grabber)
+
+### Replay Data Grabber
+This pulls in War Thunder replay data from the replays directory, processes them into JSON, and precalculates some values (battle ratings, premium vehicles, timestamps, etc) to aid in future statistical analysis
+
+### Vehicle Data Grabber
+This pulls datamined vehicle data from the [datamine repository](https://github.com/gszabi99/War-Thunder-Datamine), correlates and formats it, and saves it. This happens for each game version, as vehicle stats can change between versions.
+
+### Replay Data Copier
+This handles copying replay data from your War Thunder game directory to a local folder for safe keeping as War Thunder will clear out old replays.
