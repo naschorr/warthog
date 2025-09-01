@@ -44,6 +44,10 @@ class VehicleDataOrchestratorConfig(BaseModel):
         default=True,
     )
 
+    skip_stored_datamine_data: bool = Field(
+        description="Whether to skip datamine data if it has already been stored locally.", default=True
+    )
+
     game_version_release_datetimes_file_path: Path = Field(
         description="Path to a JSON file mapping game versions to their release datetimes.",
         default=get_root_directory() / "data" / "vehicle_data" / "game_version_release_datetimes.json",

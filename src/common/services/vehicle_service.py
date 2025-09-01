@@ -86,6 +86,12 @@ class VehicleService:
                 except Exception as e:
                     logger.error(f"Failed to load vehicle {internal_name}: {e}")
 
+            if game_version not in game_version_to_release_datetime:
+                logger.warning(
+                    f"Game version {game_version} from file {vehicle_data_path} not found in release datetime mapping; skipping"
+                )
+                continue
+
             logger.info(f"Loaded {len(vehicles)} vehicles from {vehicle_data_path}")
             datetime_to_vehicle_data[game_version_to_release_datetime[game_version]] = vehicles
 

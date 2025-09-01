@@ -5,8 +5,10 @@ logger = logging.getLogger(__name__)
 import shutil
 import json
 from datetime import datetime
+from pathlib import Path
 
 from src.common.services import GitService
+from src.replay_data_grabber.services.replay_manager_service import ReplayManagerService
 from src.vehicle_data_grabber.configuration.configuration_models import VehicleDataOrchestratorConfig
 from src.vehicle_data_grabber.services import VehicleDataProcessor
 
@@ -19,10 +21,12 @@ class VehicleDataOrchestrator:
         *,
         config: VehicleDataOrchestratorConfig,
         vehicle_data_processor: VehicleDataProcessor,
+        replay_manager_service: ReplayManagerService,
         git_service: GitService,
     ):
         self._config = config
         self._vehicle_data_processor = vehicle_data_processor
+        self._replay_manager_service = replay_manager_service
         self._git_service = git_service
 
         self._working_directory = self._config.working_directory_path
@@ -33,7 +37,29 @@ class VehicleDataOrchestrator:
         self._game_versions = self._config.game_versions
         self._datamine_data_dir = self._config.datamine_data_directory_path
         self._store_datamine_data = self._config.store_datamine_data
+        self._skip_stored_datamine_data = self._config.skip_stored_datamine_data
         self._game_version_release_datetimes_file_path = self._config.game_version_release_datetimes_file_path
+
+    # Methods
+
+    def get_game_versions(self, repository_path: Path) -> list[str]:
+        # Use configured game versions if available
+        if len(self._game_versions) > 0:
+            return self._game_versions
+
+        # Get oldest replay date, to determine which game versions are to be processed
+        filtered_replays = filter(
+            lambda replay: replay.start_time is not None, self._replay_manager_service.loaded_replays.values()
+        )
+        sorted_replays = sorted(
+            filtered_replays, key=lambda replay: replay.start_time or datetime.min
+        )  ## TODO: update after Replay model is improved
+        oldest_replay_date = sorted_replays[0].start_time
+
+        tags = self._git_service.get_tags_between_datetimes(
+            repository_path, start=oldest_replay_date, end=datetime.now()
+        )
+        return [tag.name for tag in tags]
 
     def run_orchestrator(self):
         # Start from a clean slate
@@ -41,6 +67,15 @@ class VehicleDataOrchestrator:
 
         # Keep track of when each game version was released
         game_version_to_datetime_map: dict[str, datetime] = {}
+        previous_game_version_to_datetime_map: dict[str, datetime] = {}
+        with open(self._game_version_release_datetimes_file_path, "r") as f:
+            try:
+                loaded_game_version_to_datetime_map = json.load(f)
+                # Convert string datetimes back to datetime objects
+                for version, dt_str in loaded_game_version_to_datetime_map.items():
+                    previous_game_version_to_datetime_map[version] = datetime.fromisoformat(dt_str)
+            except Exception as e:
+                logger.warning(f"Could not load existing game version release datetimes: {e}")
 
         # Clone the repository and process each game version
         # TODO: Load previously stored datamine data if available/clone or checkout if unavailable
@@ -49,7 +84,20 @@ class VehicleDataOrchestrator:
             self._repository_url,
             sparse_paths=self._vehicle_data_processor.get_datamined_file_paths(),
         )
-        for version in self._game_versions:
+        for version in self.get_game_versions(repository_path):
+            # Skip if data is already stored (and configured to skip it)
+            if (
+                self._skip_stored_datamine_data
+                and self._datamine_data_dir
+                and (self._datamine_data_dir / version).exists()
+            ):
+                previous_game_version_datetime = previous_game_version_to_datetime_map.get(version)
+                if previous_game_version_datetime:
+                    game_version_to_datetime_map[version] = previous_game_version_datetime
+                logger.info(f"Skipping version {version} as datamine data is already stored.")
+                continue
+
+            # Check out the tagged version
             try:
                 self._git_service.checkout_branch(repository_path, version)
             except Exception as e:

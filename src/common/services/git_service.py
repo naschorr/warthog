@@ -1,9 +1,12 @@
 import logging
 
+from git.refs.tag import TagReference
+
 logger = logging.getLogger(__name__)
 
 from pathlib import Path
 from datetime import datetime, timezone
+from typing import Optional
 
 from git import Repo
 
@@ -66,3 +69,35 @@ class GitService:
         if utc:
             return head_commit.committed_datetime.astimezone(timezone.utc).replace(tzinfo=None)
         return head_commit.committed_datetime
+
+    @staticmethod
+    def get_tags(repository_path: Path) -> list[TagReference]:
+        """
+        Get all tags in the repository.
+        """
+        repository = Repo(repository_path)
+        return repository.tags
+
+    @staticmethod
+    def get_tags_between_datetimes(
+        repository_path: Path, *, start: Optional[datetime] = None, end: Optional[datetime] = None
+    ) -> list[TagReference]:
+        """
+        Get all tags in the repository between the specified start and end datetimes.
+        """
+        start = start or datetime.min.replace(tzinfo=timezone.utc)
+        end = end or datetime.max.replace(tzinfo=timezone.utc)
+
+        if start == end:
+            raise ValueError("Start and end datetimes cannot be the same")
+        if end < start:
+            logger.debug("End datetime is before start datetime, swapping values")
+            start, end = end, start
+
+        tags = GitService.get_tags(repository_path)
+        tags_in_range = [
+            tag
+            for tag in tags
+            if start <= tag.commit.committed_datetime.astimezone(timezone.utc).replace(tzinfo=None) <= end
+        ]
+        return tags_in_range

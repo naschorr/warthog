@@ -43,6 +43,7 @@ class ReplayParserService:
         Raises:
             ValueError: If the data is not a valid replay file
         """
+        ## TODO: The replay object should be constructed after the parts have been processed, and it should have stricter typing
         replay = Replay()
 
         # Check magic number
