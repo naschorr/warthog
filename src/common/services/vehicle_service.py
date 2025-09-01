@@ -192,11 +192,14 @@ class VehicleService:
 
         return vehicle_data.get(internal_name)
 
-    def get_all_vehicles(self) -> dict[datetime, dict[str, Vehicle]]:
+    def get_all_vehicles(self, *, search_datetime: Optional[datetime] = None) -> dict[str, Vehicle]:
         """
         Get all loaded vehicles.
         """
-        return self._vehicle_data.copy()
+        search_datetime = search_datetime or datetime.now()
+        vehicle_data = self._get_vehicle_data_bucket(search_datetime)
+
+        return vehicle_data
 
     def get_vehicles_by_country(self, country: Country, *, search_datetime: Optional[datetime] = None) -> list[Vehicle]:
         """
