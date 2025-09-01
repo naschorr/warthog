@@ -1,12 +1,11 @@
-pynput==1.7.6
 pydantic==2.11.7
 black>=25.1.0
-pywin32==310
-psutil==7.0.0
-pywinauto==0.6.9
-pillow==11.2.1
 numpy==2.3.1
-opencv-python==4.11.0.86
-opencv-contrib-python==4.11.0.86
-easyocr==1.7.2
 GitPython==3.1.45
+
+# Data analysis libraries for Jupyter notebook
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+jupyter>=1.0.0
+ipykernel>=6.0.0
