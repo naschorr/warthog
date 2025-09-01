@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run: Warthog - Replay (Overwrite)",
+            "name": "ReplayDataGrabber - War Thunder (Overwrite)",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/warthog.py",
+            "program": "${workspaceFolder}/src/replay_data_grabber/warthog_replay_data_grabber.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "python": "${workspaceFolder}/venv/Scripts/python.exe",
@@ -21,10 +21,10 @@
             ]
         },
         {
-            "name": "Run: Warthog - Replay",
+            "name": "ReplayDataGrabber - War Thunder",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/warthog.py",
+            "program": "${workspaceFolder}/src/replay_data_grabber/warthog_replay_data_grabber.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "python": "${workspaceFolder}/venv/Scripts/python.exe",
@@ -35,46 +35,10 @@
             "args": []
         },
         {
-            "name": "Run: War Thunder Vehicle Data Processor",
+            "name": "ReplayDataGrabber - Copied Replays",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/warthunder_vehicle_data_processor.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "python": "${workspaceFolder}/venv/Scripts/python.exe",
-            "cwd": "${workspaceFolder}",
-            "env": {"PYTHONPATH": "${workspaceFolder}"},
-            "stopOnEntry": false,
-            "redirectOutput": true,
-            "args": [
-                "--wpcost-blkx", "${workspaceFolder}/data/mined/2.47.0.43/wpcost.blkx",
-                "--unittags-blkx", "${workspaceFolder}/data/mined/2.47.0.43/unittags.blkx",
-                "--hangar-blkx", "${workspaceFolder}/data/mined/2.47.0.43/hangar.blkx",
-                "--units-csv", "${workspaceFolder}/data/mined/2.47.0.43/units.csv",
-                "--output", "${workspaceFolder}/data/processed_vehicle_data/processed_vehicle_data.2.47.0.43.json"
-            ]
-        },
-        {
-            "name": "Run: War Thunder Replay Copier",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/warthunder_replay_copier.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "python": "${workspaceFolder}/venv/Scripts/python.exe",
-            "cwd": "${workspaceFolder}",
-            "env": {"PYTHONPATH": "${workspaceFolder}"},
-            "stopOnEntry": false,
-            "redirectOutput": true,
-            "args": [
-                "--output-dir-path", "${workspaceFolder}/data/replays"
-            ]
-        },
-        {
-            "name": "Run: Warthog - Replay Data",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/warthog.py",
+            "program": "${workspaceFolder}/src/replay_data_grabber/warthog_replay_data_grabber.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "python": "${workspaceFolder}/venv/Scripts/python.exe",
@@ -85,6 +49,36 @@
             "args": [
                 "--replay-dir-path", "${workspaceFolder}/data/replays",
                 "--overwrite"
+            ]
+        },
+        {
+            "name": "VehicleDataGrabber",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/vehicle_data_grabber/warthog_vehicle_data_grabber.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "stopOnEntry": false,
+            "redirectOutput": true,
+            "args": []
+        },
+        {
+            "name": "ReplayDataCopier",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/replay_data_copier/warthog_replay_data_copier.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "stopOnEntry": false,
+            "redirectOutput": true,
+            "args": [
+                "--output-dir-path", "${workspaceFolder}/data/replays"
             ]
         }
     ]
