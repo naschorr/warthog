@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import Field, field_validator, field_serializer
 
 from src.common.enums import BattleType
-from ..serializable_model import SerializableModel
+from src.common.models.serializable_model import SerializableModel
 from .player import Player
 
 

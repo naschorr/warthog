@@ -1,8 +1,9 @@
 """
-Basic models for representing data.
+Models for War Thunder replay data.
 """
 
-from .coordinate import Coordinate
+from .kills import Kills
+from .player import Player
+from .replay import Replay
 
-# For type checking and explicit exports
-__all__ = ["Coordinate"]
+__all__ = ["Kills", "Player", "Replay"]

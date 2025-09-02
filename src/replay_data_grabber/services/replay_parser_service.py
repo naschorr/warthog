@@ -9,7 +9,7 @@ from pathlib import Path
 
 from src.common.enums import BattleType, PlatformType, Country
 from src.common.services.vehicle_service import VehicleService
-from src.replay_data_grabber.models.replay_models import Replay, Player
+from src.replay_data_grabber.models import Replay, Player
 from src.replay_data_grabber.services.wt_ext_cli_client_service import WtExtCliClientService
 
 

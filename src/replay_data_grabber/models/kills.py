@@ -4,7 +4,7 @@ War Thunder replay kills model.
 
 from pydantic import Field
 
-from ..serializable_model import SerializableModel
+from src.common.models.serializable_model import SerializableModel
 
 
 class Kills(SerializableModel):

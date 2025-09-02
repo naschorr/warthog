@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from src.common.utilities import get_root_directory
-from src.replay_data_grabber.models.replay_models import Replay
+from src.replay_data_grabber.models import Replay
 from src.replay_data_grabber.services import ReplayParserService
 
 
