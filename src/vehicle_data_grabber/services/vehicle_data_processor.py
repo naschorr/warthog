@@ -3,10 +3,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 import re
-import json
 from pathlib import Path
 from typing import Optional
 
+from src.common.utilities import JsonTools
 from src.common.enums import Country, VehicleType
 from src.common.models.vehicle_models import Vehicle
 from src.vehicle_data_grabber.configuration import VehicleDataProcessorConfig
@@ -118,20 +118,18 @@ class VehicleDataProcessor:
         # Strip any remaining whitespace from both ends
         return text.strip()
 
-    def _load_json(self, file_path: Path) -> dict:
-        with open(file_path, "r", encoding="utf-8") as file:
-            return json.load(file)
-
     def _store_vehicle_map_json(self, data: dict[str, Vehicle], output_path: Path) -> None:
         serializable_data = {key: vehicle.model_dump() for key, vehicle in data.items()}
-        with open(output_path, "w", encoding="utf-8") as file:
-            json.dump(serializable_data, file, indent=4, ensure_ascii=True)
+        JsonTools.save_json(serializable_data, output_path)
 
     def _load_wpcost_blkx(self, wpcost_blkx_path: Path) -> dict:
-        return self._load_json(wpcost_blkx_path)
+        return JsonTools.load_json(wpcost_blkx_path)
 
     def _load_unittags_blkx(self, unittags_blkx_path: Path) -> dict:
-        return self._load_json(unittags_blkx_path)
+        return JsonTools.load_json(unittags_blkx_path)
+
+    def _load_hangar_blkx(self, hangar_blkx_path: Path) -> dict:
+        return JsonTools.load_json(hangar_blkx_path)
 
     def _load_units_csv(self, units_csv_path: Path) -> list[tuple[str, str]]:
         with open(units_csv_path, "r", encoding="utf-8") as file:
@@ -153,9 +151,6 @@ class VehicleDataProcessor:
                 output.append((parts[0], parts[1]))
 
         return output
-
-    def _load_hangar_blkx(self, hangar_blkx_path: Path) -> dict:
-        return self._load_json(hangar_blkx_path)
 
     def _get_internal_name_to_shop_name_map(self, unit_csv_data: list[tuple[str, str]]) -> dict[str, str]:
         seen_internal_names = set()

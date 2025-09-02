@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from src.common.utilities import get_root_directory, json_loader
+from src.common.utilities import JsonTools, get_root_directory
 
 
 class ConfigurationLoader:
@@ -30,15 +30,15 @@ class ConfigurationLoader:
 
         dev_config_path = Path.joinpath(path, ConfigurationLoader.DEV_CONFIG_NAME)
         if dev_config_path.exists():
-            config[ConfigurationLoader.DEV] = json_loader.load_json(dev_config_path)
+            config[ConfigurationLoader.DEV] = JsonTools.load_json(dev_config_path)
 
         prod_config_path = Path.joinpath(path, ConfigurationLoader.PROD_CONFIG_NAME)
         if prod_config_path.exists():
-            config[ConfigurationLoader.PROD] = json_loader.load_json(prod_config_path)
+            config[ConfigurationLoader.PROD] = JsonTools.load_json(prod_config_path)
 
         config_path = Path.joinpath(path, ConfigurationLoader.CONFIG_NAME)
         if config_path.exists():
-            config[ConfigurationLoader.CONFIG] = json_loader.load_json(config_path)
+            config[ConfigurationLoader.CONFIG] = JsonTools.load_json(config_path)
 
         return config
 
