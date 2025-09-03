@@ -8,31 +8,31 @@ from datetime import datetime
 from pathlib import Path
 
 from src.common.services import GitService
+from src.common.configuration import KwargConfiguration
 from src.replay_data_grabber.services.replay_manager_service import ReplayManagerService
 from src.vehicle_data_grabber.configuration.configuration_models import VehicleDataOrchestratorConfig
-from src.vehicle_data_grabber.services import VehicleDataProcessor
+from src.vehicle_data_grabber.services.vehicle_data_processor import VehicleDataProcessor
 
 
-class VehicleDataOrchestrator:
+class VehicleDataOrchestrator(KwargConfiguration[VehicleDataOrchestratorConfig]):
     """Orchestrates the process of retrieving and processing vehicle data from the datamine source."""
 
     def __init__(
         self,
-        *,
         config: VehicleDataOrchestratorConfig,
+        *,
         vehicle_data_processor: VehicleDataProcessor,
         replay_manager_service: ReplayManagerService,
         git_service: GitService,
+        **kwargs,
     ):
-        self._config = config
+        super().__init__(config, **kwargs)
+
         self._vehicle_data_processor = vehicle_data_processor
         self._replay_manager_service = replay_manager_service
         self._git_service = git_service
 
         self._working_directory = self._config.working_directory_path
-        if not self._working_directory.exists():
-            self._working_directory.mkdir(parents=True, exist_ok=True)
-
         self._repository_url = str(self._config.repository_url)
         self._game_versions = self._config.game_versions
         self._datamine_data_dir = self._config.datamine_data_directory_path

@@ -3,14 +3,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
-from src.common.utilities import get_root_directory
+from src.common.configuration import KwargConfiguration
+from src.replay_data_grabber.configuration import ReplayManagerServiceConfig
 from src.replay_data_grabber.models import Replay
-from src.replay_data_grabber.services import ReplayParserService
+
+if TYPE_CHECKING:
+    from src.replay_data_grabber.services.replay_parser_service import ReplayParserService
 
 
-class ReplayManagerService:
+class ReplayManagerService(KwargConfiguration[ReplayManagerServiceConfig]):
     """
     Manages loading, parsing, and caching of War Thunder replay data.
 
@@ -27,43 +30,13 @@ class ReplayManagerService:
 
     # Lifecycle
 
-    def __init__(
-        self,
-        replay_parser_service: ReplayParserService,
-        *,
-        raw_replay_directory: Optional[Path] = None,
-        processed_replay_directory: Path,
-        allow_overwrite: bool = False,
-    ):
-        """
-        Initialize the replay manager service.
+    def __init__(self, config: ReplayManagerServiceConfig, *, replay_parser_service: "ReplayParserService", **kwargs):
+        super().__init__(config, **kwargs)
 
-        Args:
-            replay_parser_service: Service for parsing .wrpl files
-            processed_replay_directory: Directory containing processed replay files
-        """
         self._replay_parser_service = replay_parser_service
-        self._allow_overwrite = allow_overwrite
-
-        # Get the raw replay directory
-        if raw_replay_directory:
-            if raw_replay_directory.is_absolute():
-                self._raw_replay_directory = raw_replay_directory
-            else:
-                self._raw_replay_directory = get_root_directory() / raw_replay_directory
-            assert raw_replay_directory.exists(), f"Raw replay directory does not exist: {raw_replay_directory}"
-            assert raw_replay_directory.is_dir(), f"Raw replay directory is not a directory: {raw_replay_directory}"
-        else:
-            # The directory will be provided later
-            self._raw_replay_directory = raw_replay_directory
-
-        # Get the processed replay directory
-        if processed_replay_directory.is_absolute():
-            self._processed_replay_directory = processed_replay_directory
-        else:
-            self._processed_replay_directory = get_root_directory() / processed_replay_directory
-        assert processed_replay_directory.exists(), f"Replay directory does not exist: {processed_replay_directory}"
-        assert processed_replay_directory.is_dir(), f"Replay directory is not a directory: {processed_replay_directory}"
+        self._raw_replay_dir_path = self._config.raw_replay_dir
+        self._processed_replay_dir_path = self._config.processed_replay_dir
+        self._allow_overwrite = self._config.allow_overwrite
 
         self._loaded_session_ids, self._loaded_replays = self.load_processed_replays()
 
@@ -87,7 +60,7 @@ class ReplayManagerService:
         loaded_replays = {}
         try:
             # Look for JSON files that might be replay-generated
-            candidate_files = list(self._processed_replay_directory.glob("*.json"))
+            candidate_files = list(self._processed_replay_dir_path.glob("*.json"))
             candidate_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
 
             for file_path in candidate_files:
@@ -104,7 +77,7 @@ class ReplayManagerService:
         except Exception as e:
             logger.error(f"Error loading recent replay sessions: {e}")
 
-        logger.info(f"Loaded {len(session_ids)} recent replay sessions from {self._processed_replay_directory}")
+        logger.info(f"Loaded {len(session_ids)} recent replay sessions from {self._processed_replay_dir_path}")
         return (session_ids, loaded_replays)
 
     def discover_raw_replay_files(self, replay_directory: Optional[Path] = None) -> list[Path]:
@@ -119,7 +92,7 @@ class ReplayManagerService:
         """
 
         if replay_directory is None:
-            replay_directory = self._raw_replay_directory
+            replay_directory = self._raw_replay_dir_path
         if replay_directory is None or not replay_directory.exists():
             raise ValueError(f"Replay directory does not exist: {replay_directory}")
 
@@ -221,11 +194,11 @@ class ReplayManagerService:
             Path to the stored replay file
         """
         # Ensure the processed replay directory exists
-        self._processed_replay_directory.mkdir(parents=True, exist_ok=True)
+        self._processed_replay_dir_path.mkdir(parents=True, exist_ok=True)
 
         # Save the replay to a file
         if self._allow_overwrite or not self.does_replay_exist(replay):
-            replay_file_path = replay.save_to_file(self._processed_replay_directory)
+            replay_file_path = replay.save_to_file(self._processed_replay_dir_path)
             logger.info(f"Stored replay to {replay_file_path}")
             return replay_file_path
         else:

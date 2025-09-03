@@ -1,7 +1,7 @@
 {
     "replay_data_grabber_config": {
-        "war_thunder_config": {
-            "replay_dir": "/path/to/steamapps/common/War Thunder/Replays"
+        "replay_manager_service_config": {
+            "raw_replay_dir": "/path/to/steamapps/common/War Thunder/Replays"
         }
     }
 }

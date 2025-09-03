@@ -5,7 +5,6 @@ Warthog configurations
 from .configuration_models import (
     WtExtCliServiceConfig,
     ReplayManagerServiceConfig,
-    WarThunderConfig,
     WarthogReplayDataGrabberConfig,
 )
 
@@ -13,6 +12,5 @@ from .configuration_models import (
 __all__ = [
     "WtExtCliServiceConfig",
     "ReplayManagerServiceConfig",
-    "WarThunderConfig",
     "WarthogReplayDataGrabberConfig",
 ]

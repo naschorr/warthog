@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from src.common.utilities import get_root_directory
+
 
 class Validators:
 
@@ -17,4 +19,11 @@ class Validators:
         """Ensure the file exists."""
         if not path.exists() or not path.is_file():
             raise ValueError(f"File {path} does not exist or is not a file")
+        return path
+
+    @staticmethod
+    def directory_absolute_validator(path: Path) -> Path:
+        """Ensure the directory path is absolute, creating a project-relative path if necessary."""
+        if not path.is_absolute():
+            path = get_root_directory() / path
         return path

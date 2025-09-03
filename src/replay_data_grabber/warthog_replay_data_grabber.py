@@ -7,13 +7,7 @@ import argparse
 from typing import Optional
 from pathlib import Path
 
-from src.common.configuration import get_config
-from src.common.services import LoggingService, VehicleService
-from services import (
-    ReplayParserService,
-    WtExtCliClientService,
-    ReplayManagerService,
-)
+from src.common.factories import ServiceFactory
 
 
 class WarthogReplayDataGrabber:
@@ -26,51 +20,27 @@ class WarthogReplayDataGrabber:
     def __init__(
         self,
         *,
-        replay_file_path: Optional[Path] = None,
-        replay_dir_path: Optional[Path] = None,
-        output_dir: Optional[Path] = None,
+        raw_replay_dir_path: Optional[Path] = None,
+        processed_replay_dir_path: Optional[Path] = None,
         allow_overwrite=False,
     ):
-        # Bootstrapping
-        root_config = get_config()
-        self._config = root_config.replay_data_grabber_config
-        LoggingService(root_config.logging_config)
-
-        # Init the input paths and validate them
-        self._replay_file_path = replay_file_path
-        self._replay_dir_path = replay_dir_path or self._config.war_thunder_config.replay_dir
-        if self._replay_file_path is None and self._replay_dir_path is None:
-            raise ValueError(
-                f"Neither replay file path: {self._replay_file_path} nor replay directory: {self._replay_dir_path} provided."
-            )
-
-        # Init services
-        self._vehicle_service = VehicleService(root_config.vehicle_service_config)
-        self._wt_ext_cli_client = WtExtCliClientService(self._config.wt_ext_cli_service_config.wt_ext_cli_path)
-        self._replay_parser_service = ReplayParserService(self._vehicle_service, self._wt_ext_cli_client)
-
-        self._processed_replay_dir = output_dir or self._config.replay_manager_service_config.processed_replay_dir
-        overwrite_existing_replays = allow_overwrite or self._config.overwrite_existing_replays
-        self._replay_manager_service = ReplayManagerService(
-            self._replay_parser_service,
-            raw_replay_directory=self._replay_dir_path,
-            processed_replay_directory=self._processed_replay_dir,
-            allow_overwrite=overwrite_existing_replays,
+        service_factory = ServiceFactory()
+        self._replay_manager_service = service_factory.get_replay_manager_service(
+            raw_replay_dir=raw_replay_dir_path,
+            processed_replay_dir=processed_replay_dir_path,
+            allow_overwrite=allow_overwrite,
         )
+
+        self._raw_replay_dir_path = self._replay_manager_service._raw_replay_dir_path
 
     # Methods
 
     def start_collection(self):
         logger.info(f"Starting Warthog Replay Data Grabber")
 
-        if self._replay_file_path:
-            replay = self._replay_manager_service.ingest_raw_replay_file(self._replay_file_path)
-            if replay:
-                self._replay_manager_service.store_replay(replay)
-        elif self._replay_dir_path:
-            replay_map = self._replay_manager_service.ingest_raw_replay_files_from_directory(self._replay_dir_path)
-            for _, replay in replay_map.items():
-                self._replay_manager_service.store_replay(replay)
+        replay_map = self._replay_manager_service.ingest_raw_replay_files_from_directory(self._raw_replay_dir_path)
+        for _, replay in replay_map.items():
+            self._replay_manager_service.store_replay(replay)
 
         logger.info(f"Data collection finished.")
 
@@ -81,13 +51,6 @@ class WarthogReplayDataGrabber:
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="War Thunder Stats Collector")
-
-    parser.add_argument(
-        "--replay-file-path",
-        "-f",
-        type=str,
-        help="Path to replay file to be processed (ex: /path/to/replay.wrpl)",
-    )
 
     parser.add_argument(
         "--replay-dir-path",
@@ -120,9 +83,8 @@ def main():
 
     # Initialize the main class
     replay_data_grabber = WarthogReplayDataGrabber(
-        replay_file_path=Path(args.replay_file_path) if args.replay_file_path else None,
-        replay_dir_path=Path(args.replay_dir_path) if args.replay_dir_path else None,
-        output_dir=args.output,
+        raw_replay_dir_path=Path(args.replay_dir_path) if args.replay_dir_path else None,
+        processed_replay_dir_path=args.output,
         allow_overwrite=args.overwrite,
     )
 

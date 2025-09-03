@@ -6,12 +6,13 @@ import os
 import subprocess
 import json
 from pathlib import Path
-from typing import Optional
 
 from src.common.utilities import get_root_directory
+from src.common.configuration import KwargConfiguration
+from src.replay_data_grabber.configuration import WtExtCliServiceConfig
 
 
-class WtExtCliClientService:
+class WtExtCliClientService(KwargConfiguration[WtExtCliServiceConfig]):
     """
     Service for managing the external wt_ext_cli client for extracting data from War Thunder .blk files.
     """
@@ -22,11 +23,17 @@ class WtExtCliClientService:
 
     # Lifecycle
 
-    def __init__(self, wt_ext_cli_path: Optional[Path] = None):
+    def __init__(self, config: WtExtCliServiceConfig, **kwargs):
+        super().__init__(config, **kwargs)
+
+        wt_ext_cli_path = self._config.wt_ext_cli_path
         if wt_ext_cli_path and wt_ext_cli_path.exists():
             self._wt_ext_cli_path = wt_ext_cli_path
+            logger.info(f"Using configured wt_ext_cli path: {self._wt_ext_cli_path}")
         else:
+            logger.info(f"No wt_ext_cli path configured, attempting to discover it in {self.ROOT_DIR}...")
             self._wt_ext_cli_path = self._find_wt_ext_cli(self.ROOT_DIR)
+            logger.info(f"Found wt_ext_cli at {self._wt_ext_cli_path}")
 
     # Methods
 
@@ -41,7 +48,6 @@ class WtExtCliClientService:
                 for filename in files:
                     if "wt_ext_cli" in filename:
                         wt_ext_cli_path = Path(root) / filename
-                        logger.info(f"Found wt_ext_cli at {wt_ext_cli_path}")
                         return wt_ext_cli_path
 
         # The file might be somewhere else, so search everything inside the root
@@ -49,7 +55,6 @@ class WtExtCliClientService:
             for filename in files:
                 if "wt_ext_cli" in filename:
                     wt_ext_cli_path = Path(root) / filename
-                    logger.info(f"Found wt_ext_cli at {wt_ext_cli_path}")
                     return wt_ext_cli_path
 
         raise FileNotFoundError(

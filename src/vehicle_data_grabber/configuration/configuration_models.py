@@ -19,6 +19,11 @@ class VehicleDataOrchestratorConfig(BaseModel):
     def ensure_working_directory_exists(cls, v: Path) -> Path:
         return Validators.directory_exists_validator(v)
 
+    @field_validator("working_directory_path")
+    @classmethod
+    def ensure_working_dir_absolute(cls, v: Path) -> Path:
+        return Validators.directory_absolute_validator(v)
+
     repository_url: HttpUrl = Field(
         description="URL of the War Thunder datamine repository",
         default=HttpUrl("https://github.com/gszabi99/War-Thunder-Datamine"),
@@ -39,6 +44,11 @@ class VehicleDataOrchestratorConfig(BaseModel):
     def ensure_datamine_data_directory_exists(cls, v: Path) -> Path:
         return Validators.directory_exists_validator(v)
 
+    @field_validator("datamine_data_directory_path")
+    @classmethod
+    def ensure_datamine_data_dir_absolute(cls, v: Path) -> Path:
+        return Validators.directory_absolute_validator(v)
+
     store_datamine_data: bool = Field(
         description="Whether to store datamined data files locally (to avoid checking out the repository repeatedly)",
         default=True,
@@ -52,6 +62,11 @@ class VehicleDataOrchestratorConfig(BaseModel):
         description="Path to a JSON file mapping game versions to their release datetimes.",
         default=get_root_directory() / "data" / "vehicle_data" / "game_version_release_datetimes.json",
     )
+
+    @field_validator("game_version_release_datetimes_file_path")
+    @classmethod
+    def ensure_game_version_release_datetimes_file_path_exists(cls, v: Path) -> Path:
+        return Validators.file_exists_validator(v)
 
 
 class VehicleDataProcessorConfig(BaseModel):

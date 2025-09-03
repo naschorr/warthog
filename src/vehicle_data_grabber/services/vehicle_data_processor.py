@@ -9,10 +9,11 @@ from typing import Optional
 from src.common.utilities import JsonTools
 from src.common.enums import Country, VehicleType
 from src.common.models.vehicle_models import Vehicle
+from src.common.configuration import KwargConfiguration
 from src.vehicle_data_grabber.configuration import VehicleDataProcessorConfig
 
 
-class VehicleDataProcessor:
+class VehicleDataProcessor(KwargConfiguration[VehicleDataProcessorConfig]):
     """
     Processes raw, data-mined War Thunder vehicle data into a structured format that can be more easily used by Warthog.
 
@@ -24,8 +25,8 @@ class VehicleDataProcessor:
 
     # Lifecycle
 
-    def __init__(self, config: VehicleDataProcessorConfig):
-        self._config = config
+    def __init__(self, config: VehicleDataProcessorConfig, **kwargs):
+        super().__init__(config, **kwargs)
 
     # Methods
 

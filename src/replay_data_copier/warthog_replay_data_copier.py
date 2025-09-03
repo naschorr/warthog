@@ -6,12 +6,8 @@ import argparse
 import shutil
 from pathlib import Path
 
-from src.common.configuration import get_config
-from src.common.services.logging_service import LoggingService
-from src.common.services import VehicleService
-from src.replay_data_grabber.services import ReplayParserService
-from src.replay_data_grabber.services import ReplayManagerService
-from src.replay_data_grabber.services import WtExtCliClientService
+from src.replay_data_grabber.services.replay_manager_service import ReplayManagerService
+from src.common.factories import ServiceFactory
 
 
 class WarthogReplayDataCopier:
@@ -96,30 +92,11 @@ def parse_arguments():
 def main():
     """Run the replay copy process."""
     args = parse_arguments()
-    config = get_config()
-    LoggingService(config.logging_config)
-
-    warthunder_replay_dir = config.replay_data_grabber_config.war_thunder_config.replay_dir or Path(
-        args.replay_dir_path
-    )
-    processed_replay_dir = Path(config.replay_data_grabber_config.replay_manager_service_config.processed_replay_dir)
-    copied_replay_dir = Path(args.output_dir_path)
-
-    vehicle_service = VehicleService(config.vehicle_service_config)
-
-    wt_ext_cli_client = WtExtCliClientService(
-        config.replay_data_grabber_config.wt_ext_cli_service_config.wt_ext_cli_path
-    )
-    replay_parser_service = ReplayParserService(vehicle_service, wt_ext_cli_client)
-    replay_manager_service = ReplayManagerService(
-        replay_parser_service,
-        raw_replay_directory=warthunder_replay_dir,
-        processed_replay_directory=processed_replay_dir,
-        allow_overwrite=args.overwrite,
-    )
+    service_factory = ServiceFactory()
+    replay_manager_service = service_factory.get_replay_manager_service()
 
     replay_copier = WarthogReplayDataCopier(
-        replay_manager_service, output_dir=copied_replay_dir, allow_overwrite=args.overwrite
+        replay_manager_service, output_dir=Path(args.output_dir_path), allow_overwrite=args.overwrite
     )
     replay_copier.copy_replays()
 

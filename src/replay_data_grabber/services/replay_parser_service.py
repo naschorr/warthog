@@ -23,7 +23,7 @@ class ReplayParserService:
 
     MAGIC = b"\xe5\xac\x00\x10"
 
-    def __init__(self, vehicle_service: VehicleService, wt_ext_cli_client_service: WtExtCliClientService):
+    def __init__(self, *, vehicle_service: VehicleService, wt_ext_cli_client_service: WtExtCliClientService):
         """
         Initialize the replay parser service.
         """
