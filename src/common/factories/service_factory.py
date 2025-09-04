@@ -8,8 +8,7 @@ the different Warthog applications.
 from typing import Optional, TYPE_CHECKING
 
 from src.common.configuration import WarthogConfig, get_config
-from src.common.services import VehicleService, GitService
-from src.common.services.logging_service import LoggingService
+from src.common.services import VehicleService, GitService, LoggingService
 
 if TYPE_CHECKING:
     from src.vehicle_data_grabber.services.vehicle_data_orchestrator import VehicleDataOrchestrator
@@ -34,7 +33,7 @@ class ServiceFactory:
             self._config = config
 
         # Common services
-        self._logging_service = LoggingService(self._config.logging_config)
+        self._logging_service: Optional[LoggingService] = None
         self._vehicle_service: Optional[VehicleService] = None
         self._git_service: Optional[GitService] = None
 
@@ -50,6 +49,13 @@ class ServiceFactory:
     # Methods
 
     # Common Services
+
+    def create_logging_service(self):
+        """
+        Get or create a LoggingService instance.
+        """
+        if self._logging_service is None:
+            self._logging_service = LoggingService(self._config.logging_config)
 
     def get_vehicle_service(self, **kwargs) -> VehicleService:
         """

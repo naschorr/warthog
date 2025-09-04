@@ -93,6 +93,7 @@ def main():
     """Run the replay copy process."""
     args = parse_arguments()
     service_factory = ServiceFactory()
+    service_factory.create_logging_service()
     replay_manager_service = service_factory.get_replay_manager_service()
 
     replay_copier = WarthogReplayDataCopier(

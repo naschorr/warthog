@@ -25,6 +25,7 @@ class WarthogReplayDataGrabber:
         allow_overwrite=False,
     ):
         service_factory = ServiceFactory()
+        service_factory.create_logging_service()
         self._replay_manager_service = service_factory.get_replay_manager_service(
             raw_replay_dir=raw_replay_dir_path,
             processed_replay_dir=processed_replay_dir_path,

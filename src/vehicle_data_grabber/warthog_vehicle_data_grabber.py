@@ -1,5 +1,7 @@
 import logging
 
+from src.common.services.logging_service import LoggingService
+
 logger = logging.getLogger(__name__)
 
 import traceback
@@ -12,6 +14,7 @@ class WarthogVehicleDataGrabber:
 
     def __init__(self):
         service_factory = ServiceFactory()
+        service_factory.create_logging_service()
         self._vehicle_data_orchestrator = service_factory.get_vehicle_data_orchestrator()
 
     def start_collection(self):
