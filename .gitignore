@@ -190,6 +190,7 @@ pip-selfcheck.json
 ### Miscellaneous ###
 output
 logs
+temp
 
 # Private configuration files
 **/config.prod.json
