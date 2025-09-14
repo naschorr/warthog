@@ -30,9 +30,9 @@ class Player(SerializableModel):
     tier: Optional[int] = Field(default=None)
     rank: Optional[int] = Field(default=None)
     m_rank: Optional[int] = Field(default=None)
-    battle_rating: Optional[float] = Field(default=None)
-    min_battle_rating: Optional[float] = Field(default=None)
-    mean_battle_rating: Optional[float] = Field(default=None)
+    battle_rating: float = Field(default=0.0)
+    min_battle_rating: float = Field(default=0.0)
+    mean_battle_rating: float = Field(default=0.0)
 
     # Performance
     kills: Kills = Field(default_factory=Kills)

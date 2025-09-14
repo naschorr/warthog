@@ -34,6 +34,7 @@ class Replay(SerializableModel):
     battle_kill_streak: str = Field(default="")
     status: str = Field(default="left")
     time_played: float = Field(default=0.0)
+    battle_rating: float = Field(default=0.0)
 
     # Results fields
     author: Player = Field(default_factory=Player)

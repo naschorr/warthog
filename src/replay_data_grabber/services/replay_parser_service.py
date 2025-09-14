@@ -236,6 +236,11 @@ class ReplayParserService:
             else:
                 logger.warning(f"No player info found for user ID: {user_id}")
 
+        # Set the replay battle rating to the highest player battle rating
+        for player in replay.players:
+            if player.battle_rating and player.battle_rating > replay.battle_rating:
+                replay.battle_rating = player.battle_rating
+
     def _get_player_battle_rating(
         self, lineup: list[str], battle_type: BattleType, *, battle_datetime: Optional[datetime] = None
     ) -> float:
