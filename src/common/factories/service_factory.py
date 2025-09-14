@@ -8,7 +8,7 @@ the different Warthog applications.
 from typing import Optional, TYPE_CHECKING
 
 from src.common.configuration import WarthogConfig, get_config
-from src.common.services import VehicleService, GitService, LoggingService
+from src.common.services import VehicleService, LoggingService
 
 if TYPE_CHECKING:
     from src.vehicle_data_grabber.services.vehicle_data_orchestrator import VehicleDataOrchestrator
@@ -35,7 +35,6 @@ class ServiceFactory:
         # Common services
         self._logging_service: Optional[LoggingService] = None
         self._vehicle_service: Optional[VehicleService] = None
-        self._git_service: Optional[GitService] = None
 
         # Vehicle data grabber services
         self._vehicle_data_orchestrator: Optional["VehicleDataOrchestrator"] = None
@@ -65,14 +64,6 @@ class ServiceFactory:
             self._vehicle_service = VehicleService(self._config.vehicle_service_config, **kwargs)
         return self._vehicle_service
 
-    def get_git_service(self) -> GitService:
-        """
-        Get or create a GitService instance.
-        """
-        if self._git_service is None:
-            self._git_service = GitService()
-        return self._git_service
-
     # Vehicle Data Grabber Services
 
     def get_vehicle_data_orchestrator(self, **kwargs) -> "VehicleDataOrchestrator":
@@ -87,7 +78,6 @@ class ServiceFactory:
                 self._config.vehicle_data_grabber_config.vehicle_data_orchestrator_config,
                 vehicle_data_processor=self.get_vehicle_data_processor(),
                 replay_manager_service=self.get_replay_manager_service(),
-                git_service=self.get_git_service(),
                 **kwargs,
             )
         return self._vehicle_data_orchestrator
