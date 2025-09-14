@@ -49,3 +49,9 @@ PLOTLY_COLOR_SCALE = [
 ]
 
 PLOTLY_SINGLE_COLOR = BATTLE_RATING_TIER_COLORS[BattleRatingTier.BALANCED]["hex"]
+
+PLOTLY_CONCLUSION_COLORS = {
+    "good": BATTLE_RATING_TIER_COLORS[BattleRatingTier.UPTIER]["hex"],
+    "neutral": BATTLE_RATING_TIER_COLORS["unknown"]["hex"],
+    "bad": BATTLE_RATING_TIER_COLORS[BattleRatingTier.DOWNTIER]["hex"],
+}
