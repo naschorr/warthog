@@ -6,6 +6,7 @@ from src.common.utilities import get_root_directory
 from src.common.configuration.validators import Validators
 from src.replay_data_grabber.configuration import WarthogReplayDataGrabberConfig
 from src.vehicle_data_grabber.configuration import WarthogVehicleDataGrabberConfig
+from src.replay_data_explorer.configuration import WarthogReplayDataExplorerConfig
 
 
 class LoggingConfig(BaseModel):
@@ -59,3 +60,6 @@ class WarthogConfig(BaseModel):
         default_factory=WarthogVehicleDataGrabberConfig
     )
     replay_data_grabber_config: WarthogReplayDataGrabberConfig
+    replay_data_explorer_config: WarthogReplayDataExplorerConfig = Field(
+        default_factory=WarthogReplayDataExplorerConfig
+    )
