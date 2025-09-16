@@ -15,7 +15,7 @@ class BattleRatingTierClassifier:
         - Partial Uptier: BR > 0.6 and BR < 1.0
         - Uptier: BR == 1.0
         """
-        delta = replay.battle_rating - player.battle_rating
+        delta = round(replay.battle_rating - player.battle_rating, 2)
 
         if delta <= 0:
             return BattleRatingTier.UPTIER
