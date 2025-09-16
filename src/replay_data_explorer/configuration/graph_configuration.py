@@ -33,11 +33,11 @@ PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS = {
 }
 
 PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER = [
-    BattleRatingTier.DOWNTIER,
-    BattleRatingTier.PARTIAL_DOWNTIER,
-    BattleRatingTier.BALANCED,
-    BattleRatingTier.PARTIAL_UPTIER,
     BattleRatingTier.UPTIER,
+    BattleRatingTier.PARTIAL_UPTIER,
+    BattleRatingTier.BALANCED,
+    BattleRatingTier.PARTIAL_DOWNTIER,
+    BattleRatingTier.DOWNTIER,
     "unknown",
 ]
 
