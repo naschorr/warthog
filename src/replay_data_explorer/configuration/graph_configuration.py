@@ -56,3 +56,5 @@ PLOTLY_CONCLUSION_COLORS = {
     "neutral": BATTLE_RATING_TIER_COLORS["unknown"]["hex"],
     "bad": BATTLE_RATING_TIER_COLORS[BattleRatingTier.DOWNTIER]["hex"],
 }
+
+MINIMUM_ITEMS_FOR_PLOTTING = 10
