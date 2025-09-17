@@ -66,6 +66,10 @@ class DataLoaders:
                         "replay_file": Path(replay_file_path).name,
                         "timestamp": replay.start_time,
                         "status": replay.status,
+                        "team": target_player.team,
+                        "squad": target_player.squad,
+                        "auto_squad": target_player.auto_squad,
+                        "players": replay.players,
                     }
                 )
 

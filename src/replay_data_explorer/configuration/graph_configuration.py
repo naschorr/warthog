@@ -1,4 +1,5 @@
 from src.replay_data_explorer.enums import BattleRatingTier
+from src.replay_data_explorer.common import hex_to_rgba
 
 # Define mapping of battle rating tiers to names
 BATTLE_RATING_TIER_NAMES = {
@@ -48,7 +49,7 @@ PLOTLY_COLOR_SCALE = [
     (1, BATTLE_RATING_TIER_COLORS[BattleRatingTier.PARTIAL_DOWNTIER]["hex"]),
 ]
 
-PLOTLY_SINGLE_COLOR = BATTLE_RATING_TIER_COLORS[BattleRatingTier.BALANCED]["hex"]
+PLOTLY_SINGLE_COLOR = hex_to_rgba(BATTLE_RATING_TIER_COLORS[BattleRatingTier.BALANCED]["hex"], 0.75)
 
 PLOTLY_CONCLUSION_COLORS = {
     "good": BATTLE_RATING_TIER_COLORS[BattleRatingTier.UPTIER]["hex"],
