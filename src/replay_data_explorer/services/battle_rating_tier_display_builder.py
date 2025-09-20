@@ -21,7 +21,7 @@ class BattleRatingTierDisplayBuilder:
         raise ValueError(f"Invalid BattleRatingTier: {tier}")
 
     @staticmethod
-    def get_battle_rating_tier_display_text_from_delta(delta: float) -> str:
+    def get_battle_rating_tier_display_from_delta(delta: float) -> str:
         """
         Get the display text for a battle rating tier based on the delta value.
 

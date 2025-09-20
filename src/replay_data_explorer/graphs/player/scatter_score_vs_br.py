@@ -34,8 +34,9 @@ def create_scatter_score_vs_br(
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
         tier_data = df[df["player.tier_status"] == tier_status]
         if not tier_data.empty:
-            # Get matching indices for the current tier data
-            tier_status_name = BATTLE_RATING_TIER_NAMES[tier_status]
+            tier_status_display = (
+                battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(tier_status)
+            )
 
             # Prepare custom data with all the hover information
             custom_data = pd.DataFrame(
@@ -53,7 +54,7 @@ def create_scatter_score_vs_br(
                     x=tier_data["player.battle_rating"],
                     y=tier_data["player.score"],
                     mode="markers",
-                    name=tier_status_name,
+                    name=tier_status_display,
                     marker=dict(
                         color=PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status],
                         size=8,
@@ -66,7 +67,7 @@ def create_scatter_score_vs_br(
                         + "Country: %{customdata[1]}<br>"
                         + "BR: %{customdata[2]}<br>"
                         + "Tier Status: "
-                        + tier_status_name
+                        + tier_status_display
                         + "<br>"
                         + "Score: %{y}<br>"
                         + "Date: %{customdata[3]}<br>"
@@ -100,7 +101,10 @@ def create_scatter_score_vs_br(
     # Add per-tier trend lines
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
         tier_data = df[df["player.tier_status"] == tier_status]
-        tier_status_name = BATTLE_RATING_TIER_NAMES[tier_status]
+        tier_status_display = battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(
+            tier_status
+        )
+
         if len(tier_data) > 1:  # Need at least 2 points for a trend line
             try:
                 # Calculate trend line for this tier
@@ -121,16 +125,16 @@ def create_scatter_score_vs_br(
                         x=tier_br_range,
                         y=tier_trend_y,
                         mode="lines",
-                        name=f"{tier_status_name} Trend ({z_tier[0]:.1f})",
+                        name=f"{tier_status_display} Trend ({z_tier[0]:.1f})",
                         line=dict(color=hex_to_rgba(tier_color, PLOTLY_TRENDLINE_OPACITY), width=1.5, dash="dot"),
-                        hovertemplate=f"{tier_status_name} Trend<br>BR: %{{x}}<br>Predicted Score: %{{y:.0f}}<extra></extra>",
+                        hovertemplate=f"{tier_status_display} Trend<br>BR: %{{x}}<br>Predicted Score: %{{y:.0f}}<extra></extra>",
                         showlegend=True,
-                        legendgroup=tier_status_name,  # Group with the scatter points
+                        legendgroup=tier_status_display,  # Group with the scatter points
                         visible="legendonly",
                     )
                 )
             except Exception as e:
-                print(f"Could not calculate trend line for {tier_status_name}: {e}")
+                print(f"Could not calculate trend line for {tier_status_display}: {e}")
                 continue
 
     # Build the graph's title

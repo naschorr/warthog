@@ -66,7 +66,11 @@ def create_bar_tier_distribution(player_performance_df: pd.DataFrame, *, player_
                 tier_country_data = country_data[country_data["player.tier_status"] == tier_status]
 
                 if len(tier_country_data) > 0:
-                    tier_status_name = BATTLE_RATING_TIER_NAMES[tier_status]
+                    tier_status_display = (
+                        battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(
+                            tier_status
+                        )
+                    )
 
                     # Use tier status color but make it distinguishable by country
                     base_color = PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status]
@@ -83,7 +87,7 @@ def create_bar_tier_distribution(player_performance_df: pd.DataFrame, *, player_
                                 [
                                     tier_country_data["player.country"],
                                     tier_country_data["player.battle_rating_delta"],
-                                    [tier_status_name] * len(tier_country_data),
+                                    [tier_status_display] * len(tier_country_data),
                                     [str(date) for date in tier_country_data["date"]],
                                     tier_country_data["start_time"],
                                 ]

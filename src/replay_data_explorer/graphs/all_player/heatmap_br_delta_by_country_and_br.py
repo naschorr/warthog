@@ -64,7 +64,7 @@ def create_heatmap_br_delta_by_country_and_br(global_performance_df: pd.DataFram
                     + f"Insufficient data (< {MINIMUM_ITEMS_FOR_PLOTTING} players)"
                 )
             else:
-                tier_status_display = battle_rating_tier_display_builder.get_battle_rating_tier_display_text_from_delta(
+                tier_status_display = battle_rating_tier_display_builder.get_battle_rating_tier_display_from_delta(
                     delta
                 )
                 row_text.append(

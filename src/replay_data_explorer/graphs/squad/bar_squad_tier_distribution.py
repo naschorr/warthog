@@ -47,10 +47,9 @@ def create_bar_squad_tier_distribution(player_performance_df: pd.DataFrame, *, p
         # Calculate percentages for each tier
         tier_percentages = {}
         for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
-            tier_status_name = BATTLE_RATING_TIER_NAMES[tier_status]
             count = tier_counts.get(tier_status) or 0
             percentage = (count / total_battles) * 100 if total_battles > 0 else 0
-            tier_percentages[tier_status_name] = {"percentage": percentage, "count": count, "total": total_battles}
+            tier_percentages[tier_status] = {"percentage": percentage, "count": count, "total": total_battles}
 
         squad_tier_data.append(
             {"squad_type": squad_type, "tier_percentages": tier_percentages, "total_battles": total_battles}
@@ -61,18 +60,19 @@ def create_bar_squad_tier_distribution(player_performance_df: pd.DataFrame, *, p
 
     # Add a bar for each tier status
     for tier_status in reversed(PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER):
-        tier_status_name = BATTLE_RATING_TIER_NAMES[tier_status]
-
+        tier_status_display = battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(
+            tier_status
+        )
         squad_types = [data["squad_type"] for data in squad_tier_data]
-        percentages = [data["tier_percentages"][tier_status_name]["percentage"] for data in squad_tier_data]
-        counts = [data["tier_percentages"][tier_status_name]["count"] for data in squad_tier_data]
+        percentages = [data["tier_percentages"][tier_status]["percentage"] for data in squad_tier_data]
+        counts = [data["tier_percentages"][tier_status]["count"] for data in squad_tier_data]
         totals = [data["total_battles"] for data in squad_tier_data]
 
         # Only add bars that have data
         if any(p > 0 for p in percentages):
             fig.add_trace(
                 go.Bar(
-                    name=tier_status_name,
+                    name=tier_status_display,
                     x=squad_types,
                     y=percentages,
                     text=[str(count) if count > 0 else "" for count in counts],
@@ -81,7 +81,7 @@ def create_bar_squad_tier_distribution(player_performance_df: pd.DataFrame, *, p
                     marker_color=PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status],
                     customdata=list(zip(counts, totals)),
                     hovertemplate=(
-                        f"<b>{tier_status_name}</b><br>"
+                        f"<b>{tier_status_display}</b><br>"
                         + "Squad Type: %{x}<br>"
                         + "Percentage: %{y:.1f}%<br>"
                         + "Count: %{customdata[0]}<br>"

@@ -26,9 +26,8 @@ def create_pie_tier_frequency(player_performance_df: pd.DataFrame, *, player_nam
     # Ensure all tier statuses are represented (with 0 counts if necessary)
     all_tier_counts = {}
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
-        tier_status_name = BATTLE_RATING_TIER_NAMES[tier_status]
         count = tier_counts.get(tier_status, 0)
-        all_tier_counts[tier_status_name] = count
+        all_tier_counts[tier_status] = count
 
     # Filter out zero counts for cleaner visualization
     filtered_tier_counts = {k: v for k, v in all_tier_counts.items() if v > 0}
@@ -38,15 +37,20 @@ def create_pie_tier_frequency(player_performance_df: pd.DataFrame, *, player_nam
         return None
 
     # Create lists for the pie chart
-    labels = list(filtered_tier_counts.keys())
+    labels = [
+        battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(filtered_tier_count)
+        for filtered_tier_count in filtered_tier_counts
+    ]
     values = list(filtered_tier_counts.values())
 
     # Map colors to the labels
     colors = []
     for label in labels:
-        # Find the corresponding tier status for this label
         for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
-            if BATTLE_RATING_TIER_NAMES[tier_status] == label:
+            tier_status_display = (
+                battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(tier_status)
+            )
+            if tier_status_display == label:
                 colors.append(PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status])
                 break
 
