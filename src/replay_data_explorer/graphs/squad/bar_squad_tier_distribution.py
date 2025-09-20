@@ -19,26 +19,18 @@ def create_bar_squad_tier_distribution(player_performance_df: pd.DataFrame, *, p
         return None
 
     # Get a copy of the data to avoid modifying the original
-    filtered_df = player_performance_df.copy()
+    df = player_performance_df.copy()
 
     # Apply squad flavor determination with session-based grouping
-    filtered_df = add_squad_flavor_column(filtered_df)
+    df = add_squad_flavor_column(df)
 
     # Filter for the specific player if provided
     if player_name:
-        filtered_df = filtered_df[filtered_df["player.username"] == player_name]
-
-    # Filter by country if specified
-    if country_filters:
-        filtered_df = filtered_df[filtered_df["player.country"].isin([c.value for c in country_filters])]
-
-    if filtered_df.empty:
-        print("No data available after filtering")
-        return None
+        df = df[df["player.username"] == player_name]
 
     # Get available squad types using enum order
     squad_flavor_order = [flavor.value for flavor in SquadFlavor]
-    unique_flavors = filtered_df["squad_flavor"].unique()
+    unique_flavors = pd.Series(df["squad_flavor"]).unique()
     available_squad_types = [flavor for flavor in squad_flavor_order if flavor in unique_flavors]
 
     if len(available_squad_types) == 0:
@@ -48,15 +40,15 @@ def create_bar_squad_tier_distribution(player_performance_df: pd.DataFrame, *, p
     # Calculate tier percentages for each squad type
     squad_tier_data = []
     for squad_type in available_squad_types:
-        squad_data = filtered_df[filtered_df["squad_flavor"] == squad_type]
-        tier_counts = squad_data["player.tier_status"].value_counts()
+        squad_data = df[df["squad_flavor"] == squad_type]
+        tier_counts = pd.Series(squad_data["player.tier_status"]).value_counts()
         total_battles = len(squad_data)
 
         # Calculate percentages for each tier
         tier_percentages = {}
         for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
             tier_status_name = BATTLE_RATING_TIER_NAMES[tier_status]
-            count = tier_counts.get(tier_status, 0) if len(tier_counts) > 0 else 0
+            count = tier_counts.get(tier_status) or 0
             percentage = (count / total_battles) * 100 if total_battles > 0 else 0
             tier_percentages[tier_status_name] = {"percentage": percentage, "count": count, "total": total_battles}
 
