@@ -18,6 +18,7 @@ import plotly.offline as pyo
 from plotly.subplots import make_subplots
 
 # Import project modules
+from src.replay_data_explorer.services import BattleRatingTierDisplayBuilder
 from src.common.configuration import get_config
 from src.common.utilities import get_root_directory
 from src.common.enums import BattleType, Country, VehicleType
@@ -39,6 +40,7 @@ replay_manager_service = service_factory.get_replay_manager_service()
 
 # Initialize replay_data_explorer services and utility functions
 battle_rating_tier_classifier = BattleRatingTierClassifier()
+battle_rating_tier_display_builder = BattleRatingTierDisplayBuilder()
 data_filterer = DataFilterer()
 data_loaders = DataLoaders(replay_manager_service)
 title_builder = TitleBuilder()
