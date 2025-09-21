@@ -2,25 +2,25 @@ from src.replay_data_explorer.graphs.squad.common.squad_flavor import add_squad_
 from src.replay_data_explorer.graphs.initialization import *
 
 
-def create_bar_squad_win_rate(player_performance_df: pd.DataFrame, *, player_name=None, country_filters=[]):
+def create_bar_squad_win_rate(global_performance_df: pd.DataFrame, *, player_name=None, country_filters=[]):
     """
     Create an interactive Plotly stacked bar chart showing win rates by squad type.
     Shows victory, loss, and left percentages for each squad type.
 
     Args:
-        player_performance_df: DataFrame with performance data (should include squad, team, auto_squad, status columns)
+        global_performance_df: DataFrame with performance data (should include squad, team, auto_squad, status columns)
         player_name: Optional player name for title
         country_filters: List of countries to filter by
 
     Returns:
         Plotly figure object
     """
-    if player_performance_df.empty:
+    if global_performance_df.empty:
         print("No data available for plotting")
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = player_performance_df.copy()
+    df = global_performance_df.copy()
 
     # Apply squad flavor determination with session-based grouping
     df = add_squad_flavor_column(df)

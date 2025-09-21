@@ -25,6 +25,7 @@ from .tier.bar_tier_frequency_vs_br import create_bar_tier_frequency_vs_br
 from .squad.bar_squad_performance import create_bar_squad_performance
 from .squad.bar_squad_win_rate import create_bar_squad_win_rate
 from .squad.bar_squad_tier_distribution import create_bar_squad_tier_distribution
+from .squad.bar_squad_br_delta import create_bar_squad_br_delta
 
 __all__ = [
     # Single Player
@@ -45,4 +46,5 @@ __all__ = [
     "create_bar_squad_performance",
     "create_bar_squad_win_rate",
     "create_bar_squad_tier_distribution",
+    "create_bar_squad_br_delta",
 ]
