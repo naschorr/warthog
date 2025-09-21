@@ -23,4 +23,4 @@ class TitleBuilder:
             return base_title
 
         filters_str = ", ".join(filter_parts)
-        return f"{base_title} ({filters_str})"
+        return f"{base_title}<br><span style='font-size: 12px;'>({filters_str})</span>"
