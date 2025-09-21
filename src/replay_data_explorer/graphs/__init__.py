@@ -3,9 +3,10 @@ from .player.scatter_score_vs_br import create_scatter_score_vs_br
 from .player.heatmap_score_by_country_and_br import (
     create_heatmap_score_by_country_and_br as create_player_score_heatmap_by_country_and_br,
 )
+from .player.heatmap_br_delta_by_country_and_br import create_heatmap_br_delta_by_country_and_br
 
 from .all_player.heatmap_score_by_country_and_br import (
-    create_heatmap_score_by_country_and_br as create_all_player_score_heatmap_by_country_and_br,
+    create_heatmap_score_by_country_and_br as create_all_player_heatmap_score_by_country_and_br,
 )
 from .all_player.heatmap_premium_br_delta_by_country_and_br import (
     create_heatmap_premium_br_delta_by_country_and_br as create_all_player_heatmap_premium_br_delta_by_country_and_br,
@@ -32,8 +33,9 @@ __all__ = [
     "create_bar_score_distribution",
     "create_scatter_score_vs_br",
     "create_player_score_heatmap_by_country_and_br",
+    "create_heatmap_br_delta_by_country_and_br",
     # All Players
-    "create_all_player_score_heatmap_by_country_and_br",
+    "create_all_player_heatmap_score_by_country_and_br",
     "create_all_player_heatmap_premium_br_delta_by_country_and_br",
     "create_all_player_heatmap_premium_score_delta_by_country_and_br",
     "create_all_player_heatmap_br_delta_by_country_and_br",
