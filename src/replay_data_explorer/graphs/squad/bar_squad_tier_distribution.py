@@ -75,7 +75,7 @@ def create_bar_squad_tier_distribution(global_performance_df: pd.DataFrame, *, p
                     name=tier_status_display,
                     x=squad_types,
                     y=percentages,
-                    text=[str(count) if count > 0 else "" for count in counts],
+                    text=[f"{count} battle{'' if count == 1 else 's'}" if count > 0 else "" for count in counts],
                     textposition="inside",
                     textfont=dict(color="white", size=10),
                     marker_color=PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status],

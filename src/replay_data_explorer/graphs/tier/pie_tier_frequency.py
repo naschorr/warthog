@@ -63,7 +63,7 @@ def create_pie_tier_frequency(player_performance_df: pd.DataFrame, *, player_nam
                 hole=0.3,  # Creates a donut chart
                 marker=dict(colors=colors, line=dict(color="white", width=2)),
                 textinfo="label+percent+value",
-                texttemplate="<b>%{label}</b><br>%{percent}<br>(%{value} battles)",
+                texttemplate="<b>%{label}</b><br>%{percent}<br>%{value} battles",
                 textposition="auto",  # Automatically position text to avoid overlap
                 insidetextorientation="horizontal",  # Keep text horizontal, not angled
                 insidetextfont=dict(size=12, color="white"),  # White text inside sectors
