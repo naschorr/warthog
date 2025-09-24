@@ -192,7 +192,7 @@ def create_heatmap_premium_br_delta_by_country_and_br(global_performance_df: pd.
                     dict(
                         x=j,  # Use index for proper centering
                         y=i,  # Use index for proper centering
-                        text=f"{delta_diff:.3f}",
+                        text=f"{delta_diff:.2f}",
                         showarrow=False,
                         font=dict(color="white", size=10),
                         xanchor="center",  # Center horizontally
