@@ -212,6 +212,8 @@ class VehicleDataProcessor(KwargConfiguration[VehicleDataProcessorConfig]):
             return Country.GERMANY
         elif "country_hungary" in tags:
             return Country.ITALY
+        elif "country_indonesia" in tags:
+            return Country.JAPAN
         elif "country_israel" in tags:
             return Country.ISRAEL
         elif "country_italy" in tags:
@@ -228,6 +230,8 @@ class VehicleDataProcessor(KwargConfiguration[VehicleDataProcessorConfig]):
             return Country.GERMANY
         elif "country_thailand" in tags:
             return Country.JAPAN
+        elif "country_turkey" in tags:
+            return Country.ITALY
         elif "country_usa" in tags:
             return Country.USA
         elif "country_ussr" in tags:
@@ -315,8 +319,16 @@ class VehicleDataProcessor(KwargConfiguration[VehicleDataProcessorConfig]):
                 logger.warning(f"Tag data for internal name '{internal_name}' is empty or missing. Skipping.")
                 continue
 
-            country = self._get_country_from_tags(tag_data)
+            # Get the country from the tags
+            try:
+                country = self._get_country_from_tags(tag_data)
+            except ValueError as e:
+                logger.error(f"Error extracting country from tags for internal name '{internal_name}': {e}")
+                raise e
+
+            # Get the vehicle type from the tags
             vehicle_type = self._get_vehicle_type_from_tags(tag_data)
+
             battle_rating = {
                 "arcade": self._calculate_battle_rating_from_economic_rating(vehicle_data.get("economicRankArcade", 0)),
                 "realistic": self._calculate_battle_rating_from_economic_rating(
