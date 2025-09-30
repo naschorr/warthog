@@ -42,10 +42,10 @@ When running it for the first time, I'd recommend running the [`VehicleDataGrabb
 ### Launch Options
 
 #### `ReplayDataGrabber - War Thunder (Overwrite)`
-Iterates over the War Thunder replay directory, translating them into JSON replays for future usage. This one will overwrite existing JSON replays, if encountered.
+Iterates over the War Thunder replay directory, translating them into JSON replays for future usage. This one will overwrite existing JSON replays, if encountered. Make sure to set the War Thunder replay directory in the `src/config.json`!
 
 #### `ReplayDataGrabber - War Thunder`
-Iterates over the War Thunder replay directory, translating them into JSON replays for future usage.
+Iterates over the War Thunder replay directory, translating them into JSON replays for future usage. Make sure to set the War Thunder replay directory in the `src/config.json`!
 
 #### `VehicleDataGrabber`
 Retrieves datamined vehicle data (battle ratings, vehicle type, names, etc.) for all vehicles in War Thunder releases between now and your first JSON replay data. This vehicle data is then used to power the [analysis](#analysis).
