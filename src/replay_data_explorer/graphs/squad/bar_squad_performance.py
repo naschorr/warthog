@@ -2,7 +2,9 @@ from src.replay_data_explorer.graphs.squad.common.squad_flavor import add_squad_
 from src.replay_data_explorer.graphs.initialization import *
 
 
-def create_bar_squad_performance(global_performance_df: pd.DataFrame, *, player_name, country_filters=[]):
+def create_bar_squad_performance(
+    global_performance_df: pd.DataFrame, *, player_name, display_player_name=None, country_filters=[]
+):
     """
     Create an interactive Plotly bar chart showing average player score by squad size.
 
@@ -72,8 +74,10 @@ def create_bar_squad_performance(global_performance_df: pd.DataFrame, *, player_
 
     # Build the graph's title
     title_filters = OrderedDict()
-    if player_name:
+    if player_name and not display_player_name:
         title_filters["Player"] = player_name
+    elif player_name and display_player_name:
+        title_filters["Player"] = display_player_name
     title_filters["Battles"] = len(df)
     if country_filters:
         title_filters[f"Countr{'y' if len(country_filters) == 1 else 'ies'}"] = ", ".join(

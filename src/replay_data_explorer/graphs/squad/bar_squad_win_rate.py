@@ -2,7 +2,9 @@ from src.replay_data_explorer.graphs.squad.common.squad_flavor import add_squad_
 from src.replay_data_explorer.graphs.initialization import *
 
 
-def create_bar_squad_win_rate(global_performance_df: pd.DataFrame, *, player_name=None, country_filters=[]):
+def create_bar_squad_win_rate(
+    global_performance_df: pd.DataFrame, *, player_name, display_player_name=None, country_filters=[]
+):
     """
     Create an interactive Plotly stacked bar chart showing win rates by squad type.
     Shows victory, loss, and left percentages for each squad type.
@@ -103,8 +105,10 @@ def create_bar_squad_win_rate(global_performance_df: pd.DataFrame, *, player_nam
 
     # Build the graph's title
     title_filters = OrderedDict()
-    if player_name:
+    if player_name and not display_player_name:
         title_filters["Player"] = player_name
+    elif player_name and display_player_name:
+        title_filters["Player"] = display_player_name
     total_battles = sum(data["total_battles"] for data in squad_data)
     title_filters["Battles"] = str(total_battles)
     if country_filters:
