@@ -3,6 +3,7 @@ from .battle_rating_tier_display_builder import BattleRatingTierDisplayBuilder
 from .data_filterer import DataFilterer
 from .data_loader import DataLoaders
 from .title_builder import TitleBuilder
+from .graph_exporter import GraphExporter
 
 __all__ = [
     "BattleRatingTierClassifier",
@@ -10,4 +11,5 @@ __all__ = [
     "DataFilterer",
     "DataLoaders",
     "TitleBuilder",
+    "GraphExporter",
 ]

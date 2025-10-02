@@ -150,7 +150,7 @@ def create_bar_tier_distribution(player_performance_df: pd.DataFrame, *, player_
             y=1,
             xanchor="left",
             x=1.02,
-            title="Countries (Click to Filter)",
+            title="Countries",
             traceorder="normal",
         ),
         margin=dict(r=200),  # Add right margin for legend
