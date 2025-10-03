@@ -1,12 +1,15 @@
 from src.replay_data_explorer.graphs.initialization import *
 
 
-def create_heatmap_score_by_country_and_br(global_performance_df: pd.DataFrame, *, country_filters=[]):
+def create_heatmap_score_by_country_and_br(
+    global_performance_df: pd.DataFrame, *, author_name: Optional[str] = None, country_filters=[]
+):
     """
     Create an interactive Plotly heatmap showing mean scores for all players by country and battle rating.
 
     Args:
         global_performance_df: DataFrame with global player performance data
+        author_name: Name of the author, if provided the battle ratings will be capped to the author's max BR.
         country_filters: List of countries to filter by
 
     Returns:
@@ -22,6 +25,19 @@ def create_heatmap_score_by_country_and_br(global_performance_df: pd.DataFrame, 
     # Get unique countries and battle ratings
     available_countries = sorted(df["player.country"].unique(), reverse=True)
     available_brs = sorted(df["player.battle_rating"].unique())
+
+    # If author_name is provided, filter battle ratings to the author's max BR
+    if author_name:
+        author_mask = df["player.username"] == author_name
+        author_data = df[author_mask]
+        if len(author_data) > 0:
+            author_max_br = author_data["player.battle_rating"].max()
+            available_brs = [br for br in available_brs if br <= author_max_br]
+            # Also filter the dataframe to only include BRs up to author's max
+            br_mask = df["player.battle_rating"] <= author_max_br
+            df = df[br_mask]
+        else:
+            print(f"Warning: Author '{author_name}' not found in data")
 
     if len(available_countries) == 0 or len(available_brs) == 0:
         print("Insufficient data for heatmap")
@@ -87,7 +103,8 @@ def create_heatmap_score_by_country_and_br(global_performance_df: pd.DataFrame, 
     # Build the graph's title
     title_filters = OrderedDict()
     title_filters["Total Players"] = len(df)
-    title_filters["Unique Players"] = df["player.username"].nunique()
+    unique_players = set(df["player.username"])
+    title_filters["Unique Players"] = len(unique_players)
     if country_filters:
         title_filters[f"Countr{'y' if len(country_filters) == 1 else 'ies'}"] = ", ".join(
             [country.value for country in country_filters]

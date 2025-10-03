@@ -1,12 +1,15 @@
 from src.replay_data_explorer.graphs.initialization import *
 
 
-def create_heatmap_premium_score_delta_by_country_and_br(global_performance_df: pd.DataFrame, *, country_filters=[]):
+def create_heatmap_premium_score_delta_by_country_and_br(
+    global_performance_df: pd.DataFrame, *, author_name: Optional[str] = None, country_filters=[]
+):
     """
     Create an interactive Plotly heatmap showing score delta between premium and non-premium players by country and battle rating.
 
     Args:
         global_performance_df: DataFrame with global player performance data
+        author_name: Name of the author, if provided the battle ratings will be capped to the author's max BR.
         country_filters: List of countries to filter by
 
     Returns:
@@ -23,22 +26,38 @@ def create_heatmap_premium_score_delta_by_country_and_br(global_performance_df: 
     available_countries = sorted(df["player.country"].unique(), reverse=True)
     available_brs = sorted(df["player.battle_rating"].unique())
 
+    # If author_name is provided, filter battle ratings to the author's max BR
+    if author_name:
+        author_mask = df["player.username"] == author_name
+        author_data = df[author_mask]
+        if len(author_data) > 0:
+            author_max_br = author_data["player.battle_rating"].max()
+            available_brs = [br for br in available_brs if br <= author_max_br]
+            # Also filter the dataframe to only include BRs up to author's max
+            br_mask = df["player.battle_rating"] <= author_max_br
+            df = df[br_mask]
+        else:
+            print(f"Warning: Author '{author_name}' not found in data")
+
     if len(available_countries) == 0 or len(available_brs) == 0:
         print("Insufficient data for heatmap")
         return None
 
     # Calculate mean scores for premium and non-premium players separately
+    # Split the data to avoid type inference issues
+    premium_mask = df["player.is_premium"] == True
+    premium_subset = df.loc[premium_mask]
     premium_data = (
-        df[df["player.is_premium"] == True]
-        .groupby(["player.country", "player.battle_rating"])["player.score"]
+        premium_subset.groupby(["player.country", "player.battle_rating"])["player.score"]
         .agg(["mean", "count"])
         .reset_index()
     )
     premium_data.columns = ["player.country", "player.battle_rating", "premium_mean", "premium_count"]
 
+    non_premium_mask = df["player.is_premium"] == False
+    non_premium_subset = df.loc[non_premium_mask]
     non_premium_data = (
-        df[df["player.is_premium"] == False]
-        .groupby(["player.country", "player.battle_rating"])["player.score"]
+        non_premium_subset.groupby(["player.country", "player.battle_rating"])["player.score"]
         .agg(["mean", "count"])
         .reset_index()
     )
