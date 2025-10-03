@@ -9,22 +9,22 @@ class BattleRatingTierClassifier:
         Get the battle rating tier for a player based on their battle rating and the match's battle rating.
 
         Tiers (for a 1.0 BR match):
-        - Downtier: BR == 0
-        - Partial Downtier: BR > 0 and BR < 0.4
+        - Uptier: BR == 0
+        - Partial Uptier: BR > 0 and BR < 0.4
         - Balanced: 0.4 >= BR <= 0.6
-        - Partial Uptier: BR > 0.6 and BR < 1.0
-        - Uptier: BR == 1.0
+        - Partial Downtier: BR > 0.6 and BR < 1.0
+        - Downtier: BR == 1.0
         """
         if delta >= 0:
-            return BattleRatingTier.UPTIER
+            return BattleRatingTier.DOWNTIER
         elif 0 > delta > -0.4:
-            return BattleRatingTier.PARTIAL_UPTIER
+            return BattleRatingTier.PARTIAL_DOWNTIER
         elif -0.4 >= delta >= -0.6:
             return BattleRatingTier.BALANCED
         elif -0.6 > delta > -1.0:
-            return BattleRatingTier.PARTIAL_DOWNTIER
+            return BattleRatingTier.PARTIAL_UPTIER
         else:  # delta <= -1.0
-            return BattleRatingTier.DOWNTIER
+            return BattleRatingTier.UPTIER
 
     @staticmethod
     def get_battle_rating_tier(player: Player, replay: Replay) -> BattleRatingTier:
@@ -32,11 +32,11 @@ class BattleRatingTierClassifier:
         Get the battle rating tier for a player based on their battle rating and the match's battle rating.
 
         Tiers (for a 1.0 BR match):
-        - Downtier: BR == 0
-        - Partial Downtier: BR > 0 and BR < 0.4
+        - Uptier: BR == 0
+        - Partial Uptier: BR > 0 and BR < 0.4
         - Balanced: 0.4 >= BR <= 0.6
-        - Partial Uptier: BR > 0.6 and BR < 1.0
-        - Uptier: BR == 1.0
+        - Partial Downtier: BR > 0.6 and BR < 1.0
+        - Downtier: BR == 1.0
         """
         delta = round(player.battle_rating - replay.battle_rating, 2)
         return BattleRatingTierClassifier.get_battle_rating_tier_from_delta(delta)
