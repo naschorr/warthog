@@ -19,7 +19,7 @@ class GraphExportConfig(BaseModel):
     @field_validator("output_directory_path")
     @classmethod
     def ensure_output_directory_exists(cls, v: Path) -> Path:
-        return Validators.directory_exists_validator(v)
+        return Validators.create_directory_validator(v)
 
     enable_png_export: bool = Field(
         default=False,
@@ -49,6 +49,13 @@ class WarthogReplayDataExplorerConfig(BaseModel):
         default=None,
         description="Player name to analyze in the replays. If None, the replay author will be analyzed.",
     )
+
+    @field_validator("player_name")
+    @classmethod
+    def ensure_player_name_isnt_placeholder(cls, v: Optional[str]) -> Optional[str]:
+        if v and v == "<username>":  # Technically a player could be named this, but it's super unlikely
+            return None
+        return v
 
     country_filters: list[Country] = Field(
         default_factory=list,

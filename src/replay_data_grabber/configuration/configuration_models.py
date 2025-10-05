@@ -34,7 +34,7 @@ class ReplayManagerServiceConfig(BaseModel):
     @field_validator("processed_replay_dir")
     @classmethod
     def ensure_processed_replay_dir_exists(cls, v: Path) -> Path:
-        return Validators.directory_exists_validator(v)
+        return Validators.create_directory_validator(v)
 
     @field_validator("processed_replay_dir")
     @classmethod

@@ -20,7 +20,7 @@ class LoggingConfig(BaseModel):
     @field_validator("log_file")
     @classmethod
     def ensure_log_file_exists(cls, v: Path) -> Path:
-        return Validators.directory_exists_validator(v.parent)
+        return Validators.create_directory_validator(v.parent)
 
 
 class VehicleServiceConfig(BaseModel):
@@ -34,7 +34,7 @@ class VehicleServiceConfig(BaseModel):
     @field_validator("processed_vehicle_data_directory_path")
     @classmethod
     def ensure_processed_vehicle_data_dir_exists(cls, v: Path) -> Path:
-        return Validators.directory_exists_validator(v)
+        return Validators.create_directory_validator(v)
 
     game_version_to_release_datetime_file_path: Path = Field(
         default=get_root_directory() / "data" / "vehicle_data" / "game_version_release_datetimes.json",

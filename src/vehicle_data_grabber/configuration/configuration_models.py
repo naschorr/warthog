@@ -17,7 +17,7 @@ class VehicleDataOrchestratorConfig(BaseModel):
     @field_validator("working_directory_path")
     @classmethod
     def ensure_working_directory_exists(cls, v: Path) -> Path:
-        return Validators.directory_exists_validator(v)
+        return Validators.create_directory_validator(v)
 
     @field_validator("working_directory_path")
     @classmethod
@@ -42,7 +42,7 @@ class VehicleDataOrchestratorConfig(BaseModel):
     @field_validator("datamine_data_directory_path")
     @classmethod
     def ensure_datamine_data_directory_exists(cls, v: Path) -> Path:
-        return Validators.directory_exists_validator(v)
+        return Validators.create_directory_validator(v)
 
     @field_validator("datamine_data_directory_path")
     @classmethod
@@ -80,7 +80,7 @@ class VehicleDataProcessorConfig(BaseModel):
     @field_validator("processed_data_directory_path")
     @classmethod
     def ensure_processed_data_directory_exists(cls, v: Path) -> Path:
-        return Validators.directory_exists_validator(v)
+        return Validators.create_directory_validator(v)
 
     hangar_blkx_file_path: Path = Field(
         description="Path of the datamined hangar.blkx file used for vehicle info, relative to the repository's root.",
