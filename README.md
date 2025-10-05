@@ -24,9 +24,9 @@ However, since War Thunder replays expose a decent amount of data, it's also pos
     - Open command palette: `Ctrl+P`
     - Select the interpreter: `Python: Select Interpreter`
     - Select the virtual environment's interpreter from the dropdown (it should have `venv` in it)
-- Make sure the "Jupyter" extension is installed:
+- Make sure the "Python" and "Jupyter" extensions are installed:
     - Open the extensions panel: `Ctrl+Shift+X`
-    - Search for "Jupyter" from Microsoft
+    - Search for the extension names (they should be published by Microsoft)
     - Hit the install button
 
 ### Configuration
