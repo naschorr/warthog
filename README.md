@@ -29,6 +29,14 @@ However, since War Thunder replays expose a decent amount of data, it's also pos
     - Search for "Jupyter" from Microsoft
     - Hit the install button
 
+### Configuration
+Things mostly have sensible defaults, though there are a couple things that you should set in your configuration file (at `src/config.json`).
+
+- The War Thunder replay folder location (`replay_data_grabber_config.replay_manager_service_config.raw_replay_dir`) should be set to the absolute path of the folder on your system, something like: `"D:/Steam/steamapps/common/War Thunder/Replays"` if you installed it via Steam.
+- Your War Thunder username (`replay_data_explorer_config.player_name`) should be set to the name of your player profile in game, this should be visible at the top of your service record.
+
+You can also check out the raw configuration schema at `src/common/configuration/configuration_models.py`, feel free to tweak things as necessary.
+
 ## Running It
 Warthog has a few different options, and they can be easily run inside VSCode:
 
