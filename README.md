@@ -67,7 +67,7 @@ Iterates over the local copied replay store, translating them into JSON replays 
 Copies War Thunder replay data from the temporary game directory to a local copied replay store. This is handy to keep an archive of all replay data, again to rebuild the JSON replays if the schema ever changes.
 
 ## Analysis
-Currently, analysis is done via graphs in a Jupyter Notebook located at `src/replay_data_explorer/player_data_explorer.ipynb`. Open it up and run through the cells!
+Currently, analysis is done via graphs in a Jupyter Notebook located at `src/replay_data_explorer/replay_data_explorer.ipynb`. Open it up and run through the cells!
 
 ## Contributing
 Make sure that the notebook's outputs are cleared, so that things can stay clean. There's a git filter set up to run the `jupyter nbconvert` script to clean the outputs automatically, though it does need some first time setup. Simply run this command from the project root to register the `.gitconfig` that contains the filter to the local git config and it'll start working!
