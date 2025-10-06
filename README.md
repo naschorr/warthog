@@ -7,6 +7,10 @@ War Thunder's [matchmaking](https://wiki.warthunder.com/mechanics/matchmaking) i
 
 However, since War Thunder replays expose a decent amount of data, it's also possible to look into more than just uptiers and downtiers. On the more innocuous side of things, there's player performance graphs available that chart your own performance at different battle ratings, score distribution, heatmapped performance for battle ratings and countries, battle rating deltas, etc. However, since War Thunder also offers some absurdly expensive (and shockingly powerful) vehicles that can be purchased with real-life money, I've also been cooking up some graphs that explore the performance of players with premium vehicles in their lineup.
 
+Raw data anlysis is performed in the Jupyter notebook located at `src/replay_data_explorer/replay_data_explorer.ipynb`. Open it up and run through the cells on your own data, or take a look at the [graphs generated on my data](https://github.com/naschorr/warthog/tree/main/output/graphs).
+
+More detailed analysis is a work in progress, and is best viewed in the [repository on GitHub](https://github.com/naschorr/warthog/blob/main/src/replay_data_explorer/analysis.md), or locally at `src/replay_data_explorer/analysis.md`.
+
 ## Setup
 
 ### Prerequisites
@@ -65,9 +69,6 @@ Iterates over the local copied replay store, translating them into JSON replays 
 
 #### `Dev - ReplayDataCopier`
 Copies War Thunder replay data from the temporary game directory to a local copied replay store. This is handy to keep an archive of all replay data, again to rebuild the JSON replays if the schema ever changes.
-
-## Analysis
-Currently, analysis is done via graphs in a Jupyter Notebook located at `src/replay_data_explorer/replay_data_explorer.ipynb`. Open it up and run through the cells!
 
 ## Contributing
 Make sure that the notebook's outputs are cleared, so that things can stay clean. There's a git filter set up to run the `jupyter nbconvert` script to clean the outputs automatically, though it does need some first time setup. Simply run this command from the project root to register the `.gitconfig` that contains the filter to the local git config and it'll start working!
