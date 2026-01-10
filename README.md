@@ -9,7 +9,7 @@ However, since War Thunder replays expose a decent amount of data, it's also pos
 
 Raw data anlysis is performed in the Jupyter notebook located at `src/replay_data_explorer/replay_data_explorer.ipynb`. Open it up and run through the cells on your own data, or take a look at the [graphs generated on my data](https://github.com/naschorr/warthog/tree/main/output/graphs).
 
-More detailed analysis is a work in progress, and is best viewed in the [repository on GitHub](https://github.com/naschorr/warthog/blob/main/src/replay_data_explorer/analysis.md), or locally at `src/replay_data_explorer/analysis.md`.
+More detailed analysis is a work in progress, and is best viewed in the [repository on GitHub](https://github.com/naschorr/warthog/blob/main/analysis.md), or locally at `src/analysis.md`.
 
 ## Setup
 
