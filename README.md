@@ -60,7 +60,7 @@ Iterates over the War Thunder replay directory, translating them into JSON repla
 Iterates over the War Thunder replay directory, translating them into JSON replays for future usage. Make sure to set the War Thunder replay directory in the `src/config.json`!
 
 #### `VehicleDataGrabber`
-Retrieves datamined vehicle data (battle ratings, vehicle type, names, etc.) for all vehicles in War Thunder releases between now and your first JSON replay data. This vehicle data is then used to power the [analysis](#analysis).
+Retrieves datamined vehicle data (battle ratings, vehicle type, names, etc.) for all vehicles in War Thunder releases between now and your first JSON replay data. This vehicle data is then used to power the [analysis](https://github.com/naschorr/warthog/blob/main/src/replay_data_explorer/analysis.md).
 
 ### Development Specific Launch Options
 
