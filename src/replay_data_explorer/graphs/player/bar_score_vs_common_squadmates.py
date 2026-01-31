@@ -55,14 +55,40 @@ def create_bar_score_vs_common_squadmates(
         print("No squadmate combination data available")
         return None
 
+    # Calculate aggregated scores for any squad with each individual squadmate
+    aggregated_scores = _calculate_aggregated_squadmate_scores(df, player_name, common_squadmates)
+
     # Sort by mean score for better visualization
     squadmate_scores_sorted = sorted(squadmate_scores, key=lambda x: x["mean_score"])
+    aggregated_scores_sorted = sorted(aggregated_scores, key=lambda x: x["mean_score"])
+
+    # Combine both sets with an empty row separator (aggregated at bottom)
+    all_labels = (
+        [item["label"] for item in squadmate_scores_sorted]
+        + [""]  # Empty row separator
+        + [item["label"] for item in aggregated_scores_sorted]
+    )
+    all_mean_scores = (
+        [item["mean_score"] for item in squadmate_scores_sorted]
+        + [0]  # Separator has no value
+        + [item["mean_score"] for item in aggregated_scores_sorted]
+    )
+    all_battle_counts = (
+        [item["battle_count"] for item in squadmate_scores_sorted]
+        + [0]
+        + [item["battle_count"] for item in aggregated_scores_sorted]
+    )
+    all_std_devs = (
+        [item["std_dev"] for item in squadmate_scores_sorted]
+        + [0]
+        + [item["std_dev"] for item in aggregated_scores_sorted]
+    )
 
     # Extract data for plotting
-    labels = [item["label"] for item in squadmate_scores_sorted]
-    mean_scores = [item["mean_score"] for item in squadmate_scores_sorted]
-    battle_counts = [item["battle_count"] for item in squadmate_scores_sorted]
-    std_devs = [item["std_dev"] for item in squadmate_scores_sorted]
+    labels = all_labels
+    mean_scores = all_mean_scores
+    battle_counts = all_battle_counts
+    std_devs = all_std_devs
 
     # Create the horizontal bar chart
     fig = go.Figure(
@@ -131,6 +157,10 @@ def create_bar_score_vs_common_squadmates(
 
     # Add battle count annotations at the end of each bar
     for i, (label, score, count) in enumerate(zip(labels, mean_scores, battle_counts)):
+        # Skip empty rows or rows with no count
+        if label == "" or count == 0:
+            continue
+
         fig.add_annotation(
             x=score,
             y=label,
@@ -270,6 +300,77 @@ def _calculate_squadmate_combination_scores(df: pd.DataFrame, player_name: str, 
                 "std_dev": np.std(scores) if len(scores) > 1 else 0.0,
                 "battle_count": len(scores),
                 "squadmates": combination,
+            }
+        )
+
+    return results
+
+
+def _calculate_aggregated_squadmate_scores(df: pd.DataFrame, player_name: str, common_squadmates: set) -> list[dict]:
+    """
+    Calculate mean scores when playing with each individual squadmate (in any combination).
+
+    For example, if a player squads with PlayerA alone or with PlayerA + PlayerB,
+    both are counted toward "Any squad with PlayerA".
+
+    Args:
+        df: Global performance DataFrame
+        player_name: Author's username
+        common_squadmates: Set of common squadmate usernames
+
+    Returns:
+        List of dictionaries with aggregated squadmate statistics
+    """
+    # Track scores for each individual squadmate
+    squadmate_scores = defaultdict(list)
+
+    # Get all sessions where the author participated
+    author_sessions = df.loc[
+        df["player.username"] == player_name,
+        ["session_id", "player.team", "player.squad", "player.score", "player.auto_squad"],
+    ].copy()
+
+    # For each session the author participated in
+    for _, author_row in author_sessions.iterrows():
+        session_id = author_row["session_id"]
+        author_team = author_row["player.team"]
+        author_squad = author_row["player.squad"]
+        author_score = author_row["player.score"]
+        author_auto_squad = author_row["player.auto_squad"]
+
+        # Skip auto-squad or no squad
+        if author_auto_squad or pd.isna(author_squad) or author_squad == "":
+            continue
+
+        # Find other players in the same squad in this session
+        squad_mask = (
+            (df["session_id"] == session_id)
+            & (df["player.team"] == author_team)
+            & (df["player.squad"] == author_squad)
+            & (df["player.username"] != player_name)
+        )
+        squad_members = df.loc[squad_mask, "player.username"].unique()
+
+        # Filter to only common squadmates
+        common_members_in_squad = [m for m in squad_members if m in common_squadmates]
+
+        # Add this score to each common squadmate who was present
+        for squadmate in common_members_in_squad:
+            squadmate_scores[squadmate].append(author_score)
+
+    # Calculate statistics for each squadmate
+    results = []
+    for squadmate, scores in squadmate_scores.items():
+        if not scores:
+            continue
+
+        results.append(
+            {
+                "label": f"Any squad with {squadmate}",
+                "mean_score": np.mean(scores),
+                "std_dev": np.std(scores) if len(scores) > 1 else 0.0,
+                "battle_count": len(scores),
+                "squadmate": squadmate,
             }
         )
 
