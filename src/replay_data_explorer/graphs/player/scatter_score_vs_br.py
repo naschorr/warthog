@@ -23,6 +23,35 @@ def create_scatter_score_vs_br(
     # Get a copy of the data to avoid modifying the original
     df = player_performance_df.copy()
 
+    # Load global performance data to calculate team averages
+    global_df = data_loaders.get_global_performance_data(country_filters)
+
+    # Calculate team average score for each game (excluding the player)
+    if not global_df.empty:
+        team_avg_scores = []
+        for idx, player_row in df.iterrows():
+            session_id = player_row["session_id"]
+            player_team = player_row["player.team"]
+            player_username = player_row["player.username"]
+
+            # Get all players on the same team in this session (excluding the player themselves)
+            team_players = global_df[
+                (global_df["session_id"] == session_id)
+                & (global_df["player.team"] == player_team)
+                & (global_df["player.username"] != player_username)
+            ]
+
+            if len(team_players) > 0:
+                team_avg = team_players["player.score"].mean()
+            else:
+                team_avg = player_row["player.score"]  # Fallback if no teammates
+
+            team_avg_scores.append(team_avg)
+
+        df["team_avg_score"] = team_avg_scores
+    else:
+        df["team_avg_score"] = df["player.score"]  # Fallback if no global data
+
     # Remove outliers if specified
     if std_dev is not None:
         df = data_filterer.filter_outliers(df, "player.score", std_dev)
@@ -44,6 +73,7 @@ def create_scatter_score_vs_br(
                     "username": tier_data["player.username"],
                     "country": tier_data["player.country"],
                     "battle_rating": tier_data["battle_rating"],
+                    "team_avg": tier_data["team_avg_score"],
                     "start_time": tier_data["start_time"],
                     "session_id": tier_data["session_id"],
                 }
@@ -70,8 +100,9 @@ def create_scatter_score_vs_br(
                         + tier_status_display
                         + "<br>"
                         + "Score: %{y}<br>"
-                        + "Date: %{customdata[3]}<br>"
-                        + "Session: %{customdata[4]}<br><extra></extra>"
+                        + "Team Avg: %{customdata[3]:.0f}<br>"
+                        + "Date: %{customdata[4]}<br>"
+                        + "Session: %{customdata[5]}<br><extra></extra>"
                     ),
                 )
             )
@@ -94,6 +125,24 @@ def create_scatter_score_vs_br(
                 name=f"Overall Trend (slope: {z[0]:.1f})",
                 line=dict(color=hex_to_rgba("#000000", PLOTLY_TRENDLINE_OPACITY), width=2, dash="dash"),
                 hovertemplate="Overall Trend<br>BR: %{x:.1f}<br>Predicted Score: %{y:.0f}<extra></extra>",
+                showlegend=True,
+            )
+        )
+
+    # Add team average line (mean team score at each BR)
+    if "team_avg_score" in df.columns:
+        # Group by battle rating and calculate mean team score
+        team_avg_by_br = df.groupby("player.battle_rating")["team_avg_score"].mean().reset_index()
+        team_avg_by_br = team_avg_by_br.sort_values("player.battle_rating")
+
+        fig.add_trace(
+            go.Scatter(
+                x=team_avg_by_br["player.battle_rating"],
+                y=team_avg_by_br["team_avg_score"],
+                mode="lines",
+                name="Team Average",
+                line=dict(color="#808080", width=2),  # Solid gray line
+                hovertemplate="Team Average<br>BR: %{x:.1f}<br>Avg Score: %{y:.0f}<extra></extra>",
                 showlegend=True,
             )
         )
