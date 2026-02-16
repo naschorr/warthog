@@ -77,8 +77,10 @@ def create_heatmap_score_by_country_and_br(
             customdata=hover_text,
             showscale=True,
             colorbar=dict(title=dict(text="Mean Score", font=dict(size=12)), tickfont=dict(size=10)),
-            zmin=df["player.score"].min() if not df.empty else 0,
-            zmax=df["player.score"].max() if not df.empty else 100,
+            zmin=score_pivot.min().min(),  # Min of the mean scores
+            zmax=score_pivot.max().max(),  # Max of the mean scores
+            xgap=1,  # Add small gap between cells
+            ygap=1,  # Add small gap between cells
         )
     )
 
