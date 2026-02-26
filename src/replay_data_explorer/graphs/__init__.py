@@ -10,6 +10,12 @@ from .player.bar_score_vs_common_squadmates import create_bar_score_vs_common_sq
 from .all_player.heatmap_score_by_country_and_br import (
     create_heatmap_score_by_country_and_br as create_all_player_heatmap_score_by_country_and_br,
 )
+from .all_player.heatmap_winrate_by_country_and_br import (
+    create_heatmap_winrate_by_country_and_br as create_all_player_heatmap_winrate_by_country_and_br,
+)
+from .all_player.heatmap_winrate_by_country_and_player_br import (
+    create_heatmap_winrate_by_country_and_player_br as create_all_player_heatmap_winrate_by_country_and_player_br,
+)
 from .all_player.heatmap_premium_br_delta_by_country_and_br import (
     create_heatmap_premium_br_delta_by_country_and_br as create_all_player_heatmap_premium_br_delta_by_country_and_br,
 )
@@ -40,6 +46,8 @@ __all__ = [
     "create_bar_score_vs_common_squadmates",
     # All Players
     "create_all_player_heatmap_score_by_country_and_br",
+    "create_all_player_heatmap_winrate_by_country_and_br",
+    "create_all_player_heatmap_winrate_by_country_and_player_br",
     "create_all_player_heatmap_premium_br_delta_by_country_and_br",
     "create_all_player_heatmap_premium_score_delta_by_country_and_br",
     "create_all_player_heatmap_br_delta_by_country_and_br",
