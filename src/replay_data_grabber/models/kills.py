@@ -1,10 +1,7 @@
-"""
-War Thunder replay kills model.
-"""
-
 from pydantic import Field
 
 from src.common.models.serializable_model import SerializableModel
+from .kill_detail import KillDetail
 
 
 class Kills(SerializableModel):
@@ -20,6 +17,12 @@ class Kills(SerializableModel):
     ai_air: int = Field(default=0, description="AI aircraft kills")
     ai_ground: int = Field(default=0, description="AI ground vehicle kills")
     ai_naval: int = Field(default=0, description="AI naval vehicle kills")
+
+    # Per-event kill detail records (best-effort, populated from replay stream)
+    vehicles: list[KillDetail] = Field(
+        default_factory=list,
+        description="Per-kill event detail records",
+    )
 
     @property
     def total_player_kills(self) -> int:

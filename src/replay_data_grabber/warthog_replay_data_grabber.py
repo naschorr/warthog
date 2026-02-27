@@ -45,6 +45,27 @@ class WarthogReplayDataGrabber:
 
         logger.info(f"Data collection finished.")
 
+    def parse_single_file(self, replay_file_path: Path) -> Path:
+        """Parse a single .wrpl replay file and write its JSON output.
+
+        Args:
+            replay_file_path: Path to the .wrpl file to parse.
+
+        Returns:
+            Path of the saved JSON output file.
+
+        Raises:
+            FileNotFoundError: If the replay file does not exist.
+            ValueError: If the file cannot be parsed.
+        """
+        logger.info(f"Parsing single replay file: {replay_file_path}")
+        replay = self._replay_manager_service.ingest_raw_replay_file(replay_file_path)
+        if replay is None:
+            raise ValueError(f"Failed to parse replay file: {replay_file_path}")
+        output_path = self._replay_manager_service.store_replay(replay)
+        logger.info(f"Saved parsed replay to: {output_path}")
+        return output_path
+
     def stop_collection(self):
         logger.info("Stopping collection process")
 
@@ -58,6 +79,13 @@ def parse_arguments():
         "-d",
         type=str,
         help="Path to directory containing replay files to be processed (ex: /path/to/replays/)",
+    )
+
+    parser.add_argument(
+        "--file",
+        "-f",
+        type=str,
+        help="Path to a single .wrpl replay file to parse and output as JSON",
     )
 
     parser.add_argument(
@@ -90,8 +118,12 @@ def main():
     )
 
     try:
-        logger.info("Starting Warthog Replay Data Grabber...")
-        replay_data_grabber.start_collection()
+        if args.file:
+            logger.info("Parsing single replay file...")
+            replay_data_grabber.parse_single_file(Path(args.file))
+        else:
+            logger.info("Starting Warthog Replay Data Grabber...")
+            replay_data_grabber.start_collection()
         logger.info(f"Processing complete.")
         return 0
     except Exception as e:

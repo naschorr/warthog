@@ -1,11 +1,8 @@
-"""
-War Thunder replay player model.
-"""
-
 from typing import Optional
 from pydantic import Field, field_validator, field_serializer
 
 from .kills import Kills
+from .deaths import Deaths
 from src.common.enums import PlatformType, Country
 from src.common.models.serializable_model import SerializableModel
 
@@ -26,6 +23,10 @@ class Player(SerializableModel):
     team: Optional[int] = Field(default=None)
     squad: Optional[int] = Field(default=None)
     auto_squad: bool = Field(default=False)
+    slot: Optional[int] = Field(
+        default=None,
+        description="0-based position in the replay players array; stable stream-space identifier",
+    )
     wait_time: float = Field(default=0.0)
     tier: Optional[int] = Field(default=None)
     rank: Optional[int] = Field(default=None)
@@ -37,17 +38,29 @@ class Player(SerializableModel):
     # Performance
     kills: Kills = Field(default_factory=Kills)
     assists: int = Field(default=0)
-    deaths: int = Field(default=0)
+    deaths: Deaths = Field(default_factory=Deaths)
     capture_zone: int = Field(default=0)
     damage_zone: int = Field(default=0)
     score: int = Field(default=0)
     award_damage: int = Field(default=0)
     missile_evades: int = Field(default=0)
 
-    # Vehicle lineup
+    # Vehicle stats
     lineup: list[str] = Field(default_factory=list)
     is_premium: bool = Field(
         default=False, description="Indicates if the player has any premium vehicles in their lineup"
+    )
+    vehicle_kills: dict[str, int] = Field(
+        default_factory=dict,
+        description="Kill counts keyed by vehicle internal name",
+    )
+    vehicle_deaths: dict[str, int] = Field(
+        default_factory=dict,
+        description=("Death counts keyed by vehicle internal name (might be inaccurate)"),
+    )
+    awards: list[str] = Field(
+        default_factory=list,
+        description="Award internal identifiers received by this player",
     )
 
     def model_post_init(self, __context) -> None:
@@ -58,9 +71,9 @@ class Player(SerializableModel):
     @property
     def kill_death_ratio(self) -> float:
         """Calculate kill/death ratio."""
-        if self.deaths == 0:
+        if self.deaths.total == 0:
             return float(self.kills.total_kills) if self.kills.total_kills > 0 else 0.0
-        return self.kills.total_kills / self.deaths
+        return self.kills.total_kills / self.deaths.total
 
     @property
     def total_kills(self) -> int:
