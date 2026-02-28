@@ -263,7 +263,12 @@ class ReplayStreamDecoderService:
         else:
             self._max_vehicle_path_len = self._DEFAULT_MAX_VEHICLE_PATH_LEN
 
-    def decode_from_raw_replay(self, raw: bytes, *, slot_deaths: dict[int, int] | None = None) -> StreamDecodeResult:
+    def decode_from_raw_replay(
+        self,
+        raw: bytes,
+        *,
+        slot_deaths: dict[int, int] | None = None,
+    ) -> StreamDecodeResult:
         """
         Decompress the rec_data stream from raw .wrpl bytes and decode events.
 
@@ -285,7 +290,12 @@ class ReplayStreamDecoderService:
 
         return self.decode_stream(stream_data, slot_deaths=slot_deaths)
 
-    def decode_stream(self, stream_data: bytes, *, slot_deaths: dict[int, int] | None = None) -> StreamDecodeResult:
+    def decode_stream(
+        self,
+        stream_data: bytes,
+        *,
+        slot_deaths: dict[int, int] | None = None,
+    ) -> StreamDecodeResult:
         """
         Decode events directly from already-decompressed stream bytes.
 
@@ -950,8 +960,6 @@ class ReplayStreamDecoderService:
           (d) slot_deaths.get(S, 0) > 0  (S has at least one recorded death).
           (e) (S, vehicle) has NOT been attributed to any other known EID at any
               offset <= kill_event.offset (all-historical, not just latest entry).
-          (f) (S, vehicle) has NOT been attributed to any other known EID in any
-              kill event AFTER kill_event.offset (forward attribution constraint).
 
         Additionally, if VehicleService is available and the killer vehicle type
         can be determined:
@@ -1081,28 +1089,6 @@ class ReplayStreamDecoderService:
                     if ev.tick_idx > death_tick_per_slot.get(resolved_slot, -1):
                         death_tick_per_slot[resolved_slot] = ev.tick_idx
 
-            # (f) Build a set of (slot, vehicle) pairs attributed to known EIDs
-            # in kill events AFTER kill_event.offset.  A vehicle that later
-            # appears as a victim with a resolved EID cannot simultaneously be
-            # the unresolved victim now.
-            forward_attributed: set[tuple[int, str]] = set()
-            for later_ev in kill_events:
-                if later_ev.offset <= kill_event.offset:
-                    continue
-                if later_ev.victim_entity_id == victim_eid:
-                    continue
-                later_hist = eid_history.get(later_ev.victim_entity_id)
-                if later_hist is None:
-                    continue
-                fwd_best: "tuple[int, str] | None" = None
-                for off, sl, veh in later_hist:
-                    if off <= later_ev.offset:
-                        fwd_best = (sl, veh)
-                    else:
-                        break
-                if fwd_best is not None:
-                    forward_attributed.add(fwd_best)
-
             # (g) Determine killer vehicle type for cross-type filtering.
             killer_vtype = _get_vtype(kill_event.vehicle_name) if kill_event.vehicle_name else None
             killer_is_ground_non_aa = killer_vtype in _GROUND_NON_AA_TYPES
@@ -1138,10 +1124,6 @@ class ReplayStreamDecoderService:
                 if (slot, vname) in attributed_at_kill:
                     continue
 
-                # (f) exclude candidates attributed to a known EID in a later kill
-                if (slot, vname) in forward_attributed:
-                    continue
-
                 # (g) spawn-after-death: only accept a candidate slot when we
                 # have a confirmed death for it *after* last_phys_tick.  This
                 # ensures the slot actually died and respawned within the dead
@@ -1164,12 +1146,10 @@ class ReplayStreamDecoderService:
                 if slot_last_death >= 0 and latest_window_tick <= slot_last_death:
                     continue
 
-                # (j) cross-team: victim slot must be on the opposite team from killer.
-                # Team 1 = slots 0-15, Team 2 = slots 16-31.
-                killer_team = 1 if kill_event.slot < 16 else 2
-                slot_team = 1 if slot < 16 else 2
-                if slot_team == killer_team:
-                    continue
+                # NOTE: Cross-team filtering (victim must be on a different team
+                # from killer) is intentionally omitted because the t1/t2 entity
+                # naming convention does NOT correspond to the JSON ``team`` field.
+                # Slots 0-15 and 16-31 may contain players from either team.
 
                 cands.append((slot, vname, latest_window_tm.offset))
 
@@ -1211,15 +1191,19 @@ class ReplayStreamDecoderService:
         """
         Attribute unresolved victim EIDs using TM-timeline transition matching.
 
-        Each consecutive vehicle transition in a slot's TM timeline implies one
-        death in the preceding vehicle.  When that death is not already covered
-        by an EID-resolved kill event, this method searches for unresolved kill
-        events (victim_eid not in eid_history) whose tick falls between the
-        current vehicle activation and the next vehicle activation.
+        Each consecutive vehicle transition in a slot's TM timeline implies at
+        least one death in the preceding vehicle (more with backup respawns).
+        When a death is not already covered by an EID-resolved kill event, this
+        method searches for unresolved kill events whose tick falls between the
+        current vehicle activation and the next.
 
         Among matching candidates, the one whose tick is closest to (and before)
         the next TM activation is selected — it is the kill most likely to have
         triggered the respawn.
+
+        Uses a greedy one-pass approach: slots are processed in order and each
+        claimed EID is immediately committed so it cannot be taken by later
+        slots.
 
         Only processes slots where BLK deaths exceed EID-resolved deaths, and
         only fills the gap (never exceeds the BLK cap).
@@ -1232,11 +1216,7 @@ class ReplayStreamDecoderService:
         def tick_of(offset: int) -> int:
             return bisect.bisect_right(tick_offsets, offset) - 1
 
-        # Pre-compute per-slot, per-vehicle EID-resolved death counts using
-        # the tick window of each TM transition.  This lets us check if a
-        # specific transition is already covered.
-        # Build a lookup: for each kill event with a resolved victim, record
-        # (victim_slot, victim_vehicle, tick_idx).
+        # Pre-compute per-slot EID-resolved death counts.
         resolved_deaths_by_slot: dict[int, list[tuple[str, int]]] = {}
         for ev in kill_events:
             entries = eid_history.get(ev.victim_entity_id)
@@ -1255,19 +1235,18 @@ class ReplayStreamDecoderService:
                 continue
             resolved_deaths_by_slot.setdefault(victim_slot, []).append((victim_vehicle, ev.tick_idx))
 
-        # Pre-compute per-slot resolved death count totals
         slot_resolved_counts: dict[int, int] = {}
         for slot, deaths in resolved_deaths_by_slot.items():
             slot_resolved_counts[slot] = len(deaths)
 
-        # Build list of unresolved kill events sorted by tick
+        # Build list of unresolved kill events sorted by tick.
         unresolved_kills: list[_KillEvent] = []
         for ev in kill_events:
             if ev.victim_entity_id not in eid_history:
                 unresolved_kills.append(ev)
         unresolved_kills.sort(key=lambda e: e.tick_idx)
 
-        # Track which victim_eids we've claimed in this pass
+        # Track EIDs claimed during this pass so each EID goes to at most one slot.
         claimed_eids: set[int] = set()
 
         added = 0
@@ -1281,8 +1260,7 @@ class ReplayStreamDecoderService:
             if remaining <= 0:
                 continue
 
-            resolved_for_slot = resolved_deaths_by_slot.get(slot, [])
-
+            # Walk consecutive transitions (vehicle_A -> vehicle_B).
             for i in range(len(timeline) - 1):
                 if remaining <= 0:
                     break
@@ -1291,82 +1269,70 @@ class ReplayStreamDecoderService:
                 tick_curr = tick_of(tm_offset_curr)
                 tick_next = tick_of(tm_offset_next)
 
-                # Check if this transition already has an EID-resolved death
-                already_covered = any(
-                    veh == vehicle_curr and tick_curr <= t <= tick_next for veh, t in resolved_for_slot
-                )
-                if already_covered:
-                    continue
-
-                # Search unresolved kill events in (tick_curr, tick_next] window
-                # Pick the one closest to tick_next (most likely the death trigger)
+                # Search unresolved kill events in (tick_curr, tick_next] window.
+                # Pick the one closest to tick_next (most likely the death trigger).
                 best_candidate: _KillEvent | None = None
                 for ev in unresolved_kills:
-                    if ev.victim_entity_id in claimed_eids:
-                        continue
                     if ev.tick_idx <= tick_curr:
                         continue
                     if ev.tick_idx > tick_next:
                         break  # sorted by tick
                     if ev.slot == slot:
                         continue  # no self-kills
+                    if ev.victim_entity_id in claimed_eids:
+                        continue  # already claimed by another slot
                     if best_candidate is None or ev.tick_idx > best_candidate.tick_idx:
                         best_candidate = ev
 
                 if best_candidate is not None:
-                    victim_eid = best_candidate.victim_entity_id
+                    eid = best_candidate.victim_entity_id
                     new_entry = (tm_offset_curr, slot, vehicle_curr)
-                    existing = eid_history.get(victim_eid)
+                    existing = eid_history.get(eid)
                     if existing is None:
-                        eid_history[victim_eid] = [new_entry]
+                        eid_history[eid] = [new_entry]
                     else:
                         existing.append(new_entry)
                         existing.sort(key=lambda x: x[0])
-                    claimed_eids.add(victim_eid)
-                    remaining -= 1
+                    claimed_eids.add(eid)
                     added += 1
+                    remaining -= 1
                     logger.debug(
                         "TM-transition death: EID %d -> slot %d %r (ticks %d-%d)",
-                        victim_eid,
+                        eid,
                         slot,
                         vehicle_curr,
                         tick_curr,
                         tick_next,
                     )
 
-            # Handle remaining deaths in the final vehicle
+            # Handle remaining deaths in the final vehicle.
             if remaining > 0 and timeline:
                 last_tm_offset, last_vehicle = timeline[-1]
                 last_tick = tick_of(last_tm_offset)
 
-                final_candidates: list[_KillEvent] = []
                 for ev in unresolved_kills:
-                    if ev.victim_entity_id in claimed_eids:
-                        continue
+                    if remaining <= 0:
+                        break
                     if ev.tick_idx <= last_tick:
                         continue
                     if ev.slot == slot:
                         continue
-                    final_candidates.append(ev)
-
-                final_candidates.sort(key=lambda e: e.tick_idx)
-                for ev in final_candidates:
-                    if remaining <= 0:
-                        break
-                    victim_eid = ev.victim_entity_id
+                    if ev.victim_entity_id in claimed_eids:
+                        continue
+                    eid = ev.victim_entity_id
                     new_entry = (last_tm_offset, slot, last_vehicle)
-                    existing = eid_history.get(victim_eid)
+                    existing = eid_history.get(eid)
                     if existing is None:
-                        eid_history[victim_eid] = [new_entry]
+                        eid_history[eid] = [new_entry]
                     else:
                         existing.append(new_entry)
                         existing.sort(key=lambda x: x[0])
-                    claimed_eids.add(victim_eid)
-                    remaining -= 1
+                    claimed_eids.add(eid)
                     added += 1
+                    remaining -= 1
                     logger.debug(
                         "TM-transition death (final): EID %d -> slot %d %r (after tick %d)",
-                        victim_eid,
+                        eid,
                         slot,
                         last_vehicle,
                         last_tick,
