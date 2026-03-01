@@ -274,7 +274,10 @@ PLAYERS: list[PlayerTruth] = [
             KillDetailTruth("sw_sav_fm48", victim_username="HASBU___", victim_vehicle="us_m2a2", time_seconds=792),
             # 20:55 Ranol (⊙Pz.IV) destroyed Toxic85828 (T-34)
             KillDetailTruth(
-                "sw_pzkpfw_IV_ausf_J", victim_username="Toxic85828", victim_vehicle="ussr_t_34_1942", time_seconds=1255
+                "sw_pzkpfw_IV_ausf_J",
+                victim_username="Toxic85828",
+                victim_vehicle="ussr_t_34_1941_l_11",
+                time_seconds=1255,
             ),
             # 21:14 Ranol (⊙Pz.IV) destroyed FAN_Falcon (M4A3 (105))
             KillDetailTruth(
@@ -597,7 +600,7 @@ PLAYERS: list[PlayerTruth] = [
             ),
             # 11:23 oliveshellhound (⊙Pz.IV) destroyed Toxic85828 (T-34)
             KillDetailTruth(
-                "sw_pzkpfw_IV_ausf_J", victim_username="Toxic85828", victim_vehicle="ussr_t_34_1942", time_seconds=683
+                "sw_pzkpfw_IV_ausf_J", victim_username="Toxic85828", victim_vehicle="ussr_t_34_1941", time_seconds=683
             ),
             # 17:06 oliveshellhound (L-62 ANTI II) shot down FAN_Falcon (F4U-1)
             KillDetailTruth(
@@ -692,7 +695,7 @@ PLAYERS: list[PlayerTruth] = [
             ),
             # 17:46 Evokekirby (Martin 139WC) destroyed Toxic85828 (T-34)
             KillDetailTruth(
-                "martin_139wc", victim_username="Toxic85828", victim_vehicle="ussr_t_34_1941_l_11", time_seconds=1066
+                "martin_139wc", victim_username="Toxic85828", victim_vehicle="ussr_t_34_1941", time_seconds=1066
             ),
         ],
         death_details=[
@@ -1436,7 +1439,7 @@ PLAYERS: list[PlayerTruth] = [
             ),
             # 8:08 Toxic85828 (T-34) destroyed InDommWeTrust (Pz.Bef.Wg.IV J)
             KillDetailTruth(
-                "ussr_t_34_1942",
+                "ussr_t_34_1941",
                 victim_username="InDommWeTrust",
                 victim_vehicle="germ_panzerbefelhswagen_IV_ausf_J",
                 time_seconds=488,
@@ -1465,18 +1468,18 @@ PLAYERS: list[PlayerTruth] = [
             DeathDetailTruth("ussr_t_34_1942", killer_username="Ranol", killer_vehicle="sw_sav_fm48", time_seconds=475),
             # 11:23 oliveshellhound (⊙Pz.IV) destroyed Toxic85828 (T-34)
             DeathDetailTruth(
-                "ussr_t_34_1942",
+                "ussr_t_34_1941",
                 killer_username="oliveshellhound",
                 killer_vehicle="sw_pzkpfw_IV_ausf_J",
                 time_seconds=683,
             ),
             # 17:46 Evokekirby (Martin 139WC) destroyed Toxic85828 (T-34)
             DeathDetailTruth(
-                "ussr_t_34_1941_l_11", killer_username="Evokekirby", killer_vehicle="martin_139wc", time_seconds=1066
+                "ussr_t_34_1941", killer_username="Evokekirby", killer_vehicle="martin_139wc", time_seconds=1066
             ),
             # 20:55 Ranol (⊙Pz.IV) destroyed Toxic85828 (T-34)
             DeathDetailTruth(
-                "ussr_t_34_1942", killer_username="Ranol", killer_vehicle="sw_pzkpfw_IV_ausf_J", time_seconds=1255
+                "ussr_t_34_1941_l_11", killer_username="Ranol", killer_vehicle="sw_pzkpfw_IV_ausf_J", time_seconds=1255
             ),
             # 22:47 Ranol (⊙Pz.IV) destroyed Toxic85828 (T-34)
             DeathDetailTruth(
