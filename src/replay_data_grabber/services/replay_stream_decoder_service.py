@@ -103,6 +103,9 @@ _KILL_MARKER = bytes([0x02, 0x58, 0x58, 0xF0])
 _AWARD_MARKER = bytes([0x02, 0x58, 0x78, 0xF0])
 _LATE_SPAWN_MARKER = bytes([0x02, 0x58, 0x56, 0xF0])
 _PHYSICS_73_MARKER = bytes([0x02, 0x58, 0x73, 0xF0])
+# Entity interaction event: pairs two EIDs (e.g. proximity, hit).
+# Structure: [02 58 37 f0] [07 00 06] [eid_A u16 LE] [eid_B u16 LE] [6c ...]
+_INTERACTION_37_MARKER = bytes([0x02, 0x58, 0x37, 0xF0])
 _TANKMODELS_PREFIX = b"tankModels/"
 
 # Absolute maximum sane slot index (32-player lobbies have slots 0-31)
@@ -120,6 +123,13 @@ _PHYSICS_TM_MAX_TICKS: int = 250  # ≈ 25 s; TM event must be close to the phys
 # after the identified spawn incarnation ended and the EID was subsequently reused;
 # the physics-derived attribution would be stale and is discarded.
 _PHYSICS_STALE_TICKS: int = 500  # ≈ 50 s; generous upper bound for activity silence
+
+# Minimum number of physics73 events required for an EID before it is considered a
+# reliable physics anchor.  The u16 at offset+4 in physics73 events is a sub-type
+# header, NOT an entity-ID in the kill-event sense; matches to kill-event EIDs are
+# purely coincidental.  Real physics-tracked entities produce 100+ events while
+# false positives typically yield < 10.
+_MIN_PHYSICS_EVENTS: int = 15
 # For the *initial* incarnation (first physics73 event for an EID) the matched TM
 # event must also be temporally isolated on its left side: no other TM event may
 # have fired within this many ticks before it.  At match-start many vehicles spawn
@@ -229,6 +239,18 @@ class _StreamParseState:
     # 025873f0 events.  Built incrementally by the physics handler.
     physics_eid_offsets: dict[int, list[int]] = field(default_factory=dict)
 
+    # Interaction (UNKNOWN_37) index: EID -> sorted list of stream offsets
+    # for all 025837f0 events where the EID appears as eid_A or eid_B.
+    # Provides additional "entity was active at tick T" evidence used to
+    # narrow dead-window disambiguation candidates.
+    interaction_eid_offsets: dict[int, list[int]] = field(default_factory=dict)
+
+    # Local-player EID sequence from 025837f0 events.  eid_A is always the
+    # replay recorder's current entity.  Tracking distinct values in order
+    # gives every respawn EID the recorder used, including vehicles where
+    # they never got a kill.  Stored as list[(offset, eid_a)].
+    local_player_eid_sequence: list[tuple[int, int]] = field(default_factory=list)
+
 
 class ReplayStreamDecoderService:
     """Decodes the compressed rec_data stream from a War Thunder replay."""
@@ -268,6 +290,7 @@ class ReplayStreamDecoderService:
         raw: bytes,
         *,
         slot_deaths: dict[int, int] | None = None,
+        slot_teams: dict[int, int] | None = None,
     ) -> StreamDecodeResult:
         """
         Decompress the rec_data stream from raw .wrpl bytes and decode events.
@@ -278,6 +301,10 @@ class ReplayStreamDecoderService:
                          from the parsed BLK JSON.  When provided, EID death
                          attribution is capped per slot and timeline inference fills
                          any remaining gap.
+            slot_teams:  Optional mapping of slot index -> team number (1 or 2)
+                         from the parsed BLK JSON.  When provided, cross-team
+                         checks in victim EID inference use authoritative team
+                         data instead of heuristic slot-based guesses.
 
         Returns:
             StreamDecodeResult with vehicle_kills, vehicle_deaths, awards.
@@ -288,13 +315,14 @@ class ReplayStreamDecoderService:
             logger.warning(f"Failed to decompress rec_data stream: {exc}")
             return StreamDecodeResult()
 
-        return self.decode_stream(stream_data, slot_deaths=slot_deaths)
+        return self.decode_stream(stream_data, slot_deaths=slot_deaths, slot_teams=slot_teams)
 
     def decode_stream(
         self,
         stream_data: bytes,
         *,
         slot_deaths: dict[int, int] | None = None,
+        slot_teams: dict[int, int] | None = None,
     ) -> StreamDecodeResult:
         """
         Decode events directly from already-decompressed stream bytes.
@@ -319,6 +347,10 @@ class ReplayStreamDecoderService:
                          from the parsed BLK JSON.  When provided, EID death
                          attribution is capped per slot and timeline inference fills
                          any remaining gap.
+            slot_teams:  Optional mapping of slot index -> team number (1 or 2)
+                         from the parsed BLK JSON.  When provided, cross-team
+                         checks in victim EID inference use authoritative team
+                         data instead of heuristic slot-based guesses.
 
         Returns:
             StreamDecodeResult with vehicle_kills, vehicle_deaths, awards.
@@ -345,7 +377,7 @@ class ReplayStreamDecoderService:
         )
 
         # Phase 4: EID resolution and result construction
-        return self._build_result(state, slot_deaths=slot_deaths)
+        return self._build_result(state, slot_deaths=slot_deaths, slot_teams=slot_teams)
 
     # ------------------------------------------------------------------
     # Tick-iterating stream parser
@@ -359,6 +391,7 @@ class ReplayStreamDecoderService:
         0x78: "_handle_award_event",
         0x56: "_handle_late_spawn_event",
         0x73: "_handle_physics73_event",
+        0x37: "_handle_interaction37_event",
     }
 
     def _iterate_stream(self, stream_data: bytes, state: _StreamParseState) -> None:
@@ -494,6 +527,32 @@ class ReplayStreamDecoderService:
             eid = struct.unpack_from("<H", stream_data, offset + 4)[0]
             state.physics_eid_offsets.setdefault(eid, []).append(offset)
 
+    def _handle_interaction37_event(
+        self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState
+    ) -> None:
+        """Index an interaction event (02 58 37 f0) by both EIDs.
+
+        Structure: [02 58 37 f0] [07 00 06] [eid_A u16 LE@+7] [eid_B u16 LE@+9] ...
+        eid_A is always the replay recorder's (local player's) current entity.
+        Both eid_A and eid_B are recorded — the event proves both entities were
+        alive at this tick, providing disambiguation evidence for dead-window
+        attribution.
+
+        Additionally, eid_A is tracked in local_player_eid_sequence: each time
+        eid_A changes, the player has respawned in a new vehicle with a new EID.
+        """
+        if offset + 11 > len(stream_data):
+            return
+        eid_a = struct.unpack_from("<H", stream_data, offset + 7)[0]
+        eid_b = struct.unpack_from("<H", stream_data, offset + 9)[0]
+        state.interaction_eid_offsets.setdefault(eid_a, []).append(offset)
+        if eid_b != eid_a:
+            state.interaction_eid_offsets.setdefault(eid_b, []).append(offset)
+
+        # Track local-player EID changes (eid_a is the recorder's entity)
+        if not state.local_player_eid_sequence or state.local_player_eid_sequence[-1][1] != eid_a:
+            state.local_player_eid_sequence.append((offset, eid_a))
+
     # ------------------------------------------------------------------
     # Result builder (Phase 4: EID resolution + StreamDecodeResult)
     # ------------------------------------------------------------------
@@ -503,6 +562,7 @@ class ReplayStreamDecoderService:
         state: _StreamParseState,
         *,
         slot_deaths: dict[int, int] | None = None,
+        slot_teams: dict[int, int] | None = None,
     ) -> StreamDecodeResult:
         """
         Build a ``StreamDecodeResult`` from fully-accumulated ``_StreamParseState``.
@@ -590,6 +650,20 @@ class ReplayStreamDecoderService:
         if new_initial:
             logger.debug("Initial-spawn EID inferences: %d new EID mappings", new_initial)
 
+        # --- Local-player respawn EID inference (Method 6b) ---
+        # The 025837f0 interaction events encode the recorder's current EID as
+        # eid_A.  Each distinct eid_A value corresponds to a new vehicle life.
+        # Using the initial eid_A and the base+slot formula, we can derive the
+        # recorder's slot, then register ALL of their respawn EIDs — including
+        # vehicles where they never scored a kill.
+        new_local = self._infer_local_player_respawn_eids(
+            eid_history,
+            state.local_player_eid_sequence,
+            state.vehicle_activation_events,
+        )
+        if new_local:
+            logger.debug("Local-player respawn EID inferences: %d new EID mappings", new_local)
+
         # --- Dead-window TM activation inference (Method 7, multi-pass) ---
         # For victim EIDs with physics73 events, the entity was spawned (TM
         # activation) during the gap between the last physics event and the kill.
@@ -599,18 +673,24 @@ class ReplayStreamDecoderService:
         # act as additional constraints (e/f) in the next pass, allowing further
         # disambiguation.  Stops when no new EIDs are resolved.
         total_deadwindow = 0
+        m7_ambiguous_eids: set[int] = set()
         while True:
-            new_deadwindow = self._infer_deadwindow_victim_eids(
+            new_deadwindow, new_ambiguous = self._infer_deadwindow_victim_eids(
                 state.kill_events,
                 eid_history,
                 state.vehicle_activation_events,
                 state.physics_eid_offsets,
                 state.tick_offsets,
                 slot_deaths,
+                state.interaction_eid_offsets,
+                slot_teams=slot_teams,
             )
             total_deadwindow += new_deadwindow
+            m7_ambiguous_eids |= new_ambiguous
             if not new_deadwindow:
                 break
+        # Remove EIDs that were eventually resolved in later passes
+        m7_ambiguous_eids -= set(eid_history.keys())
         if total_deadwindow:
             logger.debug("Dead-window TM inferences: %d new EID mappings (multi-pass)", total_deadwindow)
 
@@ -633,6 +713,9 @@ class ReplayStreamDecoderService:
             result.slot_vehicle_timeline if result.slot_vehicle_timeline else {},
             state.tick_offsets,
             slot_deaths,
+            state.physics_eid_offsets,
+            m7_ambiguous_eids,
+            slot_teams=slot_teams,
         )
         if new_tm_death:
             logger.debug("TM-transition death inferences: %d new EID mappings", new_tm_death)
@@ -879,8 +962,8 @@ class ReplayStreamDecoderService:
         for victim_eid, kill_event in unresolved.items():
             all_phys = physics_eid_offsets.get(victim_eid, [])
             before_kill = [o for o in all_phys if o < kill_event.offset]
-            if not before_kill:
-                continue
+            if len(before_kill) < _MIN_PHYSICS_EVENTS:
+                continue  # too few physics events — likely false-positive matches
 
             # Find the LAST gap > _PHYSICS_INCARNATION_TICKS (strictly greater)
             last_boundary: int | None = None
@@ -940,7 +1023,9 @@ class ReplayStreamDecoderService:
         physics_eid_offsets: dict[int, list[int]],
         tick_offsets: list[int],
         slot_deaths: dict[int, int] | None,
-    ) -> int:
+        interaction_eid_offsets: dict[int, list[int]] | None = None,
+        slot_teams: dict[int, int] | None = None,
+    ) -> "tuple[int, set[int]]":
         """
         Attribute unresolved victim EIDs using dead-window TM activation (Method 7).
 
@@ -960,6 +1045,15 @@ class ReplayStreamDecoderService:
           (d) slot_deaths.get(S, 0) > 0  (S has at least one recorded death).
           (e) (S, vehicle) has NOT been attributed to any other known EID at any
               offset <= kill_event.offset (all-historical, not just latest entry).
+          (f) (S, vehicle) has NOT been attributed to any other known EID in any
+              kill event AFTER kill_event.offset (forward attribution constraint).
+          (j) If the victim EID has interaction37 activity within the dead window,
+              the candidate's TM must fire BEFORE that activity tick (the entity
+              was already alive, so it cannot have been spawned after).
+          (n) S must be on the opposite team from the killer.  When BLK team
+              data is available (via *slot_teams*), authoritative assignments are
+              used; otherwise falls back to a heuristic (slots 0-15 = team 1,
+              16-31 = team 2).  Players do not kill teammates in RB.
 
         Additionally, if VehicleService is available and the killer vehicle type
         can be determined:
@@ -973,7 +1067,10 @@ class ReplayStreamDecoderService:
         Only processes victim EIDs that have at least one physics73 event
         (zero-physics EIDs lack the dead-window anchor and are skipped).
 
-        Returns the number of new EID attributions added.
+        Returns a tuple of (count_added, ambiguous_eids) where count_added is
+        the number of new EID attributions added and ambiguous_eids is the set
+        of victim EIDs that had multiple candidates (i.e. Method 7 tried but
+        could not disambiguate).
         """
         if not vehicle_activation_events:
             return 0
@@ -982,15 +1079,6 @@ class ReplayStreamDecoderService:
 
         _AIR_TYPES = frozenset({VehicleType.FIGHTER, VehicleType.BOMBER, VehicleType.STRIKE_AIRCRAFT})
         _HELI_TYPES = frozenset({VehicleType.ATTACK_HELICOPTER, VehicleType.UTILITY_HELICOPTER})
-        # Vehicle types that engage only ground/sea targets (not other aircraft)
-        _GROUND_NON_AA_TYPES = frozenset(
-            {
-                VehicleType.LIGHT_TANK,
-                VehicleType.MEDIUM_TANK,
-                VehicleType.HEAVY_TANK,
-                VehicleType.TANK_DESTROYER,
-            }
-        )
 
         def tick_of(offset: int) -> int:
             return bisect.bisect_right(tick_offsets, offset) - 1
@@ -1020,18 +1108,32 @@ class ReplayStreamDecoderService:
             candidates_by_eid[event.victim_entity_id] = event  # last kill wins
 
         added = 0
+        ambiguous_eids: set[int] = set()
 
         for victim_eid, kill_event in candidates_by_eid.items():
             all_phys = physics_eid_offsets.get(victim_eid, [])
             before_kill = [o for o in all_phys if o < kill_event.offset]
-            if not before_kill:
-                continue  # no physics anchor — skip (zero-physics EIDs)
+            if len(before_kill) < _MIN_PHYSICS_EVENTS:
+                continue  # too few physics events — likely false-positive pattern matches
 
             last_phys_tick = tick_of(before_kill[-1])
             kill_tick = kill_event.tick_idx
 
             if kill_tick <= last_phys_tick:
                 continue  # no dead window
+
+            # --- Interaction-based activity floor ---
+            # If the victim EID appears in an interaction37 event between
+            # last_phys_tick and kill_tick, the entity was provably alive at
+            # that tick.  Any candidate whose TM activation is AFTER that tick
+            # cannot be the spawner (the entity already existed).
+            last_activity_tick = last_phys_tick
+            if interaction_eid_offsets:
+                ia_offsets = interaction_eid_offsets.get(victim_eid, [])
+                for ia_off in ia_offsets:
+                    ia_tick = tick_of(ia_off)
+                    if last_phys_tick < ia_tick < kill_tick and ia_tick > last_activity_tick:
+                        last_activity_tick = ia_tick
 
             # Skip EIDs already attributed in a prior pass of Method 7:
             # if eid_history already contains an entry with offset > last_phys
@@ -1089,9 +1191,27 @@ class ReplayStreamDecoderService:
                     if ev.tick_idx > death_tick_per_slot.get(resolved_slot, -1):
                         death_tick_per_slot[resolved_slot] = ev.tick_idx
 
-            # (g) Determine killer vehicle type for cross-type filtering.
-            killer_vtype = _get_vtype(kill_event.vehicle_name) if kill_event.vehicle_name else None
-            killer_is_ground_non_aa = killer_vtype in _GROUND_NON_AA_TYPES
+            # (f) Build a set of (slot, vehicle) pairs attributed to known EIDs
+            # in kill events AFTER kill_event.offset.  A vehicle that later
+            # appears as a victim with a resolved EID cannot simultaneously be
+            # the unresolved victim now.
+            forward_attributed: set[tuple[int, str]] = set()
+            for later_ev in kill_events:
+                if later_ev.offset <= kill_event.offset:
+                    continue
+                if later_ev.victim_entity_id == victim_eid:
+                    continue
+                later_hist = eid_history.get(later_ev.victim_entity_id)
+                if later_hist is None:
+                    continue
+                fwd_best: "tuple[int, str] | None" = None
+                for off, sl, veh in later_hist:
+                    if off <= later_ev.offset:
+                        fwd_best = (sl, veh)
+                    else:
+                        break
+                if fwd_best is not None:
+                    forward_attributed.add(fwd_best)
 
             # Find candidate slots: TM in (last_phys_tick, kill_tick),
             # still active at kill_tick, not killer, deaths > 0, not already
@@ -1113,6 +1233,14 @@ class ReplayStreamDecoderService:
                 latest_window_tm = window_tms[-1]
                 latest_window_tick = tick_of(latest_window_tm.offset)
 
+                # (j) interaction-activity: if we know the victim EID was active
+                # at last_activity_tick (from interaction37 evidence), the
+                # spawning TM must have fired BEFORE that activity.  A TM that
+                # fires after the entity was already observed active cannot be
+                # the spawn that produced this entity.
+                if last_activity_tick > last_phys_tick and latest_window_tick > last_activity_tick:
+                    continue
+
                 # (b) no TM for this slot between latest_window_tm and kill_tick
                 subsequent = [tm for tm in tms if latest_window_tick < tick_of(tm.offset) < kill_tick]
                 if subsequent:
@@ -1124,21 +1252,23 @@ class ReplayStreamDecoderService:
                 if (slot, vname) in attributed_at_kill:
                     continue
 
+                # (f) exclude candidates attributed to a known EID in a later kill
+                if (slot, vname) in forward_attributed:
+                    continue
+
                 # (g) spawn-after-death: only accept a candidate slot when we
-                # have a confirmed death for it *after* last_phys_tick.  This
-                # ensures the slot actually died and respawned within the dead
-                # window; slots whose last known death predates last_phys_tick
-                # were already alive before the window began and cannot be the
-                # newly-spawned entity.  Slots with no death record (e.g. no
-                # kills to anchor the EID in history) are also excluded.
+                # have a confirmed death for it *after* last_phys_tick.
                 if death_tick_per_slot.get(slot, -1) <= last_phys_tick:
                     continue
 
-                # (h) if killer is a ground non-AA vehicle, exclude aircraft candidates
-                if killer_is_ground_non_aa:
-                    cand_vtype = _get_vtype(vname)
-                    if cand_vtype in _AIR_TYPES or cand_vtype in _HELI_TYPES:
-                        continue
+                # (h/k) The victim EID has physics73 events — physics73 tracks
+                # ground entities while aircraft use physics74.  Exclude
+                # aircraft/helicopter candidates since a ground entity cannot
+                # belong to an airborne spawn.  (Subsumes the former
+                # killer-based ground-non-AA filter which was a weaker check.)
+                cand_vtype = _get_vtype(vname)
+                if cand_vtype in _AIR_TYPES or cand_vtype in _HELI_TYPES:
+                    continue
 
                 # (i) TM-after-death: the TM event must come AFTER the slot's last
                 # confirmed death (proving it's a respawn, not an ongoing life).
@@ -1146,14 +1276,40 @@ class ReplayStreamDecoderService:
                 if slot_last_death >= 0 and latest_window_tick <= slot_last_death:
                     continue
 
-                # NOTE: Cross-team filtering (victim must be on a different team
-                # from killer) is intentionally omitted because the t1/t2 entity
-                # naming convention does NOT correspond to the JSON ``team`` field.
-                # Slots 0-15 and 16-31 may contain players from either team.
+                # (n) Cross-team: victim slot must be on the opposite team from
+                # the killer.  When authoritative team data is available (from
+                # BLK), use it directly; otherwise fall back to the slot-based
+                # heuristic (slots 0-15 = team 1, 16-31 = team 2).
+                if slot_teams:
+                    killer_team = slot_teams.get(kill_event.slot)
+                    slot_team = slot_teams.get(slot)
+                else:
+                    killer_team = 1 if kill_event.slot < 16 else 2
+                    slot_team = 1 if slot < 16 else 2
+                if slot_team == killer_team:
+                    continue
 
                 cands.append((slot, vname, latest_window_tm.offset))
 
+            # (l) Post-kill respawn evidence: if multiple candidates remain
+            # and exactly one has a TM (vehicle switch) shortly after the kill,
+            # prefer it — respawning proves they died in that window.
+            _RESPAWN_MAX_TICKS = 500
+            if len(cands) > 1:
+                with_respawn: list[tuple[int, str, int]] = []
+                for s, v, o in cands:
+                    tms_for_s = slot_tms.get(s, [])
+                    next_tms = [tm for tm in tms_for_s if tick_of(tm.offset) > kill_tick]
+                    if next_tms:
+                        first_next_tick = tick_of(next_tms[0].offset)
+                        if first_next_tick - kill_tick <= _RESPAWN_MAX_TICKS:
+                            with_respawn.append((s, v, o))
+                if len(with_respawn) == 1:
+                    cands = with_respawn
+
             if len(cands) != 1:
+                if len(cands) > 1:
+                    ambiguous_eids.add(victim_eid)
                 continue  # ambiguous or no match
 
             inferred_slot, inferred_vehicle, tm_offset = cands[0]
@@ -1178,7 +1334,7 @@ class ReplayStreamDecoderService:
                 kill_tick,
             )
 
-        return added
+        return added, ambiguous_eids
 
     def _infer_tm_transition_deaths(
         self,
@@ -1187,6 +1343,9 @@ class ReplayStreamDecoderService:
         slot_vehicle_timeline: dict[int, list[tuple[int, str]]],
         tick_offsets: list[int],
         slot_deaths: dict[int, int] | None,
+        physics_eid_offsets: dict[int, list[int]] | None = None,
+        m7_ambiguous_eids: set[int] | None = None,
+        slot_teams: dict[int, int] | None = None,
     ) -> int:
         """
         Attribute unresolved victim EIDs using TM-timeline transition matching.
@@ -1212,6 +1371,34 @@ class ReplayStreamDecoderService:
         """
         if not slot_deaths or not slot_vehicle_timeline:
             return 0
+
+        from src.common.enums.vehicle_type import VehicleType
+
+        _AIR_TYPES = frozenset({VehicleType.FIGHTER, VehicleType.BOMBER, VehicleType.STRIKE_AIRCRAFT})
+        _HELI_TYPES = frozenset({VehicleType.ATTACK_HELICOPTER, VehicleType.UTILITY_HELICOPTER})
+        _GROUND_NON_AA = frozenset(
+            {
+                VehicleType.LIGHT_TANK,
+                VehicleType.MEDIUM_TANK,
+                VehicleType.HEAVY_TANK,
+                VehicleType.TANK_DESTROYER,
+            }
+        )
+
+        def _get_vtype(vehicle_name: str) -> "VehicleType | None":
+            if self._vehicle_service is None:
+                return None
+            v = self._vehicle_service.get_vehicles_by_internal_name(vehicle_name)
+            if v is None:
+                return None
+            return v.vehicle_type
+
+        def _is_air(vehicle_name: str) -> bool:
+            vt = _get_vtype(vehicle_name)
+            return vt in _AIR_TYPES or vt in _HELI_TYPES
+
+        def _is_ground_non_aa(vehicle_name: str) -> bool:
+            return _get_vtype(vehicle_name) in _GROUND_NON_AA
 
         def tick_of(offset: int) -> int:
             return bisect.bisect_right(tick_offsets, offset) - 1
@@ -1240,6 +1427,11 @@ class ReplayStreamDecoderService:
             slot_resolved_counts[slot] = len(deaths)
 
         # Build list of unresolved kill events sorted by tick.
+        # NOTE: M7-ambiguous EIDs (where Method 7 found multiple candidates)
+        # are NOT filtered here — they participate in the greedy assignment
+        # to preserve the correct cascade order.  Instead, M8's claims for
+        # M7-ambiguous EIDs are stripped out AFTER the greedy pass.
+        _m7_skip = m7_ambiguous_eids or set()
         unresolved_kills: list[_KillEvent] = []
         for ev in kill_events:
             if ev.victim_entity_id not in eid_history:
@@ -1251,6 +1443,25 @@ class ReplayStreamDecoderService:
 
         added = 0
 
+        # ------------------------------------------------------------------
+        # Two-pass assignment:
+        #
+        # Pass 1 — Transition windows (finite span):
+        #   Each consecutive TM pair (A@tick_i, B@tick_j) represents exactly
+        #   ONE death in vehicle A.  For each window, pick the best candidate
+        #   kill event (closest to the window end / respawn tick).  Sort all
+        #   proposals by window span (tightest first) and assign greedily.
+        #   Ties in span are broken by distance-to-end (closest first).
+        #
+        # Pass 2 — Final-vehicle windows (open-ended):
+        #   For slots that still have remaining death budget and a final
+        #   vehicle with no subsequent transition, assign unresolved kills
+        #   that occur after the last TM activation.  These are inherently
+        #   less certain, so they are processed after all transition windows.
+        # ------------------------------------------------------------------
+
+        # Per-slot remaining-deaths budget.
+        slot_budget: dict[int, int] = {}
         for slot, timeline in slot_vehicle_timeline.items():
             total_deaths = slot_deaths.get(slot, 0)
             if total_deaths == 0:
@@ -1259,84 +1470,158 @@ class ReplayStreamDecoderService:
             remaining = total_deaths - already_resolved
             if remaining <= 0:
                 continue
+            slot_budget[slot] = remaining
 
-            # Walk consecutive transitions (vehicle_A -> vehicle_B).
+        # === Pass 1: Transition-window proposals ===
+        # _TransProposal: (window_span, dist_to_end, eid, slot, vehicle, tm_offset)
+        _TransProposal = tuple[int, int, int, int, str, int]
+        trans_proposals: list[_TransProposal] = []
+
+        for slot, timeline in slot_vehicle_timeline.items():
+            if slot not in slot_budget:
+                continue
+
             for i in range(len(timeline) - 1):
-                if remaining <= 0:
-                    break
                 tm_offset_curr, vehicle_curr = timeline[i]
                 tm_offset_next, _vehicle_next = timeline[i + 1]
                 tick_curr = tick_of(tm_offset_curr)
                 tick_next = tick_of(tm_offset_next)
+                window_span = tick_next - tick_curr
 
-                # Search unresolved kill events in (tick_curr, tick_next] window.
-                # Pick the one closest to tick_next (most likely the death trigger).
-                best_candidate: _KillEvent | None = None
+                # Find the best candidate for this window: closest to end.
+                best_ev: _KillEvent | None = None
+                best_dist: int = window_span + 1
                 for ev in unresolved_kills:
                     if ev.tick_idx <= tick_curr:
                         continue
                     if ev.tick_idx > tick_next:
-                        break  # sorted by tick
-                    if ev.slot == slot:
-                        continue  # no self-kills
-                    if ev.victim_entity_id in claimed_eids:
-                        continue  # already claimed by another slot
-                    if best_candidate is None or ev.tick_idx > best_candidate.tick_idx:
-                        best_candidate = ev
-
-                if best_candidate is not None:
-                    eid = best_candidate.victim_entity_id
-                    new_entry = (tm_offset_curr, slot, vehicle_curr)
-                    existing = eid_history.get(eid)
-                    if existing is None:
-                        eid_history[eid] = [new_entry]
-                    else:
-                        existing.append(new_entry)
-                        existing.sort(key=lambda x: x[0])
-                    claimed_eids.add(eid)
-                    added += 1
-                    remaining -= 1
-                    logger.debug(
-                        "TM-transition death: EID %d -> slot %d %r (ticks %d-%d)",
-                        eid,
-                        slot,
-                        vehicle_curr,
-                        tick_curr,
-                        tick_next,
-                    )
-
-            # Handle remaining deaths in the final vehicle.
-            if remaining > 0 and timeline:
-                last_tm_offset, last_vehicle = timeline[-1]
-                last_tick = tick_of(last_tm_offset)
-
-                for ev in unresolved_kills:
-                    if remaining <= 0:
                         break
-                    if ev.tick_idx <= last_tick:
-                        continue
                     if ev.slot == slot:
                         continue
-                    if ev.victim_entity_id in claimed_eids:
+                    if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot):
                         continue
-                    eid = ev.victim_entity_id
-                    new_entry = (last_tm_offset, slot, last_vehicle)
-                    existing = eid_history.get(eid)
-                    if existing is None:
-                        eid_history[eid] = [new_entry]
-                    else:
-                        existing.append(new_entry)
-                        existing.sort(key=lambda x: x[0])
-                    claimed_eids.add(eid)
-                    added += 1
-                    remaining -= 1
-                    logger.debug(
-                        "TM-transition death (final): EID %d -> slot %d %r (after tick %d)",
-                        eid,
-                        slot,
-                        last_vehicle,
-                        last_tick,
+                    if _is_air(vehicle_curr) and _is_ground_non_aa(ev.vehicle_name):
+                        continue
+                    if _is_ground_non_aa(vehicle_curr) and _is_air(ev.vehicle_name):
+                        continue
+                    dist = tick_next - ev.tick_idx
+                    if dist < best_dist:
+                        best_dist = dist
+                        best_ev = ev
+
+                if best_ev is not None:
+                    trans_proposals.append(
+                        (
+                            window_span,
+                            best_dist,
+                            best_ev.victim_entity_id,
+                            slot,
+                            vehicle_curr,
+                            tm_offset_curr,
+                        )
                     )
+
+        # Sort by (window_span ASC, dist_to_end ASC) — tightest windows first.
+        trans_proposals.sort()
+
+        for window_span, dist_to_end, eid, slot, vehicle, tm_offset in trans_proposals:
+            if eid in claimed_eids:
+                continue
+            budget = slot_budget.get(slot, 0)
+            if budget <= 0:
+                continue
+
+            new_entry = (tm_offset, slot, vehicle)
+            existing = eid_history.get(eid)
+            if existing is None:
+                eid_history[eid] = [new_entry]
+            else:
+                existing.append(new_entry)
+                existing.sort(key=lambda x: x[0])
+            claimed_eids.add(eid)
+            slot_budget[slot] = budget - 1
+            added += 1
+            logger.debug(
+                "TM-transition death: EID %d -> slot %d %r (window_span %d, dist_to_end %d)",
+                eid,
+                slot,
+                vehicle,
+                window_span,
+                dist_to_end,
+            )
+
+        # === Pass 2: Final-vehicle windows (open-ended) ===
+        # Collect (eid, slot, vehicle, tm_offset) proposals, then sort
+        # so that more-constrained slots (lower remaining budget) are
+        # processed first — they have fewer options, so their assignments
+        # are more likely to be correct.
+        remaining_kills: list[_KillEvent] = [ev for ev in unresolved_kills if ev.victim_entity_id not in claimed_eids]
+
+        _FinalProp = tuple[int, int, int, str, int]  # (budget, eid, slot, vehicle, tm_offset)
+        final_proposals: list[_FinalProp] = []
+
+        for slot, timeline in slot_vehicle_timeline.items():
+            budget = slot_budget.get(slot, 0)
+            if budget <= 0 or not timeline:
+                continue
+
+            last_tm_offset, last_vehicle = timeline[-1]
+            last_tick = tick_of(last_tm_offset)
+
+            for ev in remaining_kills:
+                if ev.tick_idx <= last_tick:
+                    continue
+                if ev.slot == slot:
+                    continue
+                if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot):
+                    continue
+                if _is_air(last_vehicle) and _is_ground_non_aa(ev.vehicle_name):
+                    continue
+                if _is_ground_non_aa(last_vehicle) and _is_air(ev.vehicle_name):
+                    continue
+                final_proposals.append((budget, ev.victim_entity_id, slot, last_vehicle, last_tm_offset))
+
+        # Sort by budget ASC (most-constrained slots first), then by
+        # EID (deterministic for same-budget).
+        final_proposals.sort(key=lambda p: (p[0], p[1]))
+
+        for budget_at_proposal, eid, slot, vehicle, tm_offset in final_proposals:
+            if eid in claimed_eids:
+                continue
+            budget = slot_budget.get(slot, 0)
+            if budget <= 0:
+                continue
+
+            new_entry = (tm_offset, slot, vehicle)
+            existing = eid_history.get(eid)
+            if existing is None:
+                eid_history[eid] = [new_entry]
+            else:
+                existing.append(new_entry)
+                existing.sort(key=lambda x: x[0])
+            claimed_eids.add(eid)
+            slot_budget[slot] = budget - 1
+            added += 1
+            logger.debug(
+                "TM-transition death (final): EID %d -> slot %d %r (after tick %d, budget %d)",
+                eid,
+                slot,
+                vehicle,
+                tick_of(tm_offset),
+                budget,
+            )
+
+        # Post-greedy cleanup: remove M8 claims for EIDs that Method 7
+        # flagged as ambiguous.  The greedy pass needed these EIDs in the pool
+        # to preserve correct assignment ordering, but the actual M8 assignments
+        # for M7-ambiguous EIDs are unreliable (M7's physics evidence is
+        # stronger, and M8 may have assigned them to wrong slots).
+        if _m7_skip:
+            for eid in claimed_eids & _m7_skip:
+                entries = eid_history.get(eid)
+                if entries is not None:
+                    del eid_history[eid]
+                    added -= 1
 
         return added
 
@@ -1429,6 +1714,106 @@ class ReplayStreamDecoderService:
                 slot,
                 tm.vehicle_name,
                 base_eid,
+            )
+
+        return added
+
+    def _infer_local_player_respawn_eids(
+        self,
+        eid_history: dict[int, list[tuple[int, int, str]]],
+        local_player_eid_sequence: list[tuple[int, int]],
+        vehicle_activation_events: list[_TankModelsEvent],
+    ) -> int:
+        """
+        Register all of the replay recorder's respawn EIDs (Method 6b).
+
+        The ``02 58 37 f0`` interaction events always carry the recorder's
+        (local player's) current entity ID as ``eid_A``.  Each time ``eid_A``
+        changes value, the recorder has respawned with a new entity.
+
+        Algorithm:
+          1.  Derive the local player's slot from the *first* ``eid_A`` in
+              the sequence using the ``base_eid + slot`` formula already
+              established by Method 6.
+          2.  For each distinct ``eid_A`` that is not yet in *eid_history*,
+              find the most-recent TM activation for the local slot whose
+              offset is <= the first appearance of that ``eid_A``.  That TM
+              gives us the vehicle name for the new entity.
+          3.  Insert ``(offset, slot, vehicle_name)`` into *eid_history*.
+
+        Returns the number of new EID attributions added.
+        """
+        if not local_player_eid_sequence:
+            return 0
+
+        from collections import Counter
+
+        # Step 1: derive base_eid from existing eid_history
+        base_counter: Counter[int] = Counter()
+        for eid, entries in eid_history.items():
+            for _, slot, _ in entries:
+                if 0 <= slot <= _MAX_SLOT:
+                    base_counter[eid - slot] += 1
+
+        _MIN_INITIAL_BASE = 64
+        valid_bases = {b: c for b, c in base_counter.items() if b >= _MIN_INITIAL_BASE}
+        if not valid_bases:
+            return 0
+
+        base_eid = max(valid_bases, key=lambda b: valid_bases[b])
+        if valid_bases[base_eid] < 3:
+            return 0
+
+        # Derive local player slot from their first eid_A
+        first_eid_a = local_player_eid_sequence[0][1]
+        local_slot: int | None = None
+
+        # Check if first_eid_a is an initial EID (base_eid + slot)
+        if base_eid <= first_eid_a <= base_eid + _MAX_SLOT:
+            local_slot = first_eid_a - base_eid
+        else:
+            # first_eid_a is a respawn EID; look it up in eid_history
+            entries = eid_history.get(first_eid_a)
+            if entries:
+                local_slot = entries[0][1]
+
+        if local_slot is None:
+            return 0
+
+        # Step 2: build TM timeline for local slot
+        slot_tms: list[_TankModelsEvent] = sorted(
+            [tm for tm in vehicle_activation_events if tm.slot == local_slot],
+            key=lambda e: e.offset,
+        )
+
+        # Collect distinct eid_a values (preserving first-seen order and offset)
+        seen_eids: dict[int, int] = {}  # eid -> first offset
+        for offset, eid_a in local_player_eid_sequence:
+            if eid_a not in seen_eids:
+                seen_eids[eid_a] = offset
+
+        added = 0
+        for eid_a, first_offset in seen_eids.items():
+            if eid_a in eid_history:
+                continue  # already known
+
+            # Find the most-recent TM activation at or before first_offset
+            vehicle_name: str | None = None
+            for tm in reversed(slot_tms):
+                if tm.offset <= first_offset:
+                    vehicle_name = tm.vehicle_name
+                    break
+
+            if vehicle_name is None:
+                continue
+
+            eid_history[eid_a] = [(first_offset, local_slot, vehicle_name)]
+            added += 1
+            logger.debug(
+                "Local-player respawn EID inferred: EID %d → slot %d %r",
+                eid_a,
+                local_slot,
+                vehicle_name,
             )
 
         return added

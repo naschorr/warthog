@@ -164,11 +164,15 @@ class ReplayParserService:
 
         # Decode rec_data stream for per-vehicle kills/deaths and awards.
         # Players are already built by _parse_results; we match them by slot index.
-        # Pass authoritative BLK death counts so the decoder can cap EID attribution
-        # and fill gaps via timeline inference without overcounting.
+        # Pass authoritative BLK death counts and team assignments so the decoder
+        # can cap EID attribution, enforce cross-team constraints, and fill gaps
+        # via timeline inference without overcounting.
         slot_deaths = {i: p.deaths.total for i, p in enumerate(replay.players)}
+        slot_teams = {i: p.team for i, p in enumerate(replay.players) if p.team is not None}
         try:
-            stream_result = self._replay_stream_decoder.decode_from_raw_replay(replay_data, slot_deaths=slot_deaths)
+            stream_result = self._replay_stream_decoder.decode_from_raw_replay(
+                replay_data, slot_deaths=slot_deaths, slot_teams=slot_teams
+            )
             self._apply_stream_result(replay, stream_result)
         except Exception as exc:
             logger.warning(f"Stream decode failed, skipping vehicle-level stats: {exc}")
