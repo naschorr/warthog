@@ -94,9 +94,7 @@ def create_all_player_bar_score_distribution(
         f"Median: {median_score:.0f}<br>"
         f"Std Dev: {std_score:.0f}<br>"
         f"Min: {df['player.score'].min()}<br>"
-        f"Max: {df['player.score'].max()}<br><br>"
-        f"<b>Total Players:</b> {total_battles}<br>"
-        f"<b>Unique Players:</b> {unique_players}"
+        f"Max: {df['player.score'].max()}"
     )
 
     fig.add_annotation(
@@ -118,9 +116,10 @@ def create_all_player_bar_score_distribution(
     if country_filters:
         label = "Country" if len(country_filters) == 1 else "Countries"
         title_filters[label] = ", ".join(c.value for c in country_filters)
-    title_filters["Battles"] = str(total_battles)
+    title_filters["Total Players"] = str(total_battles)
+    title_filters["Unique Players"] = str(unique_players)
 
-    title = title_builder.build_title("Score Distribution (All Players)", filters=title_filters)
+    title = title_builder.build_title("Score Distribution", filters=title_filters)
 
     # --- Layout -------------------------------------------------------------
     fig.update_layout(
