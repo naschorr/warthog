@@ -80,42 +80,27 @@ def create_bar_score_distribution(player_performance_df: pd.DataFrame, *, player
 
     # Determine annotation positions to avoid overlap
     # If mean and median are close (within 5% of the range), offset them
-    score_range = max_score - min_score
-    values_close = abs(mean_score - median_score) < (score_range * 0.05)
-
-    if values_close:
-        # Position mean annotation higher and median lower
-        mean_position = "top"
-        median_position = "bottom"
-        mean_y_offset = 10  # Pixels above the line
-        median_y_offset = -10  # Pixels below the line
-    else:
-        # Use default positioning
-        mean_position = "top"
-        median_position = "top"
-        mean_y_offset = 0
-        median_y_offset = 0
-
-    # Add mean line with offset annotation
     fig.add_vline(
         x=mean_score,
         line_dash="dot",
         line_color="black",
         annotation_text=f"Mean: {mean_score:.0f}",
-        annotation_position=mean_position,
-        annotation=dict(
-            yshift=mean_y_offset,
-        ),
+        annotation_position="top",
     )
 
-    # Add median line with offset annotation
     fig.add_vline(
         x=median_score,
         line_dash="dash",
         line_color="black",
-        annotation_text=f"Median: {median_score:.0f}",
-        annotation_position=median_position,
-        annotation=dict(yshift=median_y_offset),
+    )
+    fig.add_annotation(
+        x=median_score,
+        y=-0.1,
+        xref="x",
+        yref="paper",
+        text=f"Median: {median_score:.0f}",
+        showarrow=False,
+        font=dict(size=12),
     )
 
     # Build title with filters
@@ -181,7 +166,7 @@ def create_bar_score_distribution(player_performance_df: pd.DataFrame, *, player
             # Reverse the legend order to match visual stacking (top item first)
             traceorder="reversed",
         ),
-        margin=dict(r=150),  # Add right margin for legend
+        margin=dict(r=150, b=60),  # Add right margin for legend, bottom margin for median label
     )
 
     return fig
