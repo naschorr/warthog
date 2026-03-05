@@ -1,5 +1,5 @@
 from src.replay_data_explorer.enums import BattleRatingTier
-from src.replay_data_explorer.common import hex_to_rgba
+from src.replay_data_explorer.common import get_graph_width, hex_to_rgba
 
 # Define common colors for battle rating tiers
 BATTLE_RATING_TIER_COLORS = {
@@ -60,3 +60,12 @@ PLOTLY_BATTLE_OUTCOME_DISPLAY = {
 
 # Ordered list of outcomes for consistent legend ordering
 PLOTLY_BATTLE_OUTCOME_ORDER = ["success", "fail", "left"]
+
+# Standard graph widths by flavor
+PLOTLY_GRAPH_WIDTH = {
+    "heatmap": 1200,  # Minimum width for heatmaps (they scale dynamically)
+    "pie": 800,
+    "compact": 800,   # Simple charts without complex legends
+    "default": 1000,
+}
+

@@ -216,7 +216,7 @@ def create_scatter_score_vs_br(
         xaxis=dict(title="Battle Rating", gridcolor="lightgray", gridwidth=1, zeroline=False),
         yaxis=dict(title="Score", gridcolor="lightgray", gridwidth=1, zeroline=False),
         plot_bgcolor="white",
-        width=1000,
+        width=get_graph_width(),
         height=600,
         legend=dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02),
         margin=dict(r=150),  # Add right margin for legend

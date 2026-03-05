@@ -153,7 +153,7 @@ def create_bar_score_distribution(player_performance_df: pd.DataFrame, *, player
         xaxis=dict(title="Score", gridcolor="lightgray", gridwidth=1, zeroline=False),
         yaxis=dict(title="Frequency", gridcolor="lightgray", gridwidth=1, zeroline=False),
         plot_bgcolor="white",
-        width=1000,
+        width=get_graph_width(),
         height=600,
         barmode="stack",  # Enable stacking
         hovermode="closest",

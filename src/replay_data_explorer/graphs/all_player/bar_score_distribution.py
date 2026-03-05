@@ -128,7 +128,7 @@ def create_all_player_bar_score_distribution(
         xaxis=dict(title="Score", gridcolor="lightgray", gridwidth=1, zeroline=False),
         yaxis=dict(title="Frequency", gridcolor="lightgray", gridwidth=1, zeroline=False),
         plot_bgcolor="white",
-        width=800,
+        width=get_graph_width(),
         height=600,
         showlegend=False,
         margin=dict(b=60),

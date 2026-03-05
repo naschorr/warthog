@@ -113,7 +113,7 @@ def create_bar_squad_tier_distribution(
         xaxis=dict(title="Squad Type", tickangle=0),
         yaxis=dict(title="Percentage (%)", range=[0, 100]),
         barmode="stack",
-        width=800,
+        width=get_graph_width("compact"),
         height=600,
         legend=dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02),
         margin=dict(r=150),  # Add right margin for legend

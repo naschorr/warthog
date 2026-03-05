@@ -188,7 +188,7 @@ def create_heatmap_premium_br_delta_by_country_and_br(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
         xaxis=dict(title="Battle Rating", side="bottom", tickangle=45 if len(available_brs) > 10 else 0),
         yaxis=dict(title="Country", side="left"),
-        width=max(800, len(available_brs) * 40),  # Dynamic width based on BR count
+        width=max(get_graph_width("heatmap"), len(available_brs) * 40),  # Dynamic width based on BR count
         height=max(400, len(available_countries) * 60),  # Dynamic height based on country count
         plot_bgcolor="white",
         margin=dict(l=100, r=100, t=80, b=100),

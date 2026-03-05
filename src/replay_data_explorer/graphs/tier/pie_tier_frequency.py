@@ -90,7 +90,7 @@ def create_pie_tier_frequency(player_performance_df: pd.DataFrame, *, player_nam
     # Update layout
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        width=800,
+        width=get_graph_width("pie"),
         height=600,
         showlegend=False,
         plot_bgcolor="white",

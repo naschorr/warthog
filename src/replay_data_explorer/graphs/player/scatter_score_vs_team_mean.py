@@ -153,7 +153,7 @@ def create_scatter_score_vs_team_mean(
             zerolinewidth=1.5,
         ),
         plot_bgcolor="white",
-        width=1000,
+        width=get_graph_width(),
         height=600,
         legend=dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02),
         margin=dict(r=150),
