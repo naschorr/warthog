@@ -56,56 +56,85 @@ def create_scatter_score_vs_br(
     if std_dev is not None:
         df = data_filterer.filter_outliers(df, "player.score", std_dev)
 
+    outcome_symbols = PLOTLY_BATTLE_OUTCOME_SYMBOLS
+    outcome_display_map = PLOTLY_BATTLE_OUTCOME_DISPLAY
+    outcome_config = [
+        (k, PLOTLY_BATTLE_OUTCOME_SYMBOLS[k], PLOTLY_BATTLE_OUTCOME_DISPLAY[k]) for k in PLOTLY_BATTLE_OUTCOME_ORDER
+    ]
+
     # Create the interactive scatter plot
     fig = go.Figure()
 
-    # Add scatter traces for each tier status
+    # One trace per tier — clicking a tier legend item filters all points of that tier.
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
         tier_data = df[df["player.tier_status"] == tier_status]
-        if not tier_data.empty:
-            tier_status_display = (
-                battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(tier_status)
-            )
+        if tier_data.empty:
+            continue
 
-            # Prepare custom data with all the hover information
-            custom_data = pd.DataFrame(
-                {
-                    "username": tier_data["player.username"],
-                    "country": tier_data["player.country"],
-                    "battle_rating": tier_data["battle_rating"],
-                    "team_avg": tier_data["team_avg_score"],
-                    "start_time": tier_data["start_time"],
-                    "session_id": tier_data["session_id"],
-                }
-            )
+        tier_status_display = battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(
+            tier_status
+        )
 
-            fig.add_trace(
-                go.Scatter(
-                    x=tier_data["player.battle_rating"],
-                    y=tier_data["player.score"],
-                    mode="markers",
-                    name=tier_status_display,
-                    marker=dict(
-                        color=PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status],
-                        size=8,
-                        line=dict(width=1, color="white"),
-                        opacity=0.7,
-                    ),
-                    customdata=custom_data.values,
-                    hovertemplate=(
-                        "<b>%{customdata[0]}</b><br>"
-                        + "Country: %{customdata[1]}<br>"
-                        + "BR: %{customdata[2]}<br>"
-                        + "Tier Status: "
-                        + tier_status_display
-                        + "<br>"
-                        + "Score: %{y}<br>"
-                        + "Team Avg: %{customdata[3]:.0f}<br>"
-                        + "Date: %{customdata[4]}<br>"
-                        + "Session: %{customdata[5]}<br><extra></extra>"
-                    ),
-                )
+        # Per-point symbol encodes outcome
+        symbols = tier_data["status"].map(outcome_symbols).fillna("circle").tolist()
+        result_labels = tier_data["status"].map(outcome_display_map).fillna(tier_data["status"])
+
+        custom_data = pd.DataFrame(
+            {
+                "username": tier_data["player.username"],
+                "country": tier_data["player.country"],
+                "battle_rating": tier_data["battle_rating"],
+                "team_avg": tier_data["team_avg_score"],
+                "start_time": tier_data["start_time"],
+                "session_id": tier_data["session_id"],
+                "result": result_labels,
+            }
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=tier_data["player.battle_rating"],
+                y=tier_data["player.score"],
+                mode="markers",
+                name=tier_status_display,
+                marker=dict(
+                    color=PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status],
+                    symbol=symbols,
+                    size=8,
+                    line=dict(width=1, color="white"),
+                    opacity=0.7,
+                ),
+                customdata=custom_data.values,
+                hovertemplate=(
+                    "<b>%{customdata[0]}</b><br>"
+                    + "Country: %{customdata[1]}<br>"
+                    + "BR: %{customdata[2]}<br>"
+                    + "Tier: "
+                    + tier_status_display
+                    + "<br>"
+                    + "Result: %{customdata[6]}<br>"
+                    + "Score: %{y}<br>"
+                    + "Team Avg: %{customdata[3]:.0f}<br>"
+                    + "Date: %{customdata[4]}<br>"
+                    + "Session: %{customdata[5]}<br><extra></extra>"
+                ),
             )
+        )
+
+    # Shape key: one entry per outcome, no group title.
+    for status_key, symbol, status_name in outcome_config:
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                name=status_name,
+                legendgroup=f"outcome_{status_key}",
+                marker=dict(symbol=symbol, color="gray", size=8, line=dict(width=1, color="white")),
+                showlegend=True,
+                hoverinfo="skip",
+            )
+        )
 
     # Add overall trend line
     if len(df) > 1:
@@ -125,24 +154,6 @@ def create_scatter_score_vs_br(
                 name=f"Overall Trend (slope: {z[0]:.1f})",
                 line=dict(color=hex_to_rgba("#000000", PLOTLY_TRENDLINE_OPACITY), width=2, dash="dash"),
                 hovertemplate="Overall Trend<br>BR: %{x:.1f}<br>Predicted Score: %{y:.0f}<extra></extra>",
-                showlegend=True,
-            )
-        )
-
-    # Add team average line (mean team score at each BR)
-    if "team_avg_score" in df.columns:
-        # Group by battle rating and calculate mean team score
-        team_avg_by_br = df.groupby("player.battle_rating")["team_avg_score"].mean().reset_index()
-        team_avg_by_br = team_avg_by_br.sort_values("player.battle_rating")
-
-        fig.add_trace(
-            go.Scatter(
-                x=team_avg_by_br["player.battle_rating"],
-                y=team_avg_by_br["team_avg_score"],
-                mode="lines",
-                name="Team Average",
-                line=dict(color="#808080", width=2),  # Solid gray line
-                hovertemplate="Team Average<br>BR: %{x:.1f}<br>Avg Score: %{y:.0f}<extra></extra>",
                 showlegend=True,
             )
         )

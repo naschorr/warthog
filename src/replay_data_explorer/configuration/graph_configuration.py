@@ -43,3 +43,20 @@ PLOTLY_CONCLUSION_COLORS = {
 }
 
 MINIMUM_ITEMS_FOR_PLOTTING = 10
+
+# Marker symbol per battle outcome (Plotly symbol names)
+PLOTLY_BATTLE_OUTCOME_SYMBOLS = {
+    "success": "circle",
+    "fail": "x",
+    "left": "diamond",
+}
+
+# Display names per battle outcome
+PLOTLY_BATTLE_OUTCOME_DISPLAY = {
+    "success": "Victory",
+    "fail": "Defeat",
+    "left": "Left Early",
+}
+
+# Ordered list of outcomes for consistent legend ordering
+PLOTLY_BATTLE_OUTCOME_ORDER = ["success", "fail", "left"]

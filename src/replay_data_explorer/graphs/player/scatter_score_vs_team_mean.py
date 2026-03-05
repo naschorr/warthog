@@ -48,6 +48,10 @@ def create_scatter_score_vs_team_mean(
     # --- Build figure -------------------------------------------------------
     fig = go.Figure()
 
+    outcome_config = [
+        (k, PLOTLY_BATTLE_OUTCOME_SYMBOLS[k], PLOTLY_BATTLE_OUTCOME_DISPLAY[k]) for k in PLOTLY_BATTLE_OUTCOME_ORDER
+    ]
+
     # Scatter traces per tier status
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
         tier_data = df[df["player.tier_status"] == tier_status]
@@ -58,6 +62,9 @@ def create_scatter_score_vs_team_mean(
             tier_status
         )
 
+        symbols = tier_data["status"].map(PLOTLY_BATTLE_OUTCOME_SYMBOLS).fillna("circle").tolist()
+        result_labels = tier_data["status"].map(PLOTLY_BATTLE_OUTCOME_DISPLAY).fillna(tier_data["status"])
+
         custom_data = pd.DataFrame(
             {
                 "username": tier_data["player.username"],
@@ -67,6 +74,7 @@ def create_scatter_score_vs_team_mean(
                 "team_avg": tier_data["team_avg_score"],
                 "score_diff": tier_data["score_diff"],
                 "start_time": tier_data["start_time"],
+                "result": result_labels,
             }
         )
 
@@ -78,6 +86,7 @@ def create_scatter_score_vs_team_mean(
                 name=tier_display,
                 marker=dict(
                     color=PLOTLY_BATTLE_RATING_TIER_STATUS_COLORS[tier_status],
+                    symbol=symbols,
                     size=8,
                     line=dict(width=1, color="white"),
                     opacity=0.7,
@@ -90,12 +99,28 @@ def create_scatter_score_vs_team_mean(
                     + "Tier: "
                     + tier_display
                     + "<br>"
+                    + "Result: %{customdata[7]}<br>"
                     + "Player Score: %{customdata[3]:.0f}<br>"
                     + "Team Mean: %{customdata[4]:.0f}<br>"
                     + "Difference: %{customdata[5]:+.0f}<br>"
                     + "Date: %{customdata[6]}<br>"
                     + "<extra></extra>"
                 ),
+            )
+        )
+
+    # Shape key entries (no group title)
+    for status_key, symbol, status_name in outcome_config:
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                name=status_name,
+                legendgroup=f"outcome_{status_key}",
+                marker=dict(symbol=symbol, color="gray", size=8, line=dict(width=1, color="white")),
+                showlegend=True,
+                hoverinfo="skip",
             )
         )
 
