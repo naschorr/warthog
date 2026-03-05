@@ -118,6 +118,7 @@ def create_bar_squad_tier_distribution(
         legend=dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02),
         margin=dict(r=150),  # Add right margin for legend
         bargap=0.1,
+        plot_bgcolor="white",
     )
 
     return fig
