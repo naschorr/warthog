@@ -11,6 +11,9 @@ from .player.heatmap_winrate_by_country_and_br import (
 )
 from .player.scatter_score_vs_team_mean import create_scatter_score_vs_team_mean
 
+from .all_player.bar_score_distribution import (
+    create_all_player_bar_score_distribution,
+)
 from .all_player.heatmap_score_by_country_and_br import (
     create_heatmap_score_by_country_and_br as create_all_player_heatmap_score_by_country_and_br,
 )
@@ -51,6 +54,7 @@ __all__ = [
     "create_bar_score_vs_map",
     "create_bar_score_vs_common_squadmates",
     # All Players
+    "create_all_player_bar_score_distribution",
     "create_all_player_heatmap_score_by_country_and_br",
     "create_all_player_heatmap_winrate_by_country_and_br",
     "create_all_player_heatmap_winrate_by_country_and_player_br",
