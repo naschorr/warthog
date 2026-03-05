@@ -47,30 +47,94 @@ Parses the compressed binary rec_data stream embedded in .wrpl files to extract:
   Records every vehicle activation / switch for all vehicle classes.
   This is the comprehensive source for the slot->vehicle timeline.
 
-## Death attribution strategy
-  1. killer_entity_id lookup:  victim entity ID appears as killer entity ID in another kill event.
-  2. late_spawn:               victim entity ID appears in a 02 58 56 f0 event -> slot + vehicle directly.
-  3. Timeline-based inference: per-slot vehicle-switch timeline (from tankModels events) attributes
-                               remaining deaths by matching consecutive vehicle transitions; a per-
-                               vehicle credit counter prevents double-counting EID-resolved deaths.
-  4. Kill-event supplement:    slots with zero tankModels events but that appear as killers get a
-                               synthetic timeline seeded from their kill-event (slot, vehicle, offset)
-                               pairs.
-  5. Physics-gap inference:    for victims with no EID history, index 025873f0 physics events
-                               and use tick-frame boundaries (02582df0, ~10 Hz) to identify the
-                               current entity incarnation: the first physics event after a gap of
-                               >= 10 ticks (~1 s) in the EID's stream marks a new spawn.  The
-                               tankModels event immediately preceding that spawn point (within
-                               500 ticks / ~50 s) supplies slot + vehicle.  Accepted only when
-                               no other tankModels event fired in the window and the attributed
-                               slot differs from the killer's slot.
-  6. Unresolvable (~0-3/replay): players who died in their initial vehicle without ever killing,
-                               respawning, or producing an unambiguous tankModels activation.
-                               The stream contains no vehicle identity data for them.
+### Entity interaction event  (marker: 02 58 37 f0)
+  [02 58 37 f0][07 00 06][eid_A u16 LE][eid_B u16 LE][6c ...]
+  Pairs two entity IDs (proximity, hit, etc.).  eid_A is the recording
+  player's current entity ID; each distinct eid_A value corresponds to a
+  new vehicle life.  Used by Method 6b to derive the local player's
+  respawn EIDs.
 
-Stream exploration (02 58 37 f0, 02 58 73 f0, 02 58 2d f0) confirmed no undiscovered event type
-gives (entity_id, slot, vehicle) for initial spawns.  The kill event (02 58 58 f0) contains the
-KILLER's slot + vehicle + victim EID, but not the victim's slot or vehicle.
+### Physics event  (marker: 02 58 73 f0)
+  Per-entity physics state broadcast.  **Important**: the u16 at offset+4
+  is a sub-type header (commonly 5251), NOT an entity ID in the kill-event
+  sense.  Matches between this field and kill-event victim EIDs are purely
+  coincidental.  Real physics-tracked entities produce 100+ events per life;
+  false positives typically yield < 10.  A minimum threshold
+  (_MIN_PHYSICS_EVENTS = 15) filters noise in Methods 5 and 7.
+
+## Death attribution strategy
+
+  Eight methods run in sequence, each populating an ``eid_history`` map
+  (victim_eid → [(offset, slot, vehicle_name)]) so later methods can
+  build on earlier resolutions.
+
+  **EID resolution methods** (populate eid_history):
+
+  M1. **Killer-EID lookup**:  the victim's entity ID appears as the
+      killer_entity_id in another kill event, giving (slot, vehicle)
+      directly.
+
+  M2. **Late-spawn lookup**:  the victim's entity ID appears in a
+      02 58 56 f0 late-spawn event → (slot, vehicle) directly.
+
+  M5. **Physics-gap spawn inference**:  for victim EIDs with no history,
+      index physics73 events and use tick-frame boundaries (02 58 2d f0,
+      ~10 Hz) to identify entity incarnations.  A gap of ≥ 10 ticks
+      (~1 s) signals a death / EID-reassignment.  The tankModels event
+      immediately preceding the spawn point supplies (slot, vehicle).
+      Requires ≥ _MIN_PHYSICS_EVENTS physics events for the EID to
+      filter coincidental noise (see physics event note above).
+
+  M6. **Initial-spawn EID inference**:  derives missing initial-spawn
+      EIDs from the pattern ``eid = base_eid + slot``, where base_eid
+      is detected from already-resolved eid_history entries.  Only
+      applies to the first vehicle each player activates.
+
+  M6b. **Local-player respawn EID inference**:  the 02 58 37 f0
+       interaction events encode the recorder's current EID as eid_A.
+       Using the initial eid_A and the base+slot formula, the recorder's
+       slot is identified.  All subsequent distinct eid_A values are
+       registered as the recorder's respawn EIDs — including vehicles
+       where they never scored a kill.
+
+  M7. **Dead-window victim EID inference (multi-pass)**:  for victim EIDs
+      with sufficient physics73 events (≥ _MIN_PHYSICS_EVENTS), the
+      entity was alive between its last physics event and the kill.  Finds
+      the unique slot whose first new-vehicle TM activation in that window
+      is still their active vehicle at kill time.  Filters include:
+        - Cross-team: killer and victim must be on opposing teams
+          (teams are interleaved across slots, NOT slot-range based)
+        - Vehicle-type plausibility: ground non-AA vehicles cannot kill
+          aircraft (blocks implausible air-victim / ground-killer pairs)
+        - Death-budget: each slot's remaining deaths ≤ BLK death count
+      Runs in a loop: each pass may resolve new EIDs whose attributions
+      then act as constraints in the next pass.  Stops when no new EIDs
+      are resolved.
+
+  M8. **TM-transition death inference (two-pass)**:  for slots where
+      BLK deaths > EID-resolved deaths, walk the TM timeline and find
+      unresolved kill events whose tick falls in each vehicle's window.
+        - Pass 1 — transition windows (vehicle_A → vehicle_B):  proposals
+          sorted by (window_span, dist_to_end); tightest windows resolved
+          first, at most one kill per window.
+        - Pass 2 — final-vehicle windows (last vehicle, open-ended):
+          proposals sorted by (remaining_budget, eid); most-constrained
+          slots (fewest remaining deaths) get priority.
+      Same cross-team and vehicle-type filters as M7.
+
+  **Post-EID timeline-based death counting**:
+
+  After all EID resolution, per-slot vehicle-switch timelines (from
+  tankModels events) attribute any remaining deaths by matching
+  consecutive vehicle transitions.  A per-vehicle credit counter prevents
+  double-counting EID-resolved deaths.  Slots with zero tankModels events
+  but that appear as killers get a synthetic timeline seeded from their
+  kill-event (slot, vehicle, offset) pairs.
+
+  Unresolvable deaths (~0-3/replay) remain for players who died in their
+  initial vehicle without ever killing, respawning, or producing an
+  unambiguous tankModels activation, and whose victim EID could not be
+  resolved by any of the methods above.
 
 ## Vehicle timeline (slot_vehicle_timeline)
   Derived from vehicle activation events (both strategies).  Maps each slot to an ordered
@@ -569,8 +633,12 @@ class ReplayStreamDecoderService:
 
         Covers:
           - Vehicle kill / award / timeline population
-          - EID history construction (Methods 1 & 2)
-          - Physics-gap spawn inference (Method 5)
+          - EID history construction (M1 killer-EID + M2 late-spawn)
+          - Physics-gap spawn inference (M5)
+          - Initial-spawn EID inference (M6)
+          - Local-player respawn EID inference (M6b)
+          - Dead-window victim EID inference (M7, multi-pass)
+          - TM-transition death inference (M8, two-pass)
           - Per-event kill detail resolution
           - EID-based death attribution with BLK-cap enforcement
           - Timeline-based death inference for any remaining gap
@@ -1502,8 +1570,6 @@ class ReplayStreamDecoderService:
                         continue
                     if _is_air(vehicle_curr) and _is_ground_non_aa(ev.vehicle_name):
                         continue
-                    if _is_ground_non_aa(vehicle_curr) and _is_air(ev.vehicle_name):
-                        continue
                     dist = tick_next - ev.tick_idx
                     if dist < best_dist:
                         best_dist = dist
@@ -1576,8 +1642,6 @@ class ReplayStreamDecoderService:
                 if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot):
                     continue
                 if _is_air(last_vehicle) and _is_ground_non_aa(ev.vehicle_name):
-                    continue
-                if _is_ground_non_aa(last_vehicle) and _is_air(ev.vehicle_name):
                     continue
                 final_proposals.append((budget, ev.victim_entity_id, slot, last_vehicle, last_tm_offset))
 
