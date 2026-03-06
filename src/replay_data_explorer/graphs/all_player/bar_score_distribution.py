@@ -54,7 +54,7 @@ def create_all_player_bar_score_distribution(
                 line=dict(color="white", width=1),
             ),
             width=bin_width * 0.8,
-            hovertemplate="Score Range: %{x}±" + f"{bin_width // 2}<br>" + "Count: %{y}<extra></extra>",
+            hovertemplate="Score Range: %{x:.0f}±" + f"{bin_width // 2}<br>" + "Count: %{y}<extra></extra>",
         )
     )
 

@@ -102,7 +102,7 @@ def create_scatter_score_vs_team_mean(
                     + "Result: %{customdata[7]}<br>"
                     + "Player Score: %{customdata[3]:.0f}<br>"
                     + "Team Mean: %{customdata[4]:.0f}<br>"
-                    + "Difference: %{customdata[5]:+.0f}<br>"
+                    + "Difference: %{customdata[5]:.0f}<br>"
                     + "Date: %{customdata[6]}<br>"
                     + "<extra></extra>"
                 ),

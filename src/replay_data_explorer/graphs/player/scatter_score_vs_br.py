@@ -113,7 +113,7 @@ def create_scatter_score_vs_br(
                     + tier_status_display
                     + "<br>"
                     + "Result: %{customdata[6]}<br>"
-                    + "Score: %{y}<br>"
+                    + "Score: %{y:.0f}<br>"
                     + "Team Avg: %{customdata[3]:.0f}<br>"
                     + "Date: %{customdata[4]}<br>"
                     + "Session: %{customdata[5]}<br><extra></extra>"
