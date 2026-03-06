@@ -66,6 +66,24 @@
             ]
         },
         {
+            "name": "Dev - ReplayDataGrabber - Single File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/replay_data_grabber/warthog_replay_data_grabber.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "stopOnEntry": false,
+            "redirectOutput": true,
+            "args": [
+                "--file", "${input:replayFilePath}",
+                "--output", "${input:outputDirPath}",
+                "--overwrite"
+            ]
+        },
+        {
             "name": "Dev - ReplayDataCopier",
             "type": "debugpy",
             "request": "launch",
@@ -80,6 +98,19 @@
             "args": [
                 "--output-dir-path", "${workspaceFolder}/data/replays"
             ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "replayFilePath",
+            "type": "promptString",
+            "description": "Path to the .wrpl replay file"
+        },
+        {
+            "id": "outputDirPath",
+            "type": "promptString",
+            "description": "Path to the output directory",
+            "default": "${workspaceFolder}/data/replays"
         }
     ]
 }
