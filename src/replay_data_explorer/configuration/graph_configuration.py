@@ -61,11 +61,30 @@ PLOTLY_BATTLE_OUTCOME_DISPLAY = {
 # Ordered list of outcomes for consistent legend ordering
 PLOTLY_BATTLE_OUTCOME_ORDER = ["success", "fail", "left"]
 
+# Transaction overlay colors (shades of orange) keyed by TransactionFlavor value
+PLOTLY_TRANSACTION_COLORS = {
+    "golden_eagles": "#FF8C00",  # dark orange
+    "premium_vehicle": "#FF6600",  # burnt orange
+    "premium_account": "#FFA500",  # orange
+    "pack": "#FFD700",  # gold
+    "crew_slot": "#FFAA33",  # amber
+    "battle_pass": "#E65C00",  # deep orange
+}
+
+# Display names for transactions used in legends
+PLOTLY_TRANSACTION_DISPLAY = {
+    "golden_eagles": "Golden Eagles",
+    "premium_vehicle": "Premium Vehicle",
+    "premium_account": "Premium Account",
+    "pack": "Pack",
+    "crew_slot": "Crew Slot",
+    "battle_pass": "Battle Pass",
+}
+
 # Standard graph widths by flavor
 PLOTLY_GRAPH_WIDTH = {
     "heatmap": 1200,  # Minimum width for heatmaps (they scale dynamically)
     "pie": 800,
-    "compact": 800,   # Simple charts without complex legends
+    "compact": 800,  # Simple charts without complex legends
     "default": 1000,
 }
-
