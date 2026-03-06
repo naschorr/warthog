@@ -98,7 +98,7 @@ def create_bar_tier_frequency_vs_br(player_performance_df: pd.DataFrame, *, play
         ),
         yaxis=dict(title="Percentage (%)", range=[0, 100]),
         barmode="stack",
-        width=1000,
+        width=get_graph_width(),
         height=600,
         legend=dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02),
         margin=dict(r=150, b=100),  # Add margins for legend and BR labels

@@ -123,7 +123,7 @@ def create_bar_score_vs_map(player_performance_df: pd.DataFrame, *, player_name=
             gridcolor="lightgray",
             gridwidth=1,
         ),
-        width=800,
+        width=get_graph_width("compact"),
         height=max(400, len(available_maps) * 30),  # Dynamic height based on map count
         plot_bgcolor="white",
         margin=dict(l=150, r=80, t=80, b=100),  # Extra left margin for map names

@@ -1,3 +1,3 @@
-from .utilities import hex_to_rgba
+from .utilities import get_graph_width, hex_to_rgba
 
-__all__ = ["hex_to_rgba"]
+__all__ = ["get_graph_width", "hex_to_rgba"]

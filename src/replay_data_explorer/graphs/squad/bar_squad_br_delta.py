@@ -94,7 +94,7 @@ def create_bar_squad_br_delta(
             gridcolor="lightgray",
             gridwidth=1,
         ),
-        width=800,
+        width=get_graph_width("compact"),
         height=500,
         plot_bgcolor="white",
         showlegend=False,

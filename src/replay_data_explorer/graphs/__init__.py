@@ -6,7 +6,16 @@ from .player.heatmap_score_by_country_and_br import (
 from .player.heatmap_br_delta_by_country_and_br import create_heatmap_br_delta_by_country_and_br
 from .player.bar_score_vs_map import create_bar_score_vs_map
 from .player.bar_score_vs_common_squadmates import create_bar_score_vs_common_squadmates
+from .player.heatmap_winrate_by_country_and_br import (
+    create_heatmap_winrate_by_country_and_br as create_player_winrate_heatmap_by_country_and_br,
+)
+from .player.scatter_score_vs_team_mean import create_scatter_score_vs_team_mean
+from .player.line_win_rate_over_time import create_line_win_rate_over_time
+from .player.line_score_vs_team_mean_over_time import create_line_score_vs_team_mean_over_time
 
+from .all_player.bar_score_distribution import (
+    create_all_player_bar_score_distribution,
+)
 from .all_player.heatmap_score_by_country_and_br import (
     create_heatmap_score_by_country_and_br as create_all_player_heatmap_score_by_country_and_br,
 )
@@ -30,6 +39,7 @@ from .tier.bar_tier_distribution import create_bar_tier_distribution
 from .tier.pie_tier_frequency import create_pie_tier_frequency
 from .tier.bar_tier_frequency_vs_country import create_bar_tier_frequency_vs_country
 from .tier.bar_tier_frequency_vs_br import create_bar_tier_frequency_vs_br
+from .tier.line_br_delta_over_time import create_line_br_delta_over_time
 
 from .squad.bar_squad_performance import create_bar_squad_performance
 from .squad.bar_squad_win_rate import create_bar_squad_win_rate
@@ -40,11 +50,16 @@ __all__ = [
     # Single Player
     "create_bar_score_distribution",
     "create_scatter_score_vs_br",
+    "create_scatter_score_vs_team_mean",
+    "create_line_score_vs_team_mean_over_time",
+    "create_line_win_rate_over_time",
     "create_player_score_heatmap_by_country_and_br",
+    "create_player_winrate_heatmap_by_country_and_br",
     "create_heatmap_br_delta_by_country_and_br",
     "create_bar_score_vs_map",
     "create_bar_score_vs_common_squadmates",
     # All Players
+    "create_all_player_bar_score_distribution",
     "create_all_player_heatmap_score_by_country_and_br",
     "create_all_player_heatmap_winrate_by_country_and_br",
     "create_all_player_heatmap_winrate_by_country_and_player_br",
@@ -53,6 +68,7 @@ __all__ = [
     "create_all_player_heatmap_br_delta_by_country_and_br",
     # Tier
     "create_bar_tier_distribution",
+    "create_line_br_delta_over_time",
     "create_pie_tier_frequency",
     "create_bar_tier_frequency_vs_country",
     "create_bar_tier_frequency_vs_br",

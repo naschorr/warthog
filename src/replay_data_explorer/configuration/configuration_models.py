@@ -1,7 +1,11 @@
-from typing import Optional
+import datetime
+from abc import ABC
+from typing import Annotated, List, Literal, Optional, Union
+from enum import Enum
 from pathlib import Path
+from datetime import datetime
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from src.common.utilities import get_root_directory
 from src.common.enums import Country, BattleType
@@ -42,6 +46,85 @@ class GraphExportConfig(BaseModel):
     )
 
 
+class TransactionFlavor(str, Enum):
+    """Enum to represent different flavors of transactions in War Thunder."""
+
+    GOLDEN_EAGLES = "golden_eagles"
+    PREMIUM_VEHICLE = "premium_vehicle"
+    PREMIUM_ACCOUNT = "premium_account"
+    PACK = "pack"
+    CREW_SLOT = "crew_slot"
+    BATTLE_PASS = "battle_pass"
+
+
+class ActivationFlavor(str, Enum):
+    """Enum to represent activation vs purchase for transactions (was the premium vehicle purchased from the store, or received from a battlepass?)"""
+
+    ACTIVATION = "activation"
+    PURCHASE = "purchase"
+
+
+class TransactionModel(ABC, BaseModel):
+    """Abstract base model for War Thunder account transactions."""
+
+    activation: ActivationFlavor = Field(description="Whether this transaction represents an activation or purchase.")
+    timestamp: datetime = Field(description="The date and time when the transaction occurred.")
+    value: float = Field(description="The value of the transaction.")
+    currency: str = Field(description="The currency used in the transaction.", default="usd")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _prevent_direct_instantiation(cls, data: object) -> object:
+        if cls is TransactionModel:
+            raise TypeError(
+                "TransactionModel is abstract and cannot be instantiated directly; use a concrete subclass."
+            )
+        return data
+
+
+class TransactionGoldenEagles(TransactionModel):
+    flavor: Literal[TransactionFlavor.GOLDEN_EAGLES] = TransactionFlavor.GOLDEN_EAGLES
+    amount: int = Field(description="The amount of golden eagles purchased.")
+
+
+class TransactionPremiumVehicle(TransactionModel):
+    flavor: Literal[TransactionFlavor.PREMIUM_VEHICLE] = TransactionFlavor.PREMIUM_VEHICLE
+    internal_name: str = Field(description="The internal name of the premium vehicle purchased.")
+
+
+class TransactionPremiumAccount(TransactionModel):
+    flavor: Literal[TransactionFlavor.PREMIUM_ACCOUNT] = TransactionFlavor.PREMIUM_ACCOUNT
+    duration_days: int = Field(description="The duration of the premium account purchased, in days.")
+
+
+class TransactionPack(TransactionModel):
+    flavor: Literal[TransactionFlavor.PACK] = TransactionFlavor.PACK
+    name: str = Field(description="The name of the pack purchased.")
+
+
+class TransactionCrewSlot(TransactionModel):
+    flavor: Literal[TransactionFlavor.CREW_SLOT] = TransactionFlavor.CREW_SLOT
+    country: Country = Field(description="The country for which the crew slot was purchased.")
+
+
+class TransactionBattlePass(TransactionModel):
+    flavor: Literal[TransactionFlavor.BATTLE_PASS] = TransactionFlavor.BATTLE_PASS
+
+
+# Discriminated union — Pydantic uses the 'flavor' field to deserialize the correct subclass
+AnyTransaction = Annotated[
+    Union[
+        TransactionGoldenEagles,
+        TransactionPremiumVehicle,
+        TransactionPremiumAccount,
+        TransactionPack,
+        TransactionCrewSlot,
+        TransactionBattlePass,
+    ],
+    Field(discriminator="flavor"),
+]
+
+
 class WarthogReplayDataExplorerConfig(BaseModel):
     """Replay data explorer specific configuration."""
 
@@ -73,3 +156,8 @@ class WarthogReplayDataExplorerConfig(BaseModel):
     )
 
     graph_export_config: GraphExportConfig = Field(default_factory=GraphExportConfig)
+
+    transactions: List[AnyTransaction] = Field(
+        default_factory=list,
+        description="List of transactions to configure for the replay data explorer.",
+    )

@@ -90,7 +90,7 @@ def create_bar_squad_performance(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
         xaxis=dict(title="Squad Type", gridcolor="lightgray", gridwidth=1, type="category"),
         yaxis=dict(title="Mean Score", gridcolor="lightgray", gridwidth=1, zeroline=False),
-        width=800,
+        width=get_graph_width("compact"),
         height=500,
         plot_bgcolor="white",
         showlegend=False,
