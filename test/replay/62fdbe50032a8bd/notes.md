@@ -1,0 +1,1 @@
+Long game with a bunch of kills (all of them on the ground), and a few captures. Ends in victory.
