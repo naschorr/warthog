@@ -1,0 +1,1 @@
+Medium length game with a good number of kills and a couple captures. It's notable that Ranol's final kill in the Pbv 301 is a "severe damage counts as kill", not just a normal AA kill.
