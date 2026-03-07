@@ -19,63 +19,20 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from common.replay_test_helpers import (
+    DeathDetailTruth,
+    KillDetailTruth,
+    PlayerTruth,
+    find_death,
+    find_kill,
+)
 from src.common.factories import ServiceFactory
-
-# ---------------------------------------------------------------------------
-# Source-of-truth dataclasses
-# ---------------------------------------------------------------------------
-
-
-TIMESTAMP_TOLERANCE_S = 5  # ±seconds when matching time_utc against battle-log timestamps
-
-
-@dataclass
-class KillDetailTruth:
-    """A kill that must be matchable in the player's kills.vehicles list."""
-
-    killer_vehicle: str
-    victim_username: str | None = None
-    victim_vehicle: str | None = None
-    # Elapsed seconds from battle start, derived from the battle log timestamp.
-    # When the parsed record also carries time_utc, matching is constrained to
-    # ±TIMESTAMP_TOLERANCE_S seconds.
-    time_seconds: int | None = None
-
-
-@dataclass
-class DeathDetailTruth:
-    """A death that must be matchable in the player's deaths.vehicles list."""
-
-    victim_vehicle: str
-    killer_username: str | None = None
-    killer_vehicle: str | None = None
-    # Elapsed seconds from battle start, derived from the battle log timestamp.
-    time_seconds: int | None = None
-
-
-@dataclass
-class PlayerTruth:
-    username: str
-    team: int  # 1 or 2  (from BLK)
-    kills_ground: int  # from BLK
-    kills_air: int  # from BLK
-    deaths_total: int  # from BLK
-    # Award IDs as they appear in the parsed output.  Duplicates encode expected
-    # minimum counts (e.g. listing "defender_tank" 3 times asserts count >= 3).
-    awards: list[str] = field(default_factory=list)
-    # Individual kill / death records that must be findable in the parsed lists.
-    kill_details: list[KillDetailTruth] = field(default_factory=list)
-    death_details: list[DeathDetailTruth] = field(default_factory=list)
-    # True only for the player who recorded the replay.  Their kill/death detail
-    # assertions are hard failures; all others are xfail(strict=False).
-    is_author: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -181,6 +138,8 @@ PLAYERS: list[PlayerTruth] = [
                 killer_vehicle="ussr_zis_12_94KM_1945",
                 time_seconds=1073,
             ),
+            # 18:21 Zonney0007 (Wirbelwind) has been wrecked
+            DeathDetailTruth("germ_flakpanzer_IV_Wirbelwind", time_seconds=1101),
         ],
     ),
     PlayerTruth(
@@ -518,6 +477,8 @@ PLAYERS: list[PlayerTruth] = [
             ),
             # 18:21 Perjuro (Pe-8) destroyed Metarou (⊙T-34)
             DeathDetailTruth("sw_t_34_1941", killer_username="Perjuro", killer_vehicle="pe-8_m82", time_seconds=1101),
+            # 22:05 Metarou (J26) has crashed
+            DeathDetailTruth("p-51d-20-na_j26", time_seconds=1325),
         ],
     ),
     PlayerTruth(
@@ -612,6 +573,8 @@ PLAYERS: list[PlayerTruth] = [
             ),
         ],
         death_details=[
+            # 3:14 oliveshellhound (M24DK) has been wrecked
+            DeathDetailTruth("sw_m24_chaffee_dk", time_seconds=194),
             # 6:13 marcosilvavil45 (P-400) destroyed oliveshellhound (L-62 ANTI II)
             DeathDetailTruth(
                 "sw_l_62_anti_II", killer_username="marcosilvavil45", killer_vehicle="p-400", time_seconds=373
@@ -1611,55 +1574,6 @@ def battle_start(replay: dict[str, Any]) -> datetime:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     return dt
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _elapsed_seconds(time_utc_str: str | None, battle_start: datetime) -> float | None:
-    """Convert a time_utc ISO string to elapsed seconds from battle start."""
-    if time_utc_str is None:
-        return None
-    dt = datetime.fromisoformat(time_utc_str)
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return (dt - battle_start).total_seconds()
-
-
-def find_kill(kills: list[dict], truth: KillDetailTruth, battle_start: datetime | None = None) -> dict | None:
-    """Return the first kill detail matching all non-None fields of *truth*."""
-    for kd in kills:
-        if kd.get("killer_vehicle") != truth.killer_vehicle:
-            continue
-        if truth.victim_username is not None and kd.get("victim_username") != truth.victim_username:
-            continue
-        if truth.victim_vehicle is not None and kd.get("victim_vehicle") != truth.victim_vehicle:
-            continue
-        if truth.time_seconds is not None and battle_start is not None:
-            elapsed = _elapsed_seconds(kd.get("time_utc"), battle_start)
-            if elapsed is not None and abs(elapsed - truth.time_seconds) > TIMESTAMP_TOLERANCE_S:
-                continue
-        return kd
-    return None
-
-
-def find_death(deaths: list[dict], truth: DeathDetailTruth, battle_start: datetime | None = None) -> dict | None:
-    """Return the first death detail matching all non-None fields of *truth*."""
-    for dd in deaths:
-        if dd.get("victim_vehicle") != truth.victim_vehicle:
-            continue
-        if truth.killer_username is not None and dd.get("killer_username") != truth.killer_username:
-            continue
-        if truth.killer_vehicle is not None and dd.get("killer_vehicle") != truth.killer_vehicle:
-            continue
-        if truth.time_seconds is not None and battle_start is not None:
-            elapsed = _elapsed_seconds(dd.get("time_utc"), battle_start)
-            if elapsed is not None and abs(elapsed - truth.time_seconds) > TIMESTAMP_TOLERANCE_S:
-                continue
-        return dd
-    return None
 
 
 # ---------------------------------------------------------------------------
