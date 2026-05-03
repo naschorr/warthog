@@ -11,13 +11,12 @@ from datetime import datetime
 from pathlib import Path
 
 from src.common.clients import GitRepositoryClient
-from src.common.configuration import KwargConfiguration
 from src.replay_data_grabber.services.replay_manager_service import ReplayManagerService
 from src.vehicle_data_grabber.configuration.configuration_models import VehicleDataOrchestratorConfig
 from src.vehicle_data_grabber.services.vehicle_data_processor import VehicleDataProcessor
 
 
-class VehicleDataOrchestrator(KwargConfiguration[VehicleDataOrchestratorConfig]):
+class VehicleDataOrchestrator:
     """Orchestrates the process of retrieving and processing vehicle data from the datamine source."""
 
     def __init__(
@@ -26,9 +25,8 @@ class VehicleDataOrchestrator(KwargConfiguration[VehicleDataOrchestratorConfig])
         *,
         vehicle_data_processor: VehicleDataProcessor,
         replay_manager_service: ReplayManagerService,
-        **kwargs,
     ):
-        super().__init__(config, **kwargs)
+        self._config = config
 
         self._vehicle_data_processor = vehicle_data_processor
         self._replay_manager_service = replay_manager_service

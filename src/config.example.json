@@ -1,3 +1,5 @@
+// Example config file with values that must be updated
+// Update the values for your situation, then save as config.json in the same directory
 {
     "replay_data_grabber_config": {
         "replay_manager_service_config": {

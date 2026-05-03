@@ -1,6 +1,5 @@
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 import json
@@ -9,12 +8,12 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
-from src.common.configuration import VehicleServiceConfig, KwargConfiguration
+from src.common.configuration import VehicleServiceConfig
 from src.common.enums import Country, VehicleType
 from src.common.models.vehicle_models import Vehicle
 
 
-class VehicleService(KwargConfiguration[VehicleServiceConfig]):
+class VehicleService:
     """
     Handles operations related to War Thunder vehicle data.
     """
@@ -25,8 +24,8 @@ class VehicleService(KwargConfiguration[VehicleServiceConfig]):
 
     ## Lifecycle
 
-    def __init__(self, config: VehicleServiceConfig, **kwargs):
-        super().__init__(config, **kwargs)
+    def __init__(self, config: VehicleServiceConfig):
+        self._config = config
 
         self._vehicle_data_directory_path = self._config.processed_vehicle_data_directory_path
         self._game_version_to_release_datetime_path = self._config.game_version_to_release_datetime_file_path
