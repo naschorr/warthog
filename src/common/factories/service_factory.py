@@ -7,8 +7,10 @@ the different Warthog applications.
 
 from typing import Optional, TYPE_CHECKING
 
-from src.common.configuration import WarthogConfig, get_config
+from confiddle import Confiddle, ConfiddleConfigModel, JsonProviderConfig, ProviderConfigModel
+from src.common.configuration import WarthogConfig
 from src.common.services import VehicleService, LoggingService
+from src.common.utilities import get_root_directory
 
 if TYPE_CHECKING:
     from src.vehicle_data_grabber.services.vehicle_data_orchestrator import VehicleDataOrchestrator
@@ -28,7 +30,14 @@ class ServiceFactory:
     def __init__(self, config: Optional[WarthogConfig] = None):
         # Use provided config or load default
         if config is None:
-            self._config = get_config()
+            confiddle = Confiddle(
+                ConfiddleConfigModel(
+                    app=ProviderConfigModel(
+                        json_file_provider=JsonProviderConfig(directory_path=get_root_directory() / "src")
+                    )
+                )
+            )
+            self._config = confiddle.load_config(WarthogConfig)
         else:
             self._config = config
 
@@ -56,17 +65,17 @@ class ServiceFactory:
         if self._logging_service is None:
             self._logging_service = LoggingService(self._config.logging_config)
 
-    def get_vehicle_service(self, **kwargs) -> VehicleService:
+    def get_vehicle_service(self) -> VehicleService:
         """
         Get or create a VehicleService instance.
         """
         if self._vehicle_service is None:
-            self._vehicle_service = VehicleService(self._config.vehicle_service_config, **kwargs)
+            self._vehicle_service = VehicleService(self._config.vehicle_service_config)
         return self._vehicle_service
 
     # Vehicle Data Grabber Services
 
-    def get_vehicle_data_orchestrator(self, **kwargs) -> "VehicleDataOrchestrator":
+    def get_vehicle_data_orchestrator(self) -> "VehicleDataOrchestrator":
         """
         Get or create a VehicleDataOrchestrator instance.
         """
@@ -78,11 +87,10 @@ class ServiceFactory:
                 self._config.vehicle_data_grabber_config.vehicle_data_orchestrator_config,
                 vehicle_data_processor=self.get_vehicle_data_processor(),
                 replay_manager_service=self.get_replay_manager_service(),
-                **kwargs,
             )
         return self._vehicle_data_orchestrator
 
-    def get_vehicle_data_processor(self, **kwargs) -> "VehicleDataProcessor":
+    def get_vehicle_data_processor(self) -> "VehicleDataProcessor":
         """
         Get or create a VehicleDataProcessor instance.
         """
@@ -91,13 +99,13 @@ class ServiceFactory:
             from src.vehicle_data_grabber.services.vehicle_data_processor import VehicleDataProcessor
 
             self._vehicle_data_processor = VehicleDataProcessor(
-                self._config.vehicle_data_grabber_config.vehicle_data_processor_config, **kwargs
+                self._config.vehicle_data_grabber_config.vehicle_data_processor_config
             )
         return self._vehicle_data_processor
 
     # Replay Data Grabber Services
 
-    def get_wt_ext_cli_client_service(self, **kwargs) -> "WtExtCliClientService":
+    def get_wt_ext_cli_client_service(self) -> "WtExtCliClientService":
         """
         Get or create a WtExtCliClientService instance.
         """
@@ -106,7 +114,7 @@ class ServiceFactory:
             from src.replay_data_grabber.services.wt_ext_cli_client_service import WtExtCliClientService
 
             self._wt_ext_cli_service = WtExtCliClientService(
-                self._config.replay_data_grabber_config.wt_ext_cli_service_config, **kwargs
+                self._config.replay_data_grabber_config.wt_ext_cli_service_config
             )
         return self._wt_ext_cli_service
 
@@ -132,9 +140,12 @@ class ServiceFactory:
             # Import here to avoid circular imports
             from src.replay_data_grabber.services.replay_manager_service import ReplayManagerService
 
+            base_config = self._config.replay_data_grabber_config.replay_manager_service_config
+            filtered = {k: v for k, v in kwargs.items() if v is not None}
+            service_config = base_config.model_copy(update=filtered) if filtered else base_config
+
             self._replay_manager_service = ReplayManagerService(
-                self._config.replay_data_grabber_config.replay_manager_service_config,
+                service_config,
                 replay_parser_service=self.get_replay_parser_service(),
-                **kwargs,
             )
         return self._replay_manager_service

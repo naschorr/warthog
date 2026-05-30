@@ -5,7 +5,6 @@ logger = logging.getLogger(__name__)
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
 
-from src.common.configuration import KwargConfiguration
 from src.replay_data_grabber.configuration import ReplayManagerServiceConfig
 from src.replay_data_grabber.models import Replay
 
@@ -13,7 +12,7 @@ if TYPE_CHECKING:
     from src.replay_data_grabber.services.replay_parser_service import ReplayParserService
 
 
-class ReplayManagerService(KwargConfiguration[ReplayManagerServiceConfig]):
+class ReplayManagerService:
     """
     Manages loading, parsing, and caching of War Thunder replay data.
 
@@ -30,8 +29,8 @@ class ReplayManagerService(KwargConfiguration[ReplayManagerServiceConfig]):
 
     # Lifecycle
 
-    def __init__(self, config: ReplayManagerServiceConfig, *, replay_parser_service: "ReplayParserService", **kwargs):
-        super().__init__(config, **kwargs)
+    def __init__(self, config: ReplayManagerServiceConfig, *, replay_parser_service: "ReplayParserService"):
+        self._config = config
 
         self._replay_parser_service = replay_parser_service
         self._raw_replay_dir_path = self._config.raw_replay_dir

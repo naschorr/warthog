@@ -8,11 +8,10 @@ import json
 from pathlib import Path
 
 from src.common.utilities import get_root_directory
-from src.common.configuration import KwargConfiguration
 from src.replay_data_grabber.configuration import WtExtCliServiceConfig
 
 
-class WtExtCliClientService(KwargConfiguration[WtExtCliServiceConfig]):
+class WtExtCliClientService:
     """
     Service for managing the external wt_ext_cli client for extracting data from War Thunder .blk files.
     """
@@ -23,8 +22,8 @@ class WtExtCliClientService(KwargConfiguration[WtExtCliServiceConfig]):
 
     # Lifecycle
 
-    def __init__(self, config: WtExtCliServiceConfig, **kwargs):
-        super().__init__(config, **kwargs)
+    def __init__(self, config: WtExtCliServiceConfig):
+        self._config = config
 
         wt_ext_cli_path = self._config.wt_ext_cli_path
         if wt_ext_cli_path and wt_ext_cli_path.exists():

@@ -19,7 +19,8 @@ from plotly.subplots import make_subplots
 
 # Import project modules
 from src.replay_data_explorer.services import BattleRatingTierDisplayBuilder
-from src.common.configuration import get_config
+from confiddle import Confiddle, ConfiddleConfigModel, JsonProviderConfig, ProviderConfigModel
+from src.common.configuration import WarthogConfig
 from src.common.utilities import get_root_directory
 from src.common.enums import BattleType, Country, VehicleType
 from src.common.models.vehicle_models import Vehicle
@@ -31,10 +32,18 @@ from src.replay_data_explorer.configuration.graph_configuration import *
 from src.replay_data_grabber.models import Player
 
 # Initialize configuration
-config = get_config().replay_data_explorer_config
+_confiddle = Confiddle(
+    ConfiddleConfigModel(
+        app=ProviderConfigModel(
+            json_file_provider=JsonProviderConfig(directory_path=get_root_directory() / "src")
+        )
+    )
+)
+_warthog_config = _confiddle.load_config(WarthogConfig)
+config = _warthog_config.replay_data_explorer_config
 
 # Initialize replay_data_grabber services
-service_factory = ServiceFactory()
+service_factory = ServiceFactory(_warthog_config)
 vehicle_service = service_factory.get_vehicle_service()
 replay_manager_service = service_factory.get_replay_manager_service()
 
