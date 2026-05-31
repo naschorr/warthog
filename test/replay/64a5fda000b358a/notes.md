@@ -1,0 +1,1 @@
+Artillery kill after death

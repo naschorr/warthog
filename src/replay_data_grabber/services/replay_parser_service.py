@@ -169,9 +169,16 @@ class ReplayParserService:
         # via timeline inference without overcounting.
         slot_deaths = {i: p.deaths.total for i, p in enumerate(replay.players)}
         slot_teams = {i: p.team for i, p in enumerate(replay.players) if p.team is not None}
+        # First vehicle in each player's BLK lineup = their initial-spawn vehicle.
+        # Passed to the stream decoder so M6 can recover initial EIDs when the
+        # physics-predate guard would otherwise discard the attribution.
+        slot_initial_vehicles = {i: p.lineup[0] for i, p in enumerate(replay.players) if p.lineup}
         try:
             stream_result = self._replay_stream_decoder.decode_from_raw_replay(
-                replay_data, slot_deaths=slot_deaths, slot_teams=slot_teams
+                replay_data,
+                slot_deaths=slot_deaths,
+                slot_teams=slot_teams,
+                slot_initial_vehicles=slot_initial_vehicles,
             )
             self._apply_stream_result(replay, stream_result)
         except Exception as exc:
@@ -336,11 +343,19 @@ class ReplayParserService:
             victim_user_id = victim_player.user_id if victim_player is not None else None
             killer_user_id = killer_player.user_id if killer_player is not None else None
 
-            time_utc = (
-                replay.start_time + timedelta(seconds=detail.tick_idx * _TICK_DURATION_S)
-                if replay.start_time is not None
-                else None
-            )
+            # Use embedded game time when available (accurate to ~0.5 s);
+            # fall back to the fixed 0.1 s/tick estimate otherwise.
+            if (
+                replay.start_time is not None
+                and stream_result.tick_game_times
+                and detail.tick_idx < len(stream_result.tick_game_times)
+                and stream_result.tick_game_times[detail.tick_idx] > 0
+            ):
+                time_utc = replay.start_time + timedelta(milliseconds=stream_result.tick_game_times[detail.tick_idx])
+            elif replay.start_time is not None:
+                time_utc = replay.start_time + timedelta(seconds=detail.tick_idx * _TICK_DURATION_S)
+            else:
+                time_utc = None
 
             # Append KillDetail for every kill event where the killer is known;
             # victim fields may be None when the victim left no EID trace in the stream.

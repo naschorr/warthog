@@ -59,6 +59,14 @@ def main() -> None:
         default=None,
         help="Path to a processed_vehicle_data JSON. Auto-discovered if omitted.",
     )
+    parser.add_argument(
+        "--player",
+        metavar="USERNAME",
+        action="append",
+        dest="players_filter",
+        default=None,
+        help="Only show this player (case-insensitive). Repeat for multiple players.",
+    )
     args = parser.parse_args()
 
     # Load parsed replay
@@ -93,13 +101,18 @@ def main() -> None:
     # Sort by team then username
     sorted_players = sorted(players, key=lambda p: (p["team"], p["username"]))
 
+    filter_lower = {name.lower() for name in args.players_filter} if args.players_filter else None
+
     for p in sorted_players:
+        if filter_lower and p["username"].lower() not in filter_lower:
+            continue
         username = p["username"]
         team = p["team"]
         is_author = " [AUTHOR]" if username == author_name else ""
         kills_g = p.get("kills", {}).get("ground", 0)
         kills_a = p.get("kills", {}).get("air", 0)
-        deaths_t = p.get("deaths", {}).get("total", 0)
+        deaths_raw = p.get("deaths", 0)
+        deaths_t = deaths_raw.get("total", 0) if isinstance(deaths_raw, dict) else deaths_raw
         lineup = p.get("lineup", [])
 
         print(f"{'='*60}")

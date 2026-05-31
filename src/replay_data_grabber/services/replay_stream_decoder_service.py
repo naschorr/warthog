@@ -275,6 +275,9 @@ class StreamDecodeResult:
     awards: dict[int, list[str]] = field(default_factory=dict)
     slot_vehicle_timeline: dict[int, list[tuple[int, str]]] = field(default_factory=dict)
     kill_details: list[_RawKillDetail] = field(default_factory=list)
+    # Per-tick game time in milliseconds from embedded stream timestamps.
+    # Index matches tick_idx values in kill_details.  Empty when unavailable.
+    tick_game_times: list[int] = field(default_factory=list)
 
 
 @dataclass
@@ -349,12 +352,61 @@ class ReplayStreamDecoderService:
         else:
             self._max_vehicle_path_len = self._DEFAULT_MAX_VEHICLE_PATH_LEN
 
+    # Maximum plausible game time in milliseconds (~21.7 minutes).
+    # Values outside (0, _MAX_VALID_GAME_TIME_MS) are treated as invalid
+    # and replaced by linear interpolation from neighbouring valid ticks.
+    _MAX_VALID_GAME_TIME_MS: int = 1_300_000
+
+    def _build_tick_game_times(self, stream_data: bytes, tick_offsets: list[int]) -> list[int]:
+        """
+        Extract per-tick game timestamps (in ms) embedded before each tick marker.
+
+        Each ``02 58 2D F0`` tick-frame marker is preceded by 4 bytes (u32 LE)
+        that encode the current game time in milliseconds.  Values outside the
+        range ``(0, _MAX_VALID_GAME_TIME_MS)`` are considered invalid and are
+        replaced by linear interpolation between the nearest valid neighbours
+        (or edge extrapolation for leading/trailing invalids).
+        """
+        if not tick_offsets:
+            return []
+
+        raw_times: list[int] = []
+        for off in tick_offsets:
+            if off >= 4:
+                val = struct.unpack_from("<I", stream_data, off - 4)[0]
+            else:
+                val = 0
+            raw_times.append(val)
+
+        valid = [0 < v < self._MAX_VALID_GAME_TIME_MS for v in raw_times]
+        result_times = list(raw_times)
+        n = len(raw_times)
+
+        for i in range(n):
+            if valid[i]:
+                continue
+            # Find nearest valid neighbours
+            prev_idx = next((j for j in range(i - 1, -1, -1) if valid[j]), None)
+            next_idx = next((j for j in range(i + 1, n) if valid[j]), None)
+            if prev_idx is not None and next_idx is not None:
+                frac = (i - prev_idx) / (next_idx - prev_idx)
+                result_times[i] = int(raw_times[prev_idx] + frac * (raw_times[next_idx] - raw_times[prev_idx]))
+            elif prev_idx is not None:
+                result_times[i] = raw_times[prev_idx]
+            elif next_idx is not None:
+                result_times[i] = raw_times[next_idx]
+            else:
+                result_times[i] = i * 100  # degenerate fallback: 0.1s per tick
+
+        return result_times
+
     def decode_from_raw_replay(
         self,
         raw: bytes,
         *,
         slot_deaths: dict[int, int] | None = None,
         slot_teams: dict[int, int] | None = None,
+        slot_initial_vehicles: dict[int, str] | None = None,
     ) -> StreamDecodeResult:
         """
         Decompress the rec_data stream from raw .wrpl bytes and decode events.
@@ -369,6 +421,10 @@ class ReplayStreamDecoderService:
                          from the parsed BLK JSON.  When provided, cross-team
                          checks in victim EID inference use authoritative team
                          data instead of heuristic slot-based guesses.
+            slot_initial_vehicles: Optional mapping of slot -> first vehicle name
+                         from the BLK player lineup.  Used by M6 to recover the
+                         correct initial-spawn vehicle when the physics-predate
+                         guard would otherwise discard the EID.
 
         Returns:
             StreamDecodeResult with vehicle_kills, vehicle_deaths, awards.
@@ -379,7 +435,12 @@ class ReplayStreamDecoderService:
             logger.warning(f"Failed to decompress rec_data stream: {exc}")
             return StreamDecodeResult()
 
-        return self.decode_stream(stream_data, slot_deaths=slot_deaths, slot_teams=slot_teams)
+        return self.decode_stream(
+            stream_data,
+            slot_deaths=slot_deaths,
+            slot_teams=slot_teams,
+            slot_initial_vehicles=slot_initial_vehicles,
+        )
 
     def decode_stream(
         self,
@@ -387,6 +448,7 @@ class ReplayStreamDecoderService:
         *,
         slot_deaths: dict[int, int] | None = None,
         slot_teams: dict[int, int] | None = None,
+        slot_initial_vehicles: dict[int, str] | None = None,
     ) -> StreamDecodeResult:
         """
         Decode events directly from already-decompressed stream bytes.
@@ -441,7 +503,14 @@ class ReplayStreamDecoderService:
         )
 
         # Phase 4: EID resolution and result construction
-        return self._build_result(state, slot_deaths=slot_deaths, slot_teams=slot_teams)
+        result = self._build_result(
+            state,
+            slot_deaths=slot_deaths,
+            slot_teams=slot_teams,
+            slot_initial_vehicles=slot_initial_vehicles,
+        )
+        result.tick_game_times = self._build_tick_game_times(stream_data, state.tick_offsets)
+        return result
 
     # ------------------------------------------------------------------
     # Tick-iterating stream parser
@@ -627,6 +696,7 @@ class ReplayStreamDecoderService:
         *,
         slot_deaths: dict[int, int] | None = None,
         slot_teams: dict[int, int] | None = None,
+        slot_initial_vehicles: dict[int, str] | None = None,
     ) -> StreamDecodeResult:
         """
         Build a ``StreamDecodeResult`` from fully-accumulated ``_StreamParseState``.
@@ -714,6 +784,8 @@ class ReplayStreamDecoderService:
             eid_history,
             state.vehicle_activation_events,
             state.physics_eid_offsets,
+            slot_initial_vehicles=slot_initial_vehicles,
+            first_tick_offset=state.tick_offsets[0] if state.tick_offsets else 0,
         )
         if new_initial:
             logger.debug("Initial-spawn EID inferences: %d new EID mappings", new_initial)
@@ -728,6 +800,7 @@ class ReplayStreamDecoderService:
             eid_history,
             state.local_player_eid_sequence,
             state.vehicle_activation_events,
+            state.kill_events,
         )
         if new_local:
             logger.debug("Local-player respawn EID inferences: %d new EID mappings", new_local)
@@ -784,6 +857,7 @@ class ReplayStreamDecoderService:
             state.physics_eid_offsets,
             m7_ambiguous_eids,
             slot_teams=slot_teams,
+            late_spawn_events=state.late_spawn_events,
         )
         if new_tm_death:
             logger.debug("TM-transition death inferences: %d new EID mappings", new_tm_death)
@@ -1414,6 +1488,7 @@ class ReplayStreamDecoderService:
         physics_eid_offsets: dict[int, list[int]] | None = None,
         m7_ambiguous_eids: set[int] | None = None,
         slot_teams: dict[int, int] | None = None,
+        late_spawn_events: list[_LateSpawnEvent] | None = None,
     ) -> int:
         """
         Attribute unresolved victim EIDs using TM-timeline transition matching.
@@ -1540,10 +1615,26 @@ class ReplayStreamDecoderService:
                 continue
             slot_budget[slot] = remaining
 
+        # Build late-spawn lookup: (slot, vehicle_name) -> sorted list of tick values.
+        # Used in pass 1 to detect "backup respawn" situations where a slot
+        # respawned in the same vehicle WITHIN a transition window after a
+        # candidate kill event.  In such cases the candidate is a different
+        # entity (not the one whose death triggered the window transition) and
+        # must be excluded.
+        late_spawn_by_slot_veh: dict[tuple[int, str], list[int]] = {}
+        if late_spawn_events:
+            for ls in late_spawn_events:
+                late_spawn_by_slot_veh.setdefault((ls.slot, ls.vehicle_name), []).append(tick_of(ls.offset))
+
         # === Pass 1: Transition-window proposals ===
-        # _TransProposal: (window_span, dist_to_end, eid, slot, vehicle, tm_offset)
-        _TransProposal = tuple[int, int, int, int, str, int]
+        # _TransProposal: (window_span, dist_to_end, eid, slot, vehicle, tm_offset, is_loop2)
+        # is_loop2=0 for Loop 1 (transition windows), is_loop2=1 for Loop 2 (final-vehicle windows).
+        _TransProposal = tuple[int, int, int, int, str, int, int]
         trans_proposals: list[_TransProposal] = []
+
+        # Last valid tick index in the stream — used as the effective window end
+        # for each slot's final vehicle (open-ended from last TM to game over).
+        game_end_tick = len(tick_offsets) - 1
 
         for slot, timeline in slot_vehicle_timeline.items():
             if slot not in slot_budget:
@@ -1570,6 +1661,15 @@ class ReplayStreamDecoderService:
                         continue
                     if _is_air(vehicle_curr) and _is_ground_non_aa(ev.vehicle_name):
                         continue
+                    # Skip if a late-spawn for (slot, vehicle_curr) occurs within
+                    # the window AFTER this candidate's kill tick.  That means the
+                    # slot respawned in vehicle_curr again after the candidate died,
+                    # so the candidate is a different entity — not this slot's death.
+                    ls_ticks = late_spawn_by_slot_veh.get((slot, vehicle_curr))
+                    if ls_ticks and any(
+                        tick_curr < ls_tick <= tick_next and ls_tick > ev.tick_idx for ls_tick in ls_ticks
+                    ):
+                        continue
                     dist = tick_next - ev.tick_idx
                     if dist < best_dist:
                         best_dist = dist
@@ -1584,14 +1684,157 @@ class ReplayStreamDecoderService:
                             slot,
                             vehicle_curr,
                             tm_offset_curr,
+                            0,  # is_loop2=False
                         )
                     )
+
+        # Threshold (ticks) below which a final-vehicle window entry is considered
+        # a pre-queued respawn appearance: in War Thunder the model for the player's
+        # next vehicle can appear in the stream before the kill event for their
+        # current vehicle is recorded.  This only occurs for halftracks (whose
+        # respawn-queue TM events are characteristically brief before the kill).
+        # When a halftrack is the last TM and the kill is within this window,
+        # attribute the kill to the previous (primary) vehicle instead.
+        # 50 ticks ≈ 5 s at the standard 10-tick/s rate.
+        _CREW_ENTRY_TICKS: int = 50
+
+        # Build initial set of contested EIDs from Loop 1 (all transition windows).
+        transition_proposed_eids_all: set[int] = {p[2] for p in trans_proposals}
+
+        # Pre-compute halftrack pre-consumed windows.
+        # When the halftrack heuristic fires in Loop 2 for a slot S, it redirects
+        # attribution to S's PREVIOUS vehicle (not the halftrack).  This means
+        # the Loop 1 transition window for that previous-vehicle period (slot S,
+        # prev_tm_offset) is "consumed" by Loop 2: the same death is counted there.
+        # Mark such windows up-front so we can:
+        #   (a) exclude their EIDs from transition_proposed_eids (preventing other
+        #       final-window slots from stealing those EIDs via Loop 2), and
+        #   (b) skip the Loop 1 proposal in the greedy loop (avoiding double-count).
+        # A window (slot, prev_tm_offset) is consumed when:
+        #   - slot's last vehicle is a halftrack
+        #   - the previous vehicle had a tenure > _CREW_ENTRY_TICKS
+        #   - there is a valid contested kill within _CREW_ENTRY_TICKS of the
+        #     halftrack TM (the exact condition that triggers the heuristic)
+        pre_consumed_windows: set[tuple[int, int]] = set()  # (slot, prev_tm_offset)
+        for slot_pc, timeline_pc in slot_vehicle_timeline.items():
+            if slot_pc not in slot_budget or len(timeline_pc) < 2:
+                continue
+            tm_offset_last_pc, vehicle_last_pc = timeline_pc[-1]
+            if "halftrack" not in vehicle_last_pc:
+                continue
+            tick_last_pc = tick_of(tm_offset_last_pc)
+            prev_tm_offset_pc, _prev_veh_pc = timeline_pc[-2]
+            prev_tick_pc = tick_of(prev_tm_offset_pc)
+            if tick_last_pc - prev_tick_pc <= _CREW_ENTRY_TICKS:
+                continue
+            # Check for a valid contested kill within _CREW_ENTRY_TICKS.
+            for ev_pc in unresolved_kills:
+                if ev_pc.tick_idx <= tick_last_pc:
+                    continue
+                if ev_pc.tick_idx > tick_last_pc + _CREW_ENTRY_TICKS:
+                    break
+                if ev_pc.victim_entity_id not in transition_proposed_eids_all:
+                    continue
+                if ev_pc.slot == slot_pc:
+                    continue
+                if slot_teams and slot_teams.get(ev_pc.slot) == slot_teams.get(slot_pc):
+                    continue
+                if _is_air(vehicle_last_pc) and _is_ground_non_aa(ev_pc.vehicle_name):
+                    continue
+                pre_consumed_windows.add((slot_pc, prev_tm_offset_pc))
+                break
+
+        # Rebuild transition_proposed_eids excluding EIDs that are ONLY proposed by
+        # consumed windows.  An EID proposed by at least one non-consumed window is
+        # kept so Pass 2 can still use it; an EID proposed exclusively by consumed
+        # windows is excluded from Loop 2's scope (preventing non-halftrack final
+        # windows from stealing it — they could only see it via transition_proposed_eids).
+        transition_proposed_eids: set[int] = {p[2] for p in trans_proposals if (p[3], p[5]) not in pre_consumed_windows}
+
+        # Final-vehicle window proposals (Loop 2).
+        # All final-vehicle slots may compete here (no dist restriction); the span
+        # ordering in the greedy loop ensures the tightest window wins.  Slots whose
+        # last vehicle is a halftrack apply the pre-spawn heuristic to remap the kill
+        # to the previous (primary) vehicle — this is valid regardless of distance.
+        for slot, timeline in slot_vehicle_timeline.items():
+            if slot not in slot_budget or not timeline:
+                continue
+            tm_offset_last, vehicle_last = timeline[-1]
+            tick_last = tick_of(tm_offset_last)
+            final_span = game_end_tick - tick_last
+
+            best_ev_f: _KillEvent | None = None
+            best_dist_f: int = final_span + 1
+            for ev in unresolved_kills:
+                if ev.tick_idx <= tick_last:
+                    continue
+                # Only compete with transition windows; do not steal from Pass 2.
+                if ev.victim_entity_id not in transition_proposed_eids:
+                    continue
+                if ev.slot == slot:
+                    continue
+                if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot):
+                    continue
+                if _is_air(vehicle_last) and _is_ground_non_aa(ev.vehicle_name):
+                    continue
+                dist = ev.tick_idx - tick_last  # smallest = soonest after last spawn
+                if dist < best_dist_f:
+                    best_dist_f = dist
+                    best_ev_f = ev
+
+            if best_ev_f is None:
+                continue
+
+            # Apply halftrack pre-spawn heuristic: a halftrack TM can appear
+            # in the stream before the kill event for the player's current
+            # (primary) vehicle.  If the kill is very soon after a halftrack
+            # TM and the previous vehicle had a long tenure, use the previous
+            # vehicle for attribution.
+            prop_vehicle_f = vehicle_last
+            prop_tm_offset_f = tm_offset_last
+            if "halftrack" in vehicle_last and len(timeline) > 1 and best_dist_f < _CREW_ENTRY_TICKS:
+                prev_tm_offset_f, prev_vehicle_f = timeline[-2]
+                prev_tick_f = tick_of(prev_tm_offset_f)
+                if tick_last - prev_tick_f > _CREW_ENTRY_TICKS:
+                    prop_vehicle_f = prev_vehicle_f
+                    prop_tm_offset_f = prev_tm_offset_f
+            trans_proposals.append(
+                (
+                    final_span,
+                    best_dist_f,
+                    best_ev_f.victim_entity_id,
+                    slot,
+                    prop_vehicle_f,
+                    prop_tm_offset_f,
+                    1,  # is_loop2=True
+                )
+            )
 
         # Sort by (window_span ASC, dist_to_end ASC) — tightest windows first.
         trans_proposals.sort()
 
-        for window_span, dist_to_end, eid, slot, vehicle, tm_offset in trans_proposals:
+        # Track windows whose first-choice EID was claimed by a tighter window of
+        # another slot, so Pass 1b can retry with the next-best unclaimed candidate.
+        # Each entry: (window_span, slot, vehicle, tm_offset, tick_curr, tick_next)
+        skipped_windows: list[tuple[int, int, str, int, int, int]] = []
+
+        for window_span, dist_to_end, eid, slot, vehicle, tm_offset, is_loop2 in trans_proposals:
+            # Skip Loop 1 proposals from halftrack-consumed windows — their kill was
+            # already claimed by the Loop 2 halftrack heuristic for the same slot.
+            if not is_loop2 and (slot, tm_offset) in pre_consumed_windows:
+                continue
             if eid in claimed_eids:
+                if slot_budget.get(slot, 0) > 0:
+                    # Record tick boundaries for fallback candidate search.
+                    tick_curr_sk = tick_of(tm_offset)
+                    tl_sk = slot_vehicle_timeline[slot]
+                    tick_next_sk = game_end_tick
+                    for j_sk in range(len(tl_sk)):
+                        if tl_sk[j_sk][0] == tm_offset:
+                            if j_sk + 1 < len(tl_sk):
+                                tick_next_sk = tick_of(tl_sk[j_sk + 1][0])
+                            break
+                    skipped_windows.append((window_span, slot, vehicle, tm_offset, tick_curr_sk, tick_next_sk))
                 continue
             budget = slot_budget.get(slot, 0)
             if budget <= 0:
@@ -1615,6 +1858,83 @@ class ReplayStreamDecoderService:
                 window_span,
                 dist_to_end,
             )
+
+        # === Pass 1b: Fallback for windows whose first-choice EID was claimed ===
+        # For each window whose proposed EID was taken by a tighter-span window of
+        # another slot, find the next-best unclaimed candidate in the same window
+        # and assign it.  Sorted by span (tightest first) to preserve priority order.
+        if skipped_windows:
+            _FallbackProposal = tuple[int, int, int, int, str, int]
+            fallback_proposals: list[_FallbackProposal] = []
+            for window_span_fb, slot_fb, vehicle_fb, tm_offset_fb, tick_curr_fb, tick_next_fb in skipped_windows:
+                if slot_budget.get(slot_fb, 0) <= 0:
+                    continue
+                best_ev_b: _KillEvent | None = None
+                best_dist_b: int = tick_next_fb - tick_curr_fb + 1
+                for ev in unresolved_kills:
+                    if ev.victim_entity_id in claimed_eids:
+                        continue
+                    if ev.tick_idx <= tick_curr_fb:
+                        continue
+                    if ev.tick_idx > tick_next_fb:
+                        break
+                    if ev.slot == slot_fb:
+                        continue
+                    if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot_fb):
+                        continue
+                    if _is_air(vehicle_fb) and _is_ground_non_aa(ev.vehicle_name):
+                        continue
+                    # For final-window fallbacks, keep the same restriction: only
+                    # consider EIDs contested by transition windows.
+                    if tick_next_fb == game_end_tick and ev.victim_entity_id not in transition_proposed_eids:
+                        continue
+                    ls_ticks_fb = late_spawn_by_slot_veh.get((slot_fb, vehicle_fb))
+                    if ls_ticks_fb and any(
+                        tick_curr_fb < ls_tick <= tick_next_fb and ls_tick > ev.tick_idx for ls_tick in ls_ticks_fb
+                    ):
+                        continue
+                    dist = tick_next_fb - ev.tick_idx
+                    if dist < best_dist_b:
+                        best_dist_b = dist
+                        best_ev_b = ev
+                if best_ev_b is not None:
+                    fallback_proposals.append(
+                        (
+                            window_span_fb,
+                            best_dist_b,
+                            best_ev_b.victim_entity_id,
+                            slot_fb,
+                            vehicle_fb,
+                            tm_offset_fb,
+                        )
+                    )
+
+            fallback_proposals.sort()
+            for window_span, dist_to_end, eid, slot, vehicle, tm_offset in fallback_proposals:
+                if eid in claimed_eids:
+                    continue
+                budget = slot_budget.get(slot, 0)
+                if budget <= 0:
+                    continue
+
+                new_entry = (tm_offset, slot, vehicle)
+                existing = eid_history.get(eid)
+                if existing is None:
+                    eid_history[eid] = [new_entry]
+                else:
+                    existing.append(new_entry)
+                    existing.sort(key=lambda x: x[0])
+                claimed_eids.add(eid)
+                slot_budget[slot] = budget - 1
+                added += 1
+                logger.debug(
+                    "TM-transition death (fallback): EID %d -> slot %d %r " "(window_span %d, dist_to_end %d)",
+                    eid,
+                    slot,
+                    vehicle,
+                    window_span,
+                    dist_to_end,
+                )
 
         # === Pass 2: Final-vehicle windows (open-ended) ===
         # Collect (eid, slot, vehicle, tm_offset) proposals, then sort
@@ -1643,7 +1963,18 @@ class ReplayStreamDecoderService:
                     continue
                 if _is_air(last_vehicle) and _is_ground_non_aa(ev.vehicle_name):
                     continue
-                final_proposals.append((budget, ev.victim_entity_id, slot, last_vehicle, last_tm_offset))
+                # Apply halftrack pre-spawn heuristic: a halftrack TM can appear
+                # in the stream before the kill event for the player's current
+                # vehicle.  Use the previous vehicle for attribution in that case.
+                prop_tm_offset = last_tm_offset
+                prop_vehicle = last_vehicle
+                if "halftrack" in last_vehicle and len(timeline) > 1 and ev.tick_idx - last_tick < _CREW_ENTRY_TICKS:
+                    prev_tm_offset, prev_vehicle = timeline[-2]
+                    prev_tick = tick_of(prev_tm_offset)
+                    if last_tick - prev_tick > _CREW_ENTRY_TICKS:
+                        prop_tm_offset = prev_tm_offset
+                        prop_vehicle = prev_vehicle
+                final_proposals.append((budget, ev.victim_entity_id, slot, prop_vehicle, prop_tm_offset))
 
         # Sort by budget ASC (most-constrained slots first), then by
         # EID (deterministic for same-budget).
@@ -1694,6 +2025,8 @@ class ReplayStreamDecoderService:
         eid_history: dict[int, list[tuple[int, int, str]]],
         vehicle_activation_events: list[_TankModelsEvent],
         physics_eid_offsets: "dict[int, list[int]] | None" = None,
+        slot_initial_vehicles: "dict[int, str] | None" = None,
+        first_tick_offset: int = 0,
     ) -> int:
         """
         Infer missing initial-spawn EID assignments using the per-battle formula
@@ -1764,11 +2097,29 @@ class ReplayStreamDecoderService:
             if physics_eid_offsets is not None:
                 prior_phys = physics_eid_offsets.get(predicted_eid, [])
                 if any(phys_off < tm.offset for phys_off in prior_phys):
-                    logger.debug(
-                        "Initial-spawn EID %d skipped: physics predate TM for slot %d",
-                        predicted_eid,
-                        slot,
-                    )
+                    # EID reuse pattern: physics predate the first TM, meaning
+                    # the initial entity was killed and the EID was reused by a
+                    # different entity before the TM was captured.  The initial
+                    # spawn was still real — register it at game-start offset
+                    # using the BLK lineup vehicle so downstream lookups can
+                    # resolve kills that happened before any TM was seen.
+                    if slot_initial_vehicles and slot in slot_initial_vehicles:
+                        iv = slot_initial_vehicles[slot]
+                        eid_history[predicted_eid] = [(first_tick_offset, slot, iv)]
+                        added += 1
+                        logger.debug(
+                            "Initial-spawn EID inferred (physics-predate fallback): " "EID %d → slot %d %r",
+                            predicted_eid,
+                            slot,
+                            iv,
+                        )
+                    else:
+                        logger.debug(
+                            "Initial-spawn EID %d skipped: physics predate TM for slot %d"
+                            " (no slot_initial_vehicles fallback)",
+                            predicted_eid,
+                            slot,
+                        )
                     continue
             eid_history[predicted_eid] = [(tm.offset, slot, tm.vehicle_name)]
             added += 1
@@ -1787,6 +2138,7 @@ class ReplayStreamDecoderService:
         eid_history: dict[int, list[tuple[int, int, str]]],
         local_player_eid_sequence: list[tuple[int, int]],
         vehicle_activation_events: list[_TankModelsEvent],
+        kill_events: list[_KillEvent] | None = None,
     ) -> int:
         """
         Register all of the replay recorder's respawn EIDs (Method 6b).
@@ -1850,35 +2202,122 @@ class ReplayStreamDecoderService:
             key=lambda e: e.offset,
         )
 
-        # Collect distinct eid_a values (preserving first-seen order and offset)
+        # Collect distinct eid_a values from interaction37 events
+        # (preserving first-seen order and offset).
         seen_eids: dict[int, int] = {}  # eid -> first offset
         for offset, eid_a in local_player_eid_sequence:
             if eid_a not in seen_eids:
                 seen_eids[eid_a] = offset
 
+        # Step 3: register interaction37 EIDs that are not yet in eid_history.
+        # Preserve the original behaviour: skip EIDs already known (they were
+        # registered by an earlier method at a correct offset) and register new
+        # ones anchored at their first interaction37 appearance.
+        #
+        # FIX E: If a kill event targeting this EID as victim predates the first
+        # interaction37 appearance, the TM activation was captured late (after
+        # the kill).  In this case register at the kill event's offset instead,
+        # so _lookup_eid can resolve the kill.
+        _victim_earliest: dict[int, int] = {}
+        if kill_events:
+            for _kev in kill_events:
+                vid = _kev.victim_entity_id
+                if vid not in _victim_earliest or _kev.offset < _victim_earliest[vid]:
+                    _victim_earliest[vid] = _kev.offset
+
         added = 0
         for eid_a, first_offset in seen_eids.items():
             if eid_a in eid_history:
-                continue  # already known
+                continue  # already known — do not overwrite
 
-            # Find the most-recent TM activation at or before first_offset
+            # Use kill-event offset if it predates the first interaction37 offset
+            registration_offset = first_offset
+            early_kill = _victim_earliest.get(eid_a)
+            if early_kill is not None and early_kill < first_offset:
+                registration_offset = early_kill
+
+            # Find the most-recent TM activation at or before registration_offset
             vehicle_name: str | None = None
             for tm in reversed(slot_tms):
-                if tm.offset <= first_offset:
+                if tm.offset <= registration_offset:
                     vehicle_name = tm.vehicle_name
                     break
 
             if vehicle_name is None:
                 continue
 
-            eid_history[eid_a] = [(first_offset, local_slot, vehicle_name)]
+            eid_history[eid_a] = [(registration_offset, local_slot, vehicle_name)]
             added += 1
             logger.debug(
-                "Local-player respawn EID inferred: EID %d → slot %d %r",
+                "Local-player respawn EID inferred: EID %d \u2192 slot %d %r",
                 eid_a,
                 local_slot,
                 vehicle_name,
             )
+
+        # Step 4: also register EIDs that appear only in kill events (never in
+        # interaction37).  These are vehicles where the local player had zero
+        # interaction37 events (e.g. a vehicle used only briefly as a killer).
+        # For EIDs already in eid_history from M1 (anchored at the kill-event
+        # offset, which may be *after* the vehicle was spawned), prepend an
+        # earlier entry at the TM-activation offset so that _lookup_eid can
+        # resolve kills that occurred before the first observed kill by this EID.
+        # Use the existing entry's vehicle name to locate the correct TM — not
+        # the most-recent TM at first_kill_offset, which may belong to a later
+        # respawn.
+        if kill_events is not None:
+            kill_only_eids: dict[int, int] = {}  # eid → first kill offset
+            for ev in kill_events:
+                if ev.slot == local_slot and ev.killer_entity_id not in seen_eids:
+                    if ev.killer_entity_id not in kill_only_eids:
+                        kill_only_eids[ev.killer_entity_id] = ev.offset
+
+            for eid_a, first_kill_offset in kill_only_eids.items():
+                existing = eid_history.get(eid_a)
+                if existing is not None:
+                    # Prepend an earlier TM-activation entry if we can find one
+                    # for the *same vehicle* that predates the current earliest entry.
+                    first_entry = existing[0]
+                    if first_entry[1] != local_slot:
+                        continue  # EID belongs to a different slot — do not corrupt
+                    existing_vehicle = first_entry[2]
+                    existing_offset = first_entry[0]
+                    # Find the last TM for this exact vehicle strictly before
+                    # the earliest existing entry.
+                    tm_offset_found: int | None = None
+                    for tm in reversed(slot_tms):
+                        if tm.offset < existing_offset and tm.vehicle_name == existing_vehicle:
+                            tm_offset_found = tm.offset
+                            break
+                    if tm_offset_found is None:
+                        continue
+                    existing.insert(0, (tm_offset_found, local_slot, existing_vehicle))
+                    added += 1
+                    logger.debug(
+                        "Local-player kill-EID respawn inferred: EID %d \u2192 slot %d %r",
+                        eid_a,
+                        local_slot,
+                        existing_vehicle,
+                    )
+                else:
+                    # EID not yet in eid_history: register at TM activation offset
+                    vehicle_name = None
+                    tm_offset: int = first_kill_offset
+                    for tm in reversed(slot_tms):
+                        if tm.offset <= first_kill_offset:
+                            vehicle_name = tm.vehicle_name
+                            tm_offset = tm.offset
+                            break
+                    if vehicle_name is None:
+                        continue
+                    eid_history[eid_a] = [(tm_offset, local_slot, vehicle_name)]
+                    added += 1
+                    logger.debug(
+                        "Local-player kill-EID inferred: EID %d \u2192 slot %d %r",
+                        eid_a,
+                        local_slot,
+                        vehicle_name,
+                    )
 
         return added
 
@@ -2113,10 +2552,23 @@ class ReplayStreamDecoderService:
                 if player_slot is None:
                     continue
 
-                # Scan backward from sep_offset for a contiguous printable-ASCII run.
-                # The byte immediately before the run is the declared length field.
+                # Scan backward from sep_offset for a contiguous vehicle-name character run.
+                # Valid vehicle-name characters: a-z A-Z 0-9 _ / .
+                # Using this restricted set (instead of broad printable-ASCII) ensures that
+                # length bytes whose value falls in the printable range (e.g. 0x21='!' for
+                # a 33-char path like "tankModels/uk_a_12_mk_2_matilda_2") are NOT consumed
+                # into the scan and correctly serve as the declared length field.
                 scan = sep_offset - 1
-                while scan >= 0 and (sep_offset - scan) <= _MAX_NAME_LEN and 32 <= stream_data[scan] < 127:
+                while (
+                    scan >= 0
+                    and (sep_offset - scan) <= _MAX_NAME_LEN
+                    and (
+                        0x61 <= stream_data[scan] <= 0x7A  # a-z
+                        or 0x41 <= stream_data[scan] <= 0x5A  # A-Z
+                        or 0x30 <= stream_data[scan] <= 0x39  # 0-9
+                        or stream_data[scan] in (0x5F, 0x2F, 0x2E)  # _ / .
+                    )
+                ):
                     scan -= 1
 
                 raw_name_len = sep_offset - scan - 1
