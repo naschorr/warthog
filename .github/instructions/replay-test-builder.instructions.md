@@ -1,4 +1,14 @@
+---
+name: "Replay Test Builder Instructions"
+description: "Copilot instruction set for generating War Thunder replay regression tests from a replay match directory."
+applyTo:
+  - ".github/agents/replay-test-builder.agent.md"
+  - "test/replay/**/test_replay_*.py"
+---
+
 # Replay Regression Test — Build Process
+
+This document focuses on assembling the regression test file itself from replay artifacts. The agent file handles orchestration: locating artifacts, generating parsed JSON, extracting lineups, and running pytest.
 
 Step-by-step guide to create a new regression test file from a raw `.wrpl` replay, its in-game battle log, and the parsed replay JSON.
 
@@ -110,13 +120,13 @@ These scalar fields (`team`, `kills_ground`, `kills_air`, `deaths_total`, `award
 A helper script dumps every player's lineup with resolved display names:
 
 ```bash
-python test/replay/extract_lineups.py <parsed_replay.json>
+python test/replay/helpers/extract_lineups.py <parsed_replay.json>
 ```
 
 Example:
 
 ```bash
-python test/replay/extract_lineups.py test/replay/63ef86a001440d4/replay_2026-03-06_00-52-48_63ef86a001440d4.json
+python test/replay/helpers/extract_lineups.py test/replay/63ef86a001440d4/replay_2026-03-06_00-52-48_63ef86a001440d4.json
 ```
 
 The script auto-discovers the latest vehicle data file in `data/vehicle_data/processed_vehicle_data/`. You can also pass `--vehicle-data <path>` explicitly. Output looks like:

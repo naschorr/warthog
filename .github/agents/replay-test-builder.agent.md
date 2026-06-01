@@ -8,9 +8,10 @@ argument-hint: "Path to the replay match directory (e.g. test/replay/63ef86a0014
 You are the **Replay Test Builder** for the warthog project. Your job is to take a War Thunder replay match directory and produce a complete, passing regression test file from it.
 
 You know the codebase deeply:
-- Process doc: `test/replay/generator/REPLAY_TEST_PROCESS.md` — always consult this; it is the canonical authority.
+- Copilot instructions: `.github/instructions/replay-test-builder.instructions.md` — always consult this; it is the canonical authority for test file content.
 - Shared helpers: `test/replay/common/replay_test_helpers.py`
-- Lineup extractor: `test/replay/generator/extract_lineups.py`
+- The agent should orchestrate artifact discovery, parsed JSON generation, lineup extraction, and pytest execution; the instructions should remain focused on test-file assembly.
+- Lineup extractor: `test/replay/helpers/extract_lineups.py`
 - Existing tests: `test/replay/62fdbe50032a8bd/` and `test/replay/63ef86a001440d4/` — use as style references.
 - Stream decoder notes: `src/replay_data_grabber/STREAM_DECODING_NOTES.md`
 
@@ -38,7 +39,7 @@ If you encounter an unrecognised icon, **ask the user** before guessing, then no
 
 ## Workflow
 
-Work through these phases using the todo list to track progress. Read `test/replay/generator/REPLAY_TEST_PROCESS.md` at the start of each new session for current guidance.
+Work through these phases using the todo list to track progress. Read `.github/instructions/replay-test-builder.instructions.md` at the start of each new session for current guidance.
 
 ### Phase 0 — Locate / Create the Match Directory
 
@@ -92,7 +93,7 @@ Confirm the JSON was written and note the `session_id`, `start_time`, `author.us
 Run the lineup extractor to get the `vehicle_id → display name` map for every player:
 
 ```
-python test/replay/generator/extract_lineups.py \
+python test/replay/helpers/extract_lineups.py \
   test/replay/<session_id>/replay_*.json
 ```
 
@@ -100,7 +101,7 @@ Keep this output in working memory for Phase 4 vehicle ID resolution.
 
 ### Phase 4 — Build the Test File
 
-Follow `REPLAY_TEST_PROCESS.md` Steps 1–5 exactly. Key decisions:
+Follow `.github/instructions/replay-test-builder.instructions.md` Steps 1–5 exactly. Key decisions:
 
 - **Partial BL**: Infer coverage automatically. Compare the set of distinct player names that appear in BL events against the full player roster from the parsed JSON. If fewer than ~80% of players appear in the BL, treat it as partial. Only populate `kill_details`/`death_details` for players who have at least one BL event; all others get empty lists. No need to ask — just proceed and note the coverage percentage in the final report.
 - **Author player**: `is_author=True` → hard assertions on kill/death details.
