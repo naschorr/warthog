@@ -168,6 +168,16 @@ class ReplayParserService:
         # can cap EID attribution, enforce cross-team constraints, and fill gaps
         # via timeline inference without overcounting.
         slot_deaths = {i: p.deaths.total for i, p in enumerate(replay.players)}
+        slot_vehicle_death_caps: dict[int, dict[str, int]] = {}
+        for i, p in enumerate(replay.players):
+            veh_caps: dict[str, int] = {}
+            for d in getattr(p.deaths, "vehicles", []) or []:
+                veh = getattr(d, "victim_vehicle", None)
+                if not veh:
+                    continue
+                veh_caps[veh] = veh_caps.get(veh, 0) + 1
+            if veh_caps:
+                slot_vehicle_death_caps[i] = veh_caps
         slot_teams = {i: p.team for i, p in enumerate(replay.players) if p.team is not None}
         # First vehicle in each player's BLK lineup = their initial-spawn vehicle.
         # Passed to the stream decoder so M6 can recover initial EIDs when the
@@ -177,6 +187,7 @@ class ReplayParserService:
             stream_result = self._replay_stream_decoder.decode_from_raw_replay(
                 replay_data,
                 slot_deaths=slot_deaths,
+                slot_vehicle_death_caps=slot_vehicle_death_caps,
                 slot_teams=slot_teams,
                 slot_initial_vehicles=slot_initial_vehicles,
             )
