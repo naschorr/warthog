@@ -1,7 +1,7 @@
 ---
 name: "Replay Test Builder Instructions"
 description: "Copilot instruction set for generating War Thunder replay regression tests from a replay's battle log data."
-applyTo: ".github/agents/replay-test-builder.agent.md, test/replay/**/test_replay_*.py"
+applyTo: ".github/agents/replay-test-orchestration.agent.md, test/replay/**/test_replay_*.py"
 ---
 
 # Replay Regression Test — Build Process
