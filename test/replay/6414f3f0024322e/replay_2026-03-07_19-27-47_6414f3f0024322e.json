@@ -1,0 +1,4881 @@
+{
+  "version": 101359,
+  "session_id": "6414f3f0024322e",
+  "level": "avg_japan",
+  "level_settings": "gamedata/missions/cta/tanks/japan/japan_conq2.blk",
+  "battle_type": "realistic",
+  "environment": "day",
+  "visibility": "hazy",
+  "session_type": 0,
+  "loc_name": "missions/_Conq2;japan/name",
+  "start_time": "2026-03-07T19:27:47",
+  "end_time": "2026-03-07T20:01:11",
+  "time_limit_minutes": 25,
+  "score_limit": 18000,
+  "battle_class": "air_ground_Conq",
+  "battle_kill_streak": "",
+  "status": "success",
+  "time_played": 1102.1134,
+  "battle_rating": 4.7,
+  "author": {
+    "user_id": "19608329",
+    "username": "Ranol",
+    "squadron_id": null,
+    "squadron_tag": null,
+    "platform": "win64",
+    "platform_type": "pc",
+    "country": "Sweden",
+    "team": 2,
+    "squad": 2002,
+    "auto_squad": true,
+    "slot": 7,
+    "wait_time": 611.0,
+    "tier": 3,
+    "rank": 9,
+    "m_rank": 9,
+    "battle_rating": 4.0,
+    "min_battle_rating": 2.3,
+    "mean_battle_rating": 3.57,
+    "kills": {
+      "air": 1,
+      "ground": 5,
+      "naval": 0,
+      "team": 0,
+      "ai_air": 0,
+      "ai_ground": 0,
+      "ai_naval": 0,
+      "vehicles": [
+        {
+          "killer_vehicle": "sw_t_34_1941",
+          "killer_user_id": "19608329",
+          "killer_username": "Ranol",
+          "killer_slot": 7,
+          "victim_vehicle": "ussr_su_152",
+          "victim_user_id": "58743901",
+          "victim_username": "Palmetto_97",
+          "victim_slot": 28,
+          "time_utc": "2026-03-07T19:31:19.076000"
+        },
+        {
+          "killer_vehicle": "sw_t_34_1941",
+          "killer_user_id": "19608329",
+          "killer_username": "Ranol",
+          "killer_slot": 7,
+          "victim_vehicle": null,
+          "victim_user_id": null,
+          "victim_username": null,
+          "victim_slot": null,
+          "time_utc": "2026-03-07T19:33:08.015000"
+        },
+        {
+          "killer_vehicle": "sw_sav_fm48",
+          "killer_user_id": "19608329",
+          "killer_username": "Ranol",
+          "killer_slot": 7,
+          "victim_vehicle": "us_t77e1",
+          "victim_user_id": "80242723",
+          "victim_username": "bearhntr",
+          "victim_slot": 16,
+          "time_utc": "2026-03-07T19:33:59.662000"
+        },
+        {
+          "killer_vehicle": "sw_sav_fm48",
+          "killer_user_id": "19608329",
+          "killer_username": "Ranol",
+          "killer_slot": 7,
+          "victim_vehicle": "cn_m10",
+          "victim_user_id": "157737377",
+          "victim_username": "night#12",
+          "victim_slot": 3,
+          "time_utc": "2026-03-07T19:35:19.575000"
+        },
+        {
+          "killer_vehicle": "sw_sav_fm48",
+          "killer_user_id": "19608329",
+          "killer_username": "Ranol",
+          "killer_slot": 7,
+          "victim_vehicle": "us_halftrack_m16",
+          "victim_user_id": "204515393",
+          "victim_username": "GrahamCanada22",
+          "victim_slot": 8,
+          "time_utc": "2026-03-07T19:35:21.707000"
+        },
+        {
+          "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+          "killer_user_id": "19608329",
+          "killer_username": "Ranol",
+          "killer_slot": 7,
+          "victim_vehicle": "ussr_t_34_1942",
+          "victim_user_id": "139080189",
+          "victim_username": "Axolot56",
+          "victim_slot": 2,
+          "time_utc": "2026-03-07T19:40:15.254000"
+        }
+      ]
+    },
+    "assists": 2,
+    "deaths": {
+      "total": 5,
+      "vehicles": [
+        {
+          "victim_vehicle": "sw_t_34_1941",
+          "victim_user_id": "19608329",
+          "victim_username": "Ranol",
+          "victim_slot": 7,
+          "killer_vehicle": "us_m4a1_1942_sherman",
+          "killer_user_id": "159463207",
+          "killer_username": "Kiritouhu2#1",
+          "killer_slot": 4,
+          "time_utc": "2026-03-07T19:32:45.565000"
+        },
+        {
+          "victim_vehicle": "sw_sav_fm48",
+          "victim_user_id": "19608329",
+          "victim_username": "Ranol",
+          "victim_slot": 7,
+          "killer_vehicle": "us_m4_sherman",
+          "killer_user_id": "212208511",
+          "killer_username": "CJQSNBB",
+          "killer_slot": 10,
+          "time_utc": "2026-03-07T19:35:27.754000"
+        },
+        {
+          "victim_vehicle": "sw_pvkv_II",
+          "victim_user_id": "19608329",
+          "victim_username": "Ranol",
+          "victim_slot": 7,
+          "killer_vehicle": "us_m44",
+          "killer_user_id": "159463207",
+          "killer_username": "Kiritouhu2#1",
+          "killer_slot": 4,
+          "time_utc": "2026-03-07T19:37:41.618000"
+        },
+        {
+          "victim_vehicle": "sw_m24_chaffee_dk",
+          "victim_user_id": "19608329",
+          "victim_username": "Ranol",
+          "victim_slot": 7,
+          "killer_vehicle": "us_m24_chaffee",
+          "killer_user_id": "93887703",
+          "killer_username": "crazyranger03",
+          "killer_slot": 21,
+          "time_utc": "2026-03-07T19:38:59.205000"
+        },
+        {
+          "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+          "victim_user_id": "19608329",
+          "victim_username": "Ranol",
+          "victim_slot": 7,
+          "killer_vehicle": "ussr_su_122",
+          "killer_user_id": "139080189",
+          "killer_username": "Axolot56",
+          "killer_slot": 2,
+          "time_utc": "2026-03-07T19:42:31.408000"
+        },
+        {
+          "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+          "victim_user_id": "19608329",
+          "victim_username": "Ranol",
+          "victim_slot": 7,
+          "killer_vehicle": "germ_stug_III_ausf_F",
+          "killer_user_id": "88804617",
+          "killer_username": "rebajas-bromista",
+          "killer_slot": 20,
+          "time_utc": "2026-03-07T19:45:57.126000"
+        }
+      ]
+    },
+    "capture_zone": 0,
+    "damage_zone": 0,
+    "score": 2592,
+    "award_damage": 0,
+    "missile_evades": 0,
+    "lineup": [
+      "sw_pbv_301",
+      "sw_pzkpfw_IV_ausf_J",
+      "sw_t_34_1941",
+      "sw_pvkv_II",
+      "sw_sav_fm48",
+      "sw_m24_chaffee_dk"
+    ],
+    "is_premium": true,
+    "vehicle_kills": {
+      "sw_t_34_1941": 2,
+      "sw_sav_fm48": 3,
+      "sw_pzkpfw_IV_ausf_J": 1
+    },
+    "vehicle_deaths": {
+      "sw_t_34_1941": 1,
+      "sw_sav_fm48": 1,
+      "sw_pvkv_II": 1,
+      "sw_m24_chaffee_dk": 1,
+      "sw_pzkpfw_IV_ausf_J": 1
+    },
+    "awards": [
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "tank_die_hard",
+      "hidden_all_streak",
+      "fr_volunteer_cross_streak",
+      "squad_assist",
+      "hidden_squad_streaks_1_stage",
+      "hidden_allsquad_streak",
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill3_streak",
+      "hidden_marks_1_aircraft",
+      "tank_kill_without_fail",
+      "global_shadow_assassin",
+      "global_shadow_assassin",
+      "hidden_kill3_on_tank_destroyer",
+      "multi_kill_air",
+      "hidden_allMulty_streak",
+      "defender_tank",
+      "global_destroy_enemy_marked_by_ally",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill3_on_tank",
+      "marks_5_tanks",
+      "tank_kill_without_fail",
+      "hidden_all_streak_tank",
+      "fr_volunteer_cross_streak",
+      "hidden_win_streak"
+    ]
+  },
+  "players": [
+    {
+      "user_id": "120792220",
+      "username": "RT-7274",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "ps5",
+      "platform_type": "psn",
+      "country": "Germany",
+      "team": 2,
+      "squad": 4099,
+      "auto_squad": false,
+      "slot": 0,
+      "wait_time": 1540.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 3.7,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.5,
+      "kills": {
+        "air": 0,
+        "ground": 1,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "killer_user_id": "120792220",
+            "killer_username": "RT-7274",
+            "killer_slot": 0,
+            "victim_vehicle": "us_m4a2_sherman",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "time_utc": "2026-03-07T19:36:06.264000"
+          }
+        ]
+      },
+      "assists": 2,
+      "deaths": {
+        "total": 4,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "killer_vehicle": "ussr_t_34_1941_l_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "time_utc": "2026-03-07T19:36:13.619000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "killer_vehicle": "ussr_t_34_1942",
+            "killer_user_id": "139080189",
+            "killer_username": "Axolot56",
+            "killer_slot": 2,
+            "time_utc": "2026-03-07T19:36:43.653000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "killer_vehicle": "us_m24_chaffee",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "time_utc": "2026-03-07T19:39:27.668000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_G",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "killer_vehicle": "p-47d_22_re",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "time_utc": "2026-03-07T19:40:23.124000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 1418,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_pzkpfw_IV_ausf_J",
+        "germ_pzkpfw_IV_ausf_H",
+        "germ_pzkpfw_IV_ausf_F2",
+        "germ_pzkpfw_IV_ausf_G",
+        "dummy_plane"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "germ_pzkpfw_IV_ausf_H": 1
+      },
+      "vehicle_deaths": {
+        "germ_pzkpfw_IV_ausf_H": 2,
+        "germ_pzkpfw_IV_ausf_F2": 1,
+        "germ_pzkpfw_IV_ausf_G": 1
+      },
+      "awards": [
+        "squad_kill",
+        "hidden_squad_streaks_1_stage",
+        "hidden_allsquad_streak",
+        "hidden_base_capturer",
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "squad_kill",
+        "hidden_squad_streaks_2_stage",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "hidden_win_streak",
+        "squad_best"
+      ]
+    },
+    {
+      "user_id": "127929657",
+      "username": "little_leaf_fox",
+      "squadron_id": "1065969",
+      "squadron_tag": "=DrSoG=",
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "France",
+      "team": 2,
+      "squad": 2000,
+      "auto_squad": true,
+      "slot": 1,
+      "wait_time": 4431.0,
+      "tier": 3,
+      "rank": 10,
+      "m_rank": 10,
+      "battle_rating": 4.3,
+      "min_battle_rating": 3.0,
+      "mean_battle_rating": 3.6,
+      "kills": {
+        "air": 1,
+        "ground": 5,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "fr_amx_13_fl_11",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:29:41.643000"
+          },
+          {
+            "killer_vehicle": "fr_amx_13_fl_11",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "victim_vehicle": "fr_m4a4_sherman",
+            "victim_user_id": "87380572",
+            "victim_username": "yoncl",
+            "victim_slot": 19,
+            "time_utc": "2026-03-07T19:31:45.087000"
+          },
+          {
+            "killer_vehicle": "fr_amx_13_fl_11",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "victim_vehicle": "cn_m24_chaffee",
+            "victim_user_id": "157737377",
+            "victim_username": "night#12",
+            "victim_slot": 3,
+            "time_utc": "2026-03-07T19:31:59.961000"
+          },
+          {
+            "killer_vehicle": "f6f-5_france",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "time_utc": "2026-03-07T19:34:26.582000"
+          },
+          {
+            "killer_vehicle": "fr_amx_vtt_dca",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "victim_vehicle": "ki_61_1a_otsu",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "time_utc": "2026-03-07T19:38:19.510000"
+          },
+          {
+            "killer_vehicle": "fr_m10",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "victim_vehicle": "jp_type_5_na_to",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "time_utc": "2026-03-07T19:44:53.178000"
+          }
+        ]
+      },
+      "assists": 3,
+      "deaths": {
+        "total": 5,
+        "vehicles": [
+          {
+            "victim_vehicle": "fr_amx_13_fl_11",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "killer_vehicle": "us_m4a1_1942_sherman",
+            "killer_user_id": "204515393",
+            "killer_username": "GrahamCanada22",
+            "killer_slot": 8,
+            "time_utc": "2026-03-07T19:32:42.593000"
+          },
+          {
+            "victim_vehicle": "f6f-5_france",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "killer_vehicle": "ki_61_1a_otsu",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:35:24.981000"
+          },
+          {
+            "victim_vehicle": "fr_arl_44_acl1",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "killer_vehicle": "jp_type_5_na_to",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:41:37.170000"
+          },
+          {
+            "victim_vehicle": "fr_m44",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "208128436",
+            "killer_username": "1550251896",
+            "killer_slot": 9,
+            "time_utc": "2026-03-07T19:42:40.770000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 2971,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "fr_amx_13_fl_11",
+        "f6f-5_france",
+        "fr_m44",
+        "fr_m10",
+        "fr_amx_vtt_dca",
+        "fr_arl_44_acl1"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "fr_amx_13_fl_11": 3,
+        "f6f-5_france": 1,
+        "fr_amx_vtt_dca": 1,
+        "fr_m10": 1
+      },
+      "vehicle_deaths": {
+        "fr_amx_13_fl_11": 1,
+        "f6f-5_france": 1,
+        "fr_arl_44_acl1": 1,
+        "fr_m44": 1,
+        "fr_amx_vtt_dca": 1
+      },
+      "awards": [
+        "hidden_base_capturer",
+        "first_blood",
+        "hidden_all_streak",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "defender_tank",
+        "global_shadow_assassin",
+        "hidden_allDef_streak_1_tank",
+        "hidden_battlepass_season_22_challenge_7_kill3_without_death",
+        "hidden_kill3_on_tank",
+        "hidden_kill3_streak",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "hidden_allMulty_streak",
+        "defender_ground",
+        "global_avenge_self",
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_global_avenge_self_stage",
+        "hidden_kill1_on_fighter",
+        "defender_tank",
+        "hidden_allDef_streak_2_tank",
+        "hidden_marks_1_aircraft",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "defender_tank",
+        "global_avenge_self",
+        "hidden_kill1_on_tank_destroyer",
+        "marks_5_tanks",
+        "hidden_all_streak_tank",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "139080189",
+      "username": "Axolot56",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "xboxScarlett",
+      "platform_type": "xboxlive",
+      "country": "Russia",
+      "team": 1,
+      "squad": 1000,
+      "auto_squad": true,
+      "slot": 2,
+      "wait_time": 6982.0,
+      "tier": 2,
+      "rank": 10,
+      "m_rank": 10,
+      "battle_rating": 4.3,
+      "min_battle_rating": 1.3,
+      "mean_battle_rating": 3.0,
+      "kills": {
+        "air": 0,
+        "ground": 2,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "ussr_t_34_1942",
+            "killer_user_id": "139080189",
+            "killer_username": "Axolot56",
+            "killer_slot": 2,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "time_utc": "2026-03-07T19:36:43.653000"
+          },
+          {
+            "killer_vehicle": "ussr_su_122",
+            "killer_user_id": "139080189",
+            "killer_username": "Axolot56",
+            "killer_slot": 2,
+            "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "time_utc": "2026-03-07T19:42:31.408000"
+          }
+        ]
+      },
+      "assists": 1,
+      "deaths": {
+        "total": 5,
+        "vehicles": [
+          {
+            "victim_vehicle": "ussr_su_122",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:34:49.019000"
+          },
+          {
+            "victim_vehicle": "ussr_t_34_1942",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "killer_vehicle": "sw_m24_chaffee_dk",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "time_utc": "2026-03-07T19:39:58.122000"
+          },
+          {
+            "victim_vehicle": "ussr_t_34_1942",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "time_utc": "2026-03-07T19:40:15.254000"
+          },
+          {
+            "victim_vehicle": "ussr_su_122",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:44:21.893000"
+          },
+          {
+            "victim_vehicle": "ussr_btr_152a",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:45:21.185000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 1587,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "ussr_su_122",
+        "ussr_bt_7_1937",
+        "ussr_kv_1s",
+        "ussr_btr_152a",
+        "ussr_t_34_1942"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "ussr_t_34_1942": 1,
+        "ussr_su_122": 1
+      },
+      "vehicle_deaths": {
+        "ussr_su_122": 2,
+        "ussr_t_34_1942": 2,
+        "ussr_btr_152a": 1
+      },
+      "awards": [
+        "tank_help_with_repairing",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "hidden_base_capturer",
+        "defender_tank",
+        "global_avenge_friendly",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "fr_volunteer_cross_streak",
+        "defender_tank",
+        "global_avenge_self",
+        "hidden_allDef_streak_2_tank",
+        "hidden_global_avenge_self_stage",
+        "hidden_kill1_on_tank_destroyer",
+        "marks_killed_plane_10_ranks_higher"
+      ]
+    },
+    {
+      "user_id": "157737377",
+      "username": "night#12",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "China",
+      "team": 1,
+      "squad": 1004,
+      "auto_squad": true,
+      "slot": 3,
+      "wait_time": 60.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.74,
+      "kills": {
+        "air": 0,
+        "ground": 1,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "cn_m24_chaffee",
+            "killer_user_id": "157737377",
+            "killer_username": "night#12",
+            "killer_slot": 3,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:31:10.615000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "cn_m24_chaffee",
+            "victim_user_id": "157737377",
+            "victim_username": "night#12",
+            "victim_slot": 3,
+            "killer_vehicle": "fr_amx_13_fl_11",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "time_utc": "2026-03-07T19:31:59.961000"
+          },
+          {
+            "victim_vehicle": "cn_m4a4_sherman",
+            "victim_user_id": "157737377",
+            "victim_username": "night#12",
+            "victim_slot": 3,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:34:07.466000"
+          },
+          {
+            "victim_vehicle": "cn_m10",
+            "victim_user_id": "157737377",
+            "victim_username": "night#12",
+            "victim_slot": 3,
+            "killer_vehicle": "sw_sav_fm48",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "time_utc": "2026-03-07T19:35:19.575000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 520,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "cn_m42_duster",
+        "cn_m4a4_sherman",
+        "cn_t_34_1942",
+        "cn_m24_chaffee",
+        "cn_m10"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "cn_m24_chaffee": 1
+      },
+      "vehicle_deaths": {
+        "cn_m24_chaffee": 1,
+        "cn_m4a4_sherman": 1,
+        "cn_m10": 1
+      },
+      "awards": [
+        "squad_kill",
+        "hidden_squad_streaks_1_stage",
+        "hidden_allsquad_streak",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak"
+      ]
+    },
+    {
+      "user_id": "159463207",
+      "username": "Kiritouhu2#1",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "USA",
+      "team": 1,
+      "squad": 4096,
+      "auto_squad": false,
+      "slot": 4,
+      "wait_time": 4321.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 1.0,
+      "mean_battle_rating": 2.92,
+      "kills": {
+        "air": 0,
+        "ground": 4,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "us_m4a1_1942_sherman",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "victim_vehicle": "sw_t_34_1941",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "time_utc": "2026-03-07T19:32:45.565000"
+          },
+          {
+            "killer_vehicle": "us_m44",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "victim_vehicle": "germ_stug_III_ausf_G",
+            "victim_user_id": "179560308",
+            "victim_username": "bramcracker7",
+            "victim_slot": 5,
+            "time_utc": "2026-03-07T19:36:18.311000"
+          },
+          {
+            "killer_vehicle": "us_m44",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "victim_vehicle": "sw_pvkv_II",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "time_utc": "2026-03-07T19:37:41.618000"
+          },
+          {
+            "killer_vehicle": "us_m44",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "victim_vehicle": "germ_infanterie_kampfpanzer_churchill",
+            "victim_user_id": "184589138",
+            "victim_username": "Sgt_ Norris Doms",
+            "victim_slot": 6,
+            "time_utc": "2026-03-07T19:38:35.781000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 5,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_m44",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:32:04.588000"
+          },
+          {
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:34:26.011000"
+          },
+          {
+            "victim_vehicle": "us_m44",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "killer_vehicle": "sw_m24_chaffee_dk",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "time_utc": "2026-03-07T19:39:30.967000"
+          },
+          {
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:41:26.973000"
+          },
+          {
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:44:10.049000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 1697,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "us_m4a3_105_sherman",
+        "us_m4a1_1942_sherman",
+        "us_m10",
+        "us_m44",
+        "bf2c_1"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "us_m4a1_1942_sherman": 1,
+        "us_m44": 3
+      },
+      "vehicle_deaths": {
+        "us_m44": 2,
+        "us_m4a1_1942_sherman": 2,
+        "us_m10": 1
+      },
+      "awards": [
+        "squad_kill",
+        "hidden_squad_streaks_1_stage",
+        "hidden_allsquad_streak",
+        "squad_kill",
+        "hidden_squad_streaks_2_stage",
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "defender_tank",
+        "global_avenge_self",
+        "hidden_allDef_streak_2_tank",
+        "hidden_global_avenge_self_stage",
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_base_capturer",
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_kill3_streak",
+        "defender_tank",
+        "global_shadow_assassin",
+        "hidden_kill3_on_tank_destroyer",
+        "tank_die_hard",
+        "hidden_all_streak"
+      ]
+    },
+    {
+      "user_id": "179560308",
+      "username": "bramcracker7",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Germany",
+      "team": 2,
+      "squad": 2003,
+      "auto_squad": true,
+      "slot": 5,
+      "wait_time": 14906.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 3.7,
+      "mean_battle_rating": 3.83,
+      "kills": {
+        "air": 0,
+        "ground": 15,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "us_m19",
+            "victim_user_id": "6832369",
+            "victim_username": "Kilrak_Bloodfang",
+            "victim_slot": 29,
+            "time_utc": "2026-03-07T19:31:30.157000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "ussr_kv_1_zis_5",
+            "victim_user_id": "45454766",
+            "victim_username": "FullcaioDias",
+            "victim_slot": 13,
+            "time_utc": "2026-03-07T19:31:57.001000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "us_m44",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "time_utc": "2026-03-07T19:32:04.588000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:33:05.717000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "us_m4a2_sherman",
+            "victim_user_id": "104405372",
+            "victim_username": "AdrielElProfe",
+            "victim_slot": 24,
+            "time_utc": "2026-03-07T19:33:49.554000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "cn_isu_152",
+            "victim_user_id": "216942957",
+            "victim_username": "gabrielzonhtmj",
+            "victim_slot": 12,
+            "time_utc": "2026-03-07T19:33:58.166000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "time_utc": "2026-03-07T19:34:26.011000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "ussr_su_122",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "time_utc": "2026-03-07T19:34:49.019000"
+          },
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "us_m42_duster",
+            "victim_user_id": "6832369",
+            "victim_username": "Kilrak_Bloodfang",
+            "victim_slot": 29,
+            "time_utc": "2026-03-07T19:38:49.892000"
+          },
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "time_utc": "2026-03-07T19:42:23.238000"
+          },
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "ussr_kv_1_L_11",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "time_utc": "2026-03-07T19:43:18.788000"
+          },
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "time_utc": "2026-03-07T19:44:10.049000"
+          },
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "ussr_su_122",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "time_utc": "2026-03-07T19:44:21.893000"
+          },
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "ussr_su_122",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "time_utc": "2026-03-07T19:44:50.308000"
+          },
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "victim_vehicle": "jp_type_3_chi_nu",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "time_utc": "2026-03-07T19:45:39.018000"
+          }
+        ]
+      },
+      "assists": 1,
+      "deaths": {
+        "total": 1,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_stug_III_ausf_G",
+            "victim_user_id": "179560308",
+            "victim_username": "bramcracker7",
+            "victim_slot": 5,
+            "killer_vehicle": "us_m44",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "time_utc": "2026-03-07T19:36:18.311000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 5262,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_sdkfz_9_flak37",
+        "germ_m44",
+        "germ_pzkpfw_IV_ausf_J",
+        "germ_flakpanzer_IV_Wirbelwind",
+        "germ_stug_III_ausf_G",
+        "germ_pzkpfw_IV_ausf_H",
+        "germ_sdkfz_234_2"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "germ_stug_III_ausf_G": 8,
+        "germ_sdkfz_234_2": 7
+      },
+      "vehicle_deaths": {
+        "germ_stug_III_ausf_G": 1
+      },
+      "awards": [
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_kill_streak",
+        "defender_tank",
+        "global_avenge_friendly",
+        "hidden_allDef_streak_1_tank",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "global_shadow_assassin",
+        "hidden_kill3_on_tank_destroyer",
+        "hidden_kill3_streak",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "global_shadow_assassin",
+        "defender_tank",
+        "global_kills_without_death",
+        "global_shadow_assassin",
+        "hidden_allDef_streak_2_tank",
+        "marks_5_tanks",
+        "hidden_all_streak_tank",
+        "global_kills_without_death",
+        "global_shadow_assassin",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "defender_tank",
+        "global_kills_without_death",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "defender_tank",
+        "global_kills_without_death",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "hidden_kill1_on_tank",
+        "fr_volunteer_cross_streak",
+        "hidden_base_capturer",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "marks_10_tanks",
+        "tank_marked_enemy_destroyed_by_ally",
+        "defender_tank",
+        "hidden_kill3_on_tank",
+        "defender_tank",
+        "tank_kill_without_fail",
+        "defender_tank",
+        "global_kills_without_death",
+        "global_shadow_assassin",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "defender_tank",
+        "global_avenge_friendly",
+        "global_kills_without_death",
+        "global_shadow_assassin",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "tank_marked_enemy_destroyed_by_ally",
+        "global_kills_without_death",
+        "global_shadow_assassin",
+        "tank_kill_without_fail",
+        "fr_fighter_cross_streak",
+        "heroic_tankman",
+        "hidden_allHeroic_streak",
+        "hidden_allHeroic_streak_tank",
+        "hidden_allNearHeroic_streak",
+        "hidden_allNearHeroic_streak_tank",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "184589138",
+      "username": "Sgt_ Norris Doms",
+      "squadron_id": "1136164",
+      "squadron_tag": "[RPMS]",
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Germany",
+      "team": 2,
+      "squad": 4098,
+      "auto_squad": false,
+      "slot": 6,
+      "wait_time": 1843.0,
+      "tier": 3,
+      "rank": 10,
+      "m_rank": 10,
+      "battle_rating": 4.3,
+      "min_battle_rating": 3.0,
+      "mean_battle_rating": 3.8,
+      "kills": {
+        "air": 1,
+        "ground": 1,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "184589138",
+            "killer_username": "Sgt_ Norris Doms",
+            "killer_slot": 6,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:33:43.267000"
+          },
+          {
+            "killer_vehicle": "germ_infanterie_kampfpanzer_churchill",
+            "killer_user_id": "184589138",
+            "killer_username": "Sgt_ Norris Doms",
+            "killer_slot": 6,
+            "victim_vehicle": "ussr_t_34_1941_l_11",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "time_utc": "2026-03-07T19:37:51.732000"
+          }
+        ]
+      },
+      "assists": 4,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "184589138",
+            "victim_username": "Sgt_ Norris Doms",
+            "victim_slot": 6,
+            "killer_vehicle": "ussr_t_34_1941_l_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "time_utc": "2026-03-07T19:35:56.641000"
+          },
+          {
+            "victim_vehicle": "germ_infanterie_kampfpanzer_churchill",
+            "victim_user_id": "184589138",
+            "victim_username": "Sgt_ Norris Doms",
+            "victim_slot": 6,
+            "killer_vehicle": "us_m44",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "time_utc": "2026-03-07T19:38:35.781000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 1981,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_infanterie_kampfpanzer_churchill",
+        "germ_t_34_747",
+        "germ_sdkfz_234_2",
+        "germ_pzsflk40_sturer_emil",
+        "fw-190a-1"
+      ],
+      "is_premium": true,
+      "vehicle_kills": {
+        "germ_sdkfz_234_2": 1,
+        "germ_infanterie_kampfpanzer_churchill": 1
+      },
+      "vehicle_deaths": {
+        "germ_sdkfz_234_2": 1,
+        "germ_infanterie_kampfpanzer_churchill": 1,
+        "germ_t_34_747": 1
+      },
+      "awards": [
+        "tank_marked_enemy_destroyed_by_ally",
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "hidden_marks_1_aircraft",
+        "tank_marked_enemy_destroyed_by_ally",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "defender_tank",
+        "global_avenge_self",
+        "hidden_allDef_streak_2_tank",
+        "hidden_global_avenge_self_stage",
+        "hidden_kill1_on_heavy_tank",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "row_air_assist",
+        "fr_volunteer_cross_streak",
+        "heroic_wingman",
+        "hidden_allHeroic_streak",
+        "hidden_allHeroic_streak_air",
+        "hidden_allHeroic_streak_tank",
+        "hidden_allNearHeroic_streak",
+        "hidden_allNearHeroic_streak_air",
+        "hidden_allNearHeroic_streak_tank",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "19608329",
+      "username": "Ranol",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Sweden",
+      "team": 2,
+      "squad": 2002,
+      "auto_squad": true,
+      "slot": 7,
+      "wait_time": 611.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 2.3,
+      "mean_battle_rating": 3.57,
+      "kills": {
+        "air": 1,
+        "ground": 5,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "sw_t_34_1941",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "victim_vehicle": "ussr_su_152",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "time_utc": "2026-03-07T19:31:19.076000"
+          },
+          {
+            "killer_vehicle": "sw_t_34_1941",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:33:08.015000"
+          },
+          {
+            "killer_vehicle": "sw_sav_fm48",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "victim_vehicle": "us_t77e1",
+            "victim_user_id": "80242723",
+            "victim_username": "bearhntr",
+            "victim_slot": 16,
+            "time_utc": "2026-03-07T19:33:59.662000"
+          },
+          {
+            "killer_vehicle": "sw_sav_fm48",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "victim_vehicle": "cn_m10",
+            "victim_user_id": "157737377",
+            "victim_username": "night#12",
+            "victim_slot": 3,
+            "time_utc": "2026-03-07T19:35:19.575000"
+          },
+          {
+            "killer_vehicle": "sw_sav_fm48",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "victim_vehicle": "us_halftrack_m16",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "time_utc": "2026-03-07T19:35:21.707000"
+          },
+          {
+            "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "victim_vehicle": "ussr_t_34_1942",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "time_utc": "2026-03-07T19:40:15.254000"
+          }
+        ]
+      },
+      "assists": 2,
+      "deaths": {
+        "total": 5,
+        "vehicles": [
+          {
+            "victim_vehicle": "sw_t_34_1941",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "killer_vehicle": "us_m4a1_1942_sherman",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "time_utc": "2026-03-07T19:32:45.565000"
+          },
+          {
+            "victim_vehicle": "sw_sav_fm48",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "killer_vehicle": "us_m4_sherman",
+            "killer_user_id": "212208511",
+            "killer_username": "CJQSNBB",
+            "killer_slot": 10,
+            "time_utc": "2026-03-07T19:35:27.754000"
+          },
+          {
+            "victim_vehicle": "sw_pvkv_II",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "killer_vehicle": "us_m44",
+            "killer_user_id": "159463207",
+            "killer_username": "Kiritouhu2#1",
+            "killer_slot": 4,
+            "time_utc": "2026-03-07T19:37:41.618000"
+          },
+          {
+            "victim_vehicle": "sw_m24_chaffee_dk",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "killer_vehicle": "us_m24_chaffee",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "time_utc": "2026-03-07T19:38:59.205000"
+          },
+          {
+            "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "killer_vehicle": "ussr_su_122",
+            "killer_user_id": "139080189",
+            "killer_username": "Axolot56",
+            "killer_slot": 2,
+            "time_utc": "2026-03-07T19:42:31.408000"
+          },
+          {
+            "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:45:57.126000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 2592,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "sw_pbv_301",
+        "sw_pzkpfw_IV_ausf_J",
+        "sw_t_34_1941",
+        "sw_pvkv_II",
+        "sw_sav_fm48",
+        "sw_m24_chaffee_dk"
+      ],
+      "is_premium": true,
+      "vehicle_kills": {
+        "sw_t_34_1941": 2,
+        "sw_sav_fm48": 3,
+        "sw_pzkpfw_IV_ausf_J": 1
+      },
+      "vehicle_deaths": {
+        "sw_t_34_1941": 1,
+        "sw_sav_fm48": 1,
+        "sw_pvkv_II": 1,
+        "sw_m24_chaffee_dk": 1,
+        "sw_pzkpfw_IV_ausf_J": 1
+      },
+      "awards": [
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "fr_volunteer_cross_streak",
+        "squad_assist",
+        "hidden_squad_streaks_1_stage",
+        "hidden_allsquad_streak",
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_kill3_streak",
+        "hidden_marks_1_aircraft",
+        "tank_kill_without_fail",
+        "global_shadow_assassin",
+        "global_shadow_assassin",
+        "hidden_kill3_on_tank_destroyer",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "defender_tank",
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill3_on_tank",
+        "marks_5_tanks",
+        "tank_kill_without_fail",
+        "hidden_all_streak_tank",
+        "fr_volunteer_cross_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "204515393",
+      "username": "GrahamCanada22",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "ps5",
+      "platform_type": "psn",
+      "country": "USA",
+      "team": 1,
+      "squad": 1002,
+      "auto_squad": true,
+      "slot": 8,
+      "wait_time": 2280.0,
+      "tier": 2,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 2.7,
+      "mean_battle_rating": 3.14,
+      "kills": {
+        "air": 0,
+        "ground": 1,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "us_m4a1_1942_sherman",
+            "killer_user_id": "204515393",
+            "killer_username": "GrahamCanada22",
+            "killer_slot": 8,
+            "victim_vehicle": "fr_amx_13_fl_11",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "time_utc": "2026-03-07T19:32:42.593000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 4,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "killer_vehicle": "f6f-5_france",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "time_utc": "2026-03-07T19:34:26.582000"
+          },
+          {
+            "victim_vehicle": "us_halftrack_m16",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "killer_vehicle": "sw_sav_fm48",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "time_utc": "2026-03-07T19:35:21.707000"
+          },
+          {
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:42:23.238000"
+          },
+          {
+            "victim_vehicle": "us_m5a1_stuart",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:42:52.681000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 805,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "us_halftrack_m16",
+        "us_m10",
+        "us_m4a1_1942_sherman",
+        "us_m5a1_stuart",
+        "us_m24_chaffee"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "us_m4a1_1942_sherman": 1
+      },
+      "vehicle_deaths": {
+        "us_m4a1_1942_sherman": 1,
+        "us_halftrack_m16": 1,
+        "us_m24_chaffee": 1,
+        "us_m5a1_stuart": 1
+      },
+      "awards": [
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "marks_killed_plane_10_ranks_higher",
+        "hidden_all_streak",
+        "hidden_base_capturer",
+        "tank_die_hard",
+        "squad_kill",
+        "hidden_squad_streaks_1_stage",
+        "hidden_allsquad_streak",
+        "squad_kill",
+        "hidden_squad_streaks_2_stage",
+        "squad_kill",
+        "squad_kill",
+        "hidden_squad_streaks_4_stage",
+        "squad_best"
+      ]
+    },
+    {
+      "user_id": "208128436",
+      "username": "1550251896",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "USA",
+      "team": 1,
+      "squad": 1001,
+      "auto_squad": true,
+      "slot": 9,
+      "wait_time": 5376.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.66,
+      "kills": {
+        "air": 0,
+        "ground": 3,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "us_m24_chaffee",
+            "killer_user_id": "208128436",
+            "killer_username": "1550251896",
+            "killer_slot": 9,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "209688170",
+            "victim_username": "TakenCeiling338",
+            "victim_slot": 25,
+            "time_utc": "2026-03-07T19:31:15.070000"
+          },
+          {
+            "killer_vehicle": "f6f-3",
+            "killer_user_id": "208128436",
+            "killer_username": "1550251896",
+            "killer_slot": 9,
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "215580138",
+            "victim_username": "matiz_cubista",
+            "victim_slot": 11,
+            "time_utc": "2026-03-07T19:33:44.669000"
+          },
+          {
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "208128436",
+            "killer_username": "1550251896",
+            "killer_slot": 9,
+            "victim_vehicle": "fr_m44",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "time_utc": "2026-03-07T19:42:40.770000"
+          }
+        ]
+      },
+      "assists": 3,
+      "deaths": {
+        "total": 6,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "killer_vehicle": "uk_concept3_ngac",
+            "killer_user_id": "13721329",
+            "killer_username": "ShadowWolf168",
+            "killer_slot": 30,
+            "time_utc": "2026-03-07T19:31:30.559000"
+          },
+          {
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "time_utc": "2026-03-07T19:33:48.412000"
+          },
+          {
+            "victim_vehicle": "us_m4a2_sherman",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "killer_user_id": "120792220",
+            "killer_username": "RT-7274",
+            "killer_slot": 0,
+            "time_utc": "2026-03-07T19:36:06.264000"
+          },
+          {
+            "victim_vehicle": "us_m19",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "killer_vehicle": "fw-190a-5_u2",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:37:52.593000"
+          },
+          {
+            "victim_vehicle": "us_m19",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "time_utc": "2026-03-07T19:39:28.670000"
+          },
+          {
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "time_utc": "2026-03-07T19:42:54.187000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 2109,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "us_m19",
+        "us_m10",
+        "us_m24_chaffee",
+        "us_m4a2_sherman",
+        "f6f-3"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "us_m24_chaffee": 1,
+        "f6f-3": 1,
+        "us_m10": 1
+      },
+      "vehicle_deaths": {
+        "us_m24_chaffee": 2,
+        "us_m4a2_sherman": 1,
+        "us_m19": 2,
+        "us_m10": 1
+      },
+      "awards": [
+        "tank_marked_enemy_destroyed_by_ally",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "hidden_assist_streak",
+        "squad_assist",
+        "squad_kill",
+        "hidden_squad_streaks_1_stage",
+        "hidden_squad_streaks_2_stage",
+        "hidden_allsquad_streak",
+        "squad_kill",
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_kill1_on_fighter",
+        "fr_volunteer_cross_streak",
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_kill3_streak"
+      ]
+    },
+    {
+      "user_id": "212208511",
+      "username": "CJQSNBB",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "USA",
+      "team": 1,
+      "squad": 1003,
+      "auto_squad": true,
+      "slot": 10,
+      "wait_time": 4088.0,
+      "tier": 2,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.54,
+      "kills": {
+        "air": 0,
+        "ground": 2,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "212208511",
+            "killer_username": "CJQSNBB",
+            "killer_slot": 10,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:32:06.809000"
+          },
+          {
+            "killer_vehicle": "us_m4_sherman",
+            "killer_user_id": "212208511",
+            "killer_username": "CJQSNBB",
+            "killer_slot": 10,
+            "victim_vehicle": "sw_sav_fm48",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "time_utc": "2026-03-07T19:35:27.754000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 2,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "212208511",
+            "victim_username": "CJQSNBB",
+            "victim_slot": 10,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "time_utc": "2026-03-07T19:32:47.851000"
+          },
+          {
+            "victim_vehicle": "us_m4_sherman",
+            "victim_user_id": "212208511",
+            "victim_username": "CJQSNBB",
+            "victim_slot": 10,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "time_utc": "2026-03-07T19:38:45.043000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 830,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "us_m4a1_1942_sherman",
+        "us_m24_chaffee",
+        "us_m10",
+        "sb2c_4",
+        "us_m4_sherman"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "us_m10": 1,
+        "us_m4_sherman": 1
+      },
+      "vehicle_deaths": {
+        "us_m10": 1,
+        "us_m4_sherman": 1
+      },
+      "awards": [
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_kill_streak",
+        "defender_tank",
+        "global_avenge_friendly",
+        "hidden_allDef_streak_2_tank",
+        "hidden_kill1_on_tank"
+      ]
+    },
+    {
+      "user_id": "215580138",
+      "username": "matiz_cubista",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "ps5",
+      "platform_type": "psn",
+      "country": "Germany",
+      "team": 2,
+      "squad": 2001,
+      "auto_squad": true,
+      "slot": 11,
+      "wait_time": 964.0,
+      "tier": 2,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 1.0,
+      "mean_battle_rating": 3.1,
+      "kills": {
+        "air": 0,
+        "ground": 1,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "germ_pzsflk40_sturer_emil",
+            "killer_user_id": "215580138",
+            "killer_username": "matiz_cubista",
+            "killer_slot": 11,
+            "victim_vehicle": "jp_type_4_chi_to_late",
+            "victim_user_id": "61235556",
+            "victim_username": "shawn32100",
+            "victim_slot": 15,
+            "time_utc": "2026-03-07T19:30:55.663000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_pzsflk40_sturer_emil",
+            "victim_user_id": "215580138",
+            "victim_username": "matiz_cubista",
+            "victim_slot": 11,
+            "killer_vehicle": "b7a2",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "time_utc": "2026-03-07T19:32:08.047000"
+          },
+          {
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "215580138",
+            "victim_username": "matiz_cubista",
+            "victim_slot": 11,
+            "killer_vehicle": "f6f-3",
+            "killer_user_id": "208128436",
+            "killer_username": "1550251896",
+            "killer_slot": 9,
+            "time_utc": "2026-03-07T19:33:44.669000"
+          },
+          {
+            "victim_vehicle": "germ_pzsfl_IVa_dickermax",
+            "victim_user_id": "215580138",
+            "victim_username": "matiz_cubista",
+            "victim_slot": 11,
+            "killer_vehicle": "jp_type_5_na_to",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:44:24.309000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 520,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "hs-123a-1",
+        "germ_pzsflk40_sturer_emil",
+        "germ_pzsfl_IVa_dickermax",
+        "germ_sdkfz_234_2"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "germ_pzsflk40_sturer_emil": 1
+      },
+      "vehicle_deaths": {
+        "germ_pzsflk40_sturer_emil": 1,
+        "germ_sdkfz_234_2": 1,
+        "germ_pzsfl_IVa_dickermax": 1
+      },
+      "awards": [
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_kill_streak",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "216942957",
+      "username": "gabrielzonhtmj",
+      "squadron_id": "1058947",
+      "squadron_tag": "-STHLM-",
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "China",
+      "team": 1,
+      "squad": 4097,
+      "auto_squad": false,
+      "slot": 12,
+      "wait_time": 13090.0,
+      "tier": 3,
+      "rank": 11,
+      "m_rank": 11,
+      "battle_rating": 4.7,
+      "min_battle_rating": 4.0,
+      "mean_battle_rating": 4.23,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 2,
+        "vehicles": [
+          {
+            "victim_vehicle": "cn_isu_152",
+            "victim_user_id": "216942957",
+            "victim_username": "gabrielzonhtmj",
+            "victim_slot": 12,
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "209688170",
+            "killer_username": "TakenCeiling338",
+            "killer_slot": 25,
+            "time_utc": "2026-03-07T19:30:56.524000"
+          },
+          {
+            "victim_vehicle": "cn_isu_152",
+            "victim_user_id": "216942957",
+            "victim_username": "gabrielzonhtmj",
+            "victim_slot": 12,
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:33:58.166000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 150,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "cn_t_34_1942",
+        "cn_m55",
+        "cn_isu_152"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "cn_isu_152": 2
+      },
+      "awards": []
+    },
+    {
+      "user_id": "45454766",
+      "username": "FullcaioDias",
+      "squadron_id": "1058947",
+      "squadron_tag": "-STHLM-",
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Russia",
+      "team": 1,
+      "squad": 4097,
+      "auto_squad": false,
+      "slot": 13,
+      "wait_time": 13090.0,
+      "tier": 3,
+      "rank": 11,
+      "m_rank": 11,
+      "battle_rating": 4.7,
+      "min_battle_rating": 1.0,
+      "mean_battle_rating": 3.6,
+      "kills": {
+        "air": 0,
+        "ground": 1,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "ussr_kv_1_zis_5",
+            "killer_user_id": "45454766",
+            "killer_username": "FullcaioDias",
+            "killer_slot": 13,
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "93946998",
+            "victim_username": "SQUEX6409",
+            "victim_slot": 22,
+            "time_utc": "2026-03-07T19:31:45.347000"
+          }
+        ]
+      },
+      "assists": 1,
+      "deaths": {
+        "total": 2,
+        "vehicles": [
+          {
+            "victim_vehicle": "ussr_kv_1_zis_5",
+            "victim_user_id": "45454766",
+            "victim_username": "FullcaioDias",
+            "victim_slot": 13,
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:31:57.001000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 577,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "i-15_1934",
+        "ussr_t_34E_STZ",
+        "ussr_kv_1_zis_5",
+        "ussr_t_34_1941_57"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "ussr_kv_1_zis_5": 1
+      },
+      "vehicle_deaths": {
+        "ussr_kv_1_zis_5": 2
+      },
+      "awards": [
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_heavy_tank",
+        "hidden_kill_streak",
+        "fr_volunteer_cross_streak"
+      ]
+    },
+    {
+      "user_id": "52964907",
+      "username": "snakeeater1945",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "xboxScarlett",
+      "platform_type": "xboxlive",
+      "country": "Germany",
+      "team": 2,
+      "squad": 2002,
+      "auto_squad": true,
+      "slot": 14,
+      "wait_time": 243.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.6,
+      "kills": {
+        "air": 0,
+        "ground": 5,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "212208511",
+            "victim_username": "CJQSNBB",
+            "victim_slot": 10,
+            "time_utc": "2026-03-07T19:32:47.851000"
+          },
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "time_utc": "2026-03-07T19:33:48.412000"
+          },
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "victim_vehicle": "us_m4_sherman",
+            "victim_user_id": "212208511",
+            "victim_username": "CJQSNBB",
+            "victim_slot": 10,
+            "time_utc": "2026-03-07T19:38:45.043000"
+          },
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "victim_vehicle": "us_m19",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "time_utc": "2026-03-07T19:39:28.670000"
+          },
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "killer_user_id": "52964907",
+            "killer_username": "snakeeater1945",
+            "killer_slot": 14,
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "time_utc": "2026-03-07T19:42:54.187000"
+          }
+        ]
+      },
+      "assists": 1,
+      "deaths": {
+        "total": 2,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "52964907",
+            "victim_username": "snakeeater1945",
+            "victim_slot": 14,
+            "killer_vehicle": "ussr_kv_1_L_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "time_utc": "2026-03-07T19:40:49.136000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "52964907",
+            "victim_username": "snakeeater1945",
+            "victim_slot": 14,
+            "killer_vehicle": "ussr_su_122",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "time_utc": "2026-03-07T19:44:45.052000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 1885,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_pzkpfw_IV_ausf_F2",
+        "germ_sdkfz_251_21",
+        "germ_pzsfl_IVa_dickermax",
+        "germ_pzkpfw_IV_ausf_H",
+        "germ_m55"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "germ_pzkpfw_IV_ausf_F2": 4,
+        "germ_pzkpfw_IV_ausf_H": 1
+      },
+      "vehicle_deaths": {
+        "germ_pzkpfw_IV_ausf_F2": 1,
+        "germ_pzkpfw_IV_ausf_H": 1
+      },
+      "awards": [
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "marks_killed_plane_10_ranks_higher",
+        "hidden_all_streak",
+        "defender_tank",
+        "hidden_allDef_streak_2_tank",
+        "hidden_kill3_on_tank",
+        "hidden_kill3_streak",
+        "defender_tank",
+        "defender_tank",
+        "global_avenge_friendly",
+        "global_destroy_enemy_marked_by_ally",
+        "marks_5_tanks",
+        "hidden_all_streak_tank",
+        "fr_volunteer_cross_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "61235556",
+      "username": "shawn32100",
+      "squadron_id": "1035061",
+      "squadron_tag": "=ALTA=",
+      "platform": "ps5",
+      "platform_type": "psn",
+      "country": "Japan",
+      "team": 1,
+      "squad": 1001,
+      "auto_squad": true,
+      "slot": 15,
+      "wait_time": 1514.0,
+      "tier": 3,
+      "rank": 11,
+      "m_rank": 11,
+      "battle_rating": 4.7,
+      "min_battle_rating": 3.7,
+      "mean_battle_rating": 4.03,
+      "kills": {
+        "air": 1,
+        "ground": 4,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "jp_type_4_chi_to_late",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "victim_vehicle": "fr_arl_44_acl1",
+            "victim_user_id": "87380572",
+            "victim_username": "yoncl",
+            "victim_slot": 19,
+            "time_utc": "2026-03-07T19:29:47.993000"
+          },
+          {
+            "killer_vehicle": "jp_type_4_chi_to_late",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_J",
+            "victim_user_id": "34288181",
+            "victim_username": "Masteryoda6656",
+            "victim_slot": 27,
+            "time_utc": "2026-03-07T19:30:18.779000"
+          },
+          {
+            "killer_vehicle": "b7a2",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "victim_vehicle": "germ_pzsflk40_sturer_emil",
+            "victim_user_id": "215580138",
+            "victim_username": "matiz_cubista",
+            "victim_slot": 11,
+            "time_utc": "2026-03-07T19:32:08.047000"
+          },
+          {
+            "killer_vehicle": "b7a2",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:32:58.416000"
+          },
+          {
+            "killer_vehicle": "b7a2",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_J",
+            "victim_user_id": "93946998",
+            "victim_username": "SQUEX6409",
+            "victim_slot": 22,
+            "time_utc": "2026-03-07T19:33:09.566000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "jp_type_4_chi_to_late",
+            "victim_user_id": "61235556",
+            "victim_username": "shawn32100",
+            "victim_slot": 15,
+            "killer_vehicle": "germ_pzsflk40_sturer_emil",
+            "killer_user_id": "215580138",
+            "killer_username": "matiz_cubista",
+            "killer_slot": 11,
+            "time_utc": "2026-03-07T19:30:55.663000"
+          },
+          {
+            "victim_vehicle": "b7a2",
+            "victim_user_id": "61235556",
+            "victim_username": "shawn32100",
+            "victim_slot": 15,
+            "killer_vehicle": "fw-190a-5_u2",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:38:41.850000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 1401,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "b7a2",
+        "jp_type_4_chi_to_late",
+        "jp_m24_chaffee",
+        "jp_m44"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "jp_type_4_chi_to_late": 2,
+        "b7a2": 3
+      },
+      "vehicle_deaths": {
+        "jp_type_4_chi_to_late": 2,
+        "b7a2": 1
+      },
+      "awards": [
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "defender_ground",
+        "global_avenge_self",
+        "hidden_global_avenge_self_stage",
+        "hidden_kill3_streak",
+        "hidden_marks_1_aircraft",
+        "global_shadow_assassin",
+        "multi_kill_air",
+        "tank_die_hard",
+        "hidden_all_streak"
+      ]
+    },
+    {
+      "user_id": "80242723",
+      "username": "bearhntr",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "USA",
+      "team": 1,
+      "squad": 1003,
+      "auto_squad": true,
+      "slot": 16,
+      "wait_time": 5276.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.67,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 4,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_t77e1",
+            "victim_user_id": "80242723",
+            "victim_username": "bearhntr",
+            "victim_slot": 16,
+            "killer_vehicle": "sw_sav_fm48",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "time_utc": "2026-03-07T19:33:59.662000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 423,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "us_m10",
+        "p-63a-10",
+        "f6f-3",
+        "us_m4_sherman",
+        "us_t77e1",
+        "us_m24_chaffee"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "us_t77e1": 1,
+        "us_m4_sherman": 1,
+        "us_m10": 2
+      },
+      "awards": []
+    },
+    {
+      "user_id": "82764756",
+      "username": "BaIIs",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Japan",
+      "team": 1,
+      "squad": 1002,
+      "auto_squad": true,
+      "slot": 17,
+      "wait_time": 3781.0,
+      "tier": 3,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 3.0,
+      "mean_battle_rating": 3.4,
+      "kills": {
+        "air": 1,
+        "ground": 10,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "136494868",
+            "victim_username": "Nahu_1207",
+            "victim_slot": 26,
+            "time_utc": "2026-03-07T19:29:46.102000"
+          },
+          {
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "uk_17_pdr_m10_achilles",
+            "victim_user_id": "13721329",
+            "victim_username": "ShadowWolf168",
+            "victim_slot": 30,
+            "time_utc": "2026-03-07T19:30:24.058000"
+          },
+          {
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "uk_concept3_ngac",
+            "victim_user_id": "13721329",
+            "victim_username": "ShadowWolf168",
+            "victim_slot": 30,
+            "time_utc": "2026-03-07T19:32:21.258000"
+          },
+          {
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "uk_17_pdr_m10_achilles",
+            "victim_user_id": "13721329",
+            "victim_username": "ShadowWolf168",
+            "victim_slot": 30,
+            "time_utc": "2026-03-07T19:34:09.289000"
+          },
+          {
+            "killer_vehicle": "ki_61_1a_otsu",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "f6f-5_france",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "time_utc": "2026-03-07T19:35:24.981000"
+          },
+          {
+            "killer_vehicle": "ki_61_1a_otsu",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "88804617",
+            "victim_username": "rebajas-bromista",
+            "victim_slot": 20,
+            "time_utc": "2026-03-07T19:35:45.174000"
+          },
+          {
+            "killer_vehicle": "ki_61_1a_otsu",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "germ_sdkfz_251_21",
+            "victim_user_id": "34288181",
+            "victim_username": "Masteryoda6656",
+            "victim_slot": 27,
+            "time_utc": "2026-03-07T19:37:03.290000"
+          },
+          {
+            "killer_vehicle": "jp_type_5_na_to",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "sw_m24_chaffee_dk",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "time_utc": "2026-03-07T19:41:13.019000"
+          },
+          {
+            "killer_vehicle": "jp_type_5_na_to",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "fr_arl_44_acl1",
+            "victim_user_id": "127929657",
+            "victim_username": "little_leaf_fox",
+            "victim_slot": 1,
+            "time_utc": "2026-03-07T19:41:37.170000"
+          },
+          {
+            "killer_vehicle": "jp_type_5_na_to",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:43:22.933000"
+          },
+          {
+            "killer_vehicle": "jp_type_5_na_to",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "victim_vehicle": "germ_pzsfl_IVa_dickermax",
+            "victim_user_id": "215580138",
+            "victim_username": "matiz_cubista",
+            "victim_slot": 11,
+            "time_utc": "2026-03-07T19:44:24.309000"
+          }
+        ]
+      },
+      "assists": 2,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "jp_m24_chaffee",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "killer_vehicle": "uk_17_pdr_m10_achilles",
+            "killer_user_id": "13721329",
+            "killer_username": "ShadowWolf168",
+            "killer_slot": 30,
+            "time_utc": "2026-03-07T19:34:09.049000"
+          },
+          {
+            "victim_vehicle": "ki_61_1a_otsu",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "killer_vehicle": "fr_amx_vtt_dca",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "time_utc": "2026-03-07T19:38:19.510000"
+          },
+          {
+            "victim_vehicle": "jp_type_5_na_to",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "killer_vehicle": "fr_m10",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "time_utc": "2026-03-07T19:44:53.178000"
+          },
+          {
+            "victim_vehicle": "jp_type_3_chi_nu",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:45:39.018000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 4168,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "ki_61_1a_otsu",
+        "jp_type_3_chi_nu",
+        "jp_type_5_na_to",
+        "jp_m24_chaffee",
+        "jp_type_95_so_ki"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "jp_m24_chaffee": 4,
+        "ki_61_1a_otsu": 3,
+        "jp_type_5_na_to": 4
+      },
+      "vehicle_deaths": {
+        "jp_m24_chaffee": 1,
+        "ki_61_1a_otsu": 1,
+        "jp_type_5_na_to": 1
+      },
+      "awards": [
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "tank_marked_enemy_destroyed_by_ally",
+        "global_destroy_enemy_marked_by_ally",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "tank_marked_enemy_destroyed_by_ally",
+        "defender_tank",
+        "global_shadow_assassin",
+        "hidden_allDef_streak_1_tank",
+        "hidden_battlepass_season_22_challenge_7_kill3_without_death",
+        "hidden_kill3_on_tank",
+        "hidden_kill3_streak",
+        "marks_killed_plane_10_ranks_higher",
+        "tank_kill_without_fail",
+        "hidden_all_streak",
+        "tank_marked_enemy_destroyed_by_ally",
+        "tank_marked_enemy_destroyed_by_ally",
+        "defender_tank",
+        "global_avenge_self",
+        "hidden_allDef_streak_2_tank",
+        "hidden_global_avenge_self_stage",
+        "defender_ground",
+        "hidden_kill1_on_fighter",
+        "hidden_marks_1_aircraft",
+        "defender_ground",
+        "global_shadow_assassin",
+        "marks_5_tanks",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "hidden_all_streak_tank",
+        "hidden_kill3_on_fighter",
+        "defender_tank",
+        "hidden_kill1_on_tank_destroyer",
+        "defender_tank",
+        "multi_kill_air",
+        "tank_kill_without_fail",
+        "global_shadow_assassin",
+        "hidden_kill3_on_tank_destroyer",
+        "tank_kill_without_fail",
+        "global_shadow_assassin",
+        "hidden_david_2_kill",
+        "marks_10_tanks",
+        "tank_kill_without_fail",
+        "squad_best",
+        "trophy_near_punisher",
+        "hidden_allNearHeroic_streak",
+        "hidden_allNearHeroic_streak_air",
+        "hidden_allNearHeroic_streak_tank",
+        "hidden_allsquad_streak"
+      ]
+    },
+    {
+      "user_id": "84330159",
+      "username": "YoloRaptorK15222",
+      "squadron_id": "1063413",
+      "squadron_tag": "-DAMD-",
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Germany",
+      "team": 2,
+      "squad": 2001,
+      "auto_squad": true,
+      "slot": 18,
+      "wait_time": 3830.0,
+      "tier": 3,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 1.7,
+      "mean_battle_rating": 3.23,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_pzsfl_IVa_dickermax",
+            "victim_user_id": "84330159",
+            "victim_username": "YoloRaptorK15222",
+            "victim_slot": 18,
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "time_utc": "2026-03-07T19:32:45.233000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_J",
+            "victim_user_id": "84330159",
+            "victim_username": "YoloRaptorK15222",
+            "victim_slot": 18,
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "time_utc": "2026-03-07T19:34:21.388000"
+          },
+          {
+            "victim_vehicle": "germ_flakpanzer_IV_Wirbelwind",
+            "victim_user_id": "84330159",
+            "victim_username": "YoloRaptorK15222",
+            "victim_slot": 18,
+            "killer_vehicle": "us_m4a1_1942_sherman",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "time_utc": "2026-03-07T19:41:59.533000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 270,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "bf-109c_1",
+        "germ_flakpanzer_IV_Wirbelwind",
+        "germ_stug_III_ausf_F",
+        "germ_pzkpfw_III_ausf_M",
+        "germ_pzkpfw_IV_ausf_J",
+        "germ_pzsfl_IVa_dickermax"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "germ_pzsfl_IVa_dickermax": 1,
+        "germ_pzkpfw_IV_ausf_J": 1,
+        "germ_flakpanzer_IV_Wirbelwind": 1
+      },
+      "awards": [
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "87380572",
+      "username": "yoncl",
+      "squadron_id": "1067450",
+      "squadron_tag": "-MRDL-",
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "France",
+      "team": 2,
+      "squad": 4100,
+      "auto_squad": false,
+      "slot": 19,
+      "wait_time": 3309.0,
+      "tier": 3,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 3.0,
+      "mean_battle_rating": 3.4,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 1,
+      "deaths": {
+        "total": 4,
+        "vehicles": [
+          {
+            "victim_vehicle": "fr_arl_44_acl1",
+            "victim_user_id": "87380572",
+            "victim_username": "yoncl",
+            "victim_slot": 19,
+            "killer_vehicle": "jp_type_4_chi_to_late",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "time_utc": "2026-03-07T19:29:47.993000"
+          },
+          {
+            "victim_vehicle": "fr_m4a4_sherman",
+            "victim_user_id": "87380572",
+            "victim_username": "yoncl",
+            "victim_slot": 19,
+            "killer_vehicle": "fr_amx_13_fl_11",
+            "killer_user_id": "127929657",
+            "killer_username": "little_leaf_fox",
+            "killer_slot": 1,
+            "time_utc": "2026-03-07T19:31:45.087000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 598,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "f6f-5_france",
+        "fr_amx_vtt_dca",
+        "fr_arl_44_acl1",
+        "fr_m4a4_sherman",
+        "fr_m10"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "fr_arl_44_acl1": 1,
+        "fr_m4a4_sherman": 1,
+        "fr_m10": 1,
+        "fr_amx_vtt_dca": 1
+      },
+      "awards": [
+        "fr_volunteer_cross_streak",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "88804617",
+      "username": "rebajas-bromista",
+      "squadron_id": "1115112",
+      "squadron_tag": "=HEGA5=",
+      "platform": "ps4",
+      "platform_type": "psn",
+      "country": "Germany",
+      "team": 2,
+      "squad": 4099,
+      "auto_squad": false,
+      "slot": 20,
+      "wait_time": 1540.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.66,
+      "kills": {
+        "air": 1,
+        "ground": 8,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "cn_m4a4_sherman",
+            "victim_user_id": "157737377",
+            "victim_username": "night#12",
+            "victim_slot": 3,
+            "time_utc": "2026-03-07T19:34:07.466000"
+          },
+          {
+            "killer_vehicle": "fw-190a-5_u2",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "us_m19",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "time_utc": "2026-03-07T19:37:52.593000"
+          },
+          {
+            "killer_vehicle": "fw-190a-5_u2",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "b7a2",
+            "victim_user_id": "61235556",
+            "victim_username": "shawn32100",
+            "victim_slot": 15,
+            "time_utc": "2026-03-07T19:38:41.850000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "time_utc": "2026-03-07T19:39:33.841000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "time_utc": "2026-03-07T19:41:26.973000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "us_m5a1_stuart",
+            "victim_user_id": "204515393",
+            "victim_username": "GrahamCanada22",
+            "victim_slot": 8,
+            "time_utc": "2026-03-07T19:42:52.681000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "time_utc": "2026-03-07T19:43:26.076000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "ussr_btr_152a",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "time_utc": "2026-03-07T19:45:21.185000"
+          },
+          {
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "time_utc": "2026-03-07T19:45:57.126000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_pzsflk40_sturer_emil",
+            "victim_user_id": "88804617",
+            "victim_username": "rebajas-bromista",
+            "victim_slot": 20,
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "time_utc": "2026-03-07T19:31:04.259000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "88804617",
+            "victim_username": "rebajas-bromista",
+            "victim_slot": 20,
+            "killer_vehicle": "ki_61_1a_otsu",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:35:45.174000"
+          },
+          {
+            "victim_vehicle": "fw-190a-5_u2",
+            "victim_user_id": "88804617",
+            "victim_username": "rebajas-bromista",
+            "victim_slot": 20,
+            "killer_vehicle": "p-47d_22_re",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "time_utc": "2026-03-07T19:38:42.914000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 3276,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_pzkpfw_IV_ausf_H",
+        "fw-190a-5_u2",
+        "germ_stug_III_ausf_F",
+        "germ_sdkfz_251_21",
+        "germ_pzsflk40_sturer_emil"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "germ_pzkpfw_IV_ausf_H": 1,
+        "fw-190a-5_u2": 2,
+        "germ_stug_III_ausf_F": 6
+      },
+      "vehicle_deaths": {
+        "germ_pzsflk40_sturer_emil": 1,
+        "germ_pzkpfw_IV_ausf_H": 1,
+        "fw-190a-5_u2": 1
+      },
+      "awards": [
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "hidden_base_capturer",
+        "hidden_kill1_on_fighter",
+        "defender_ground",
+        "hidden_kill3_streak",
+        "hidden_marks_1_aircraft",
+        "defender_tank",
+        "global_avenge_friendly",
+        "hidden_allDef_streak_2_tank",
+        "hidden_kill1_on_tank_destroyer",
+        "marks_killed_plane_10_ranks_higher",
+        "tank_kill_without_fail",
+        "hidden_all_streak",
+        "global_shadow_assassin",
+        "hidden_kill3_on_tank_destroyer",
+        "marks_5_tanks",
+        "tank_kill_without_fail",
+        "hidden_all_streak_tank",
+        "defender_tank",
+        "tank_kill_without_fail",
+        "global_destroy_enemy_marked_by_ally",
+        "global_kills_without_death",
+        "tank_kill_without_fail",
+        "global_kills_without_death",
+        "global_shadow_assassin",
+        "tank_kill_without_fail",
+        "final_blow",
+        "hidden_all_streak_air",
+        "hidden_win_streak",
+        "squad_best",
+        "hidden_allsquad_streak"
+      ]
+    },
+    {
+      "user_id": "93887703",
+      "username": "crazyranger03",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "USA",
+      "team": 1,
+      "squad": 4096,
+      "auto_squad": false,
+      "slot": 21,
+      "wait_time": 4321.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 3.7,
+      "min_battle_rating": 2.7,
+      "mean_battle_rating": 3.2,
+      "kills": {
+        "air": 0,
+        "ground": 8,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": "germ_pzsflk40_sturer_emil",
+            "victim_user_id": "88804617",
+            "victim_username": "rebajas-bromista",
+            "victim_slot": 20,
+            "time_utc": "2026-03-07T19:31:04.259000"
+          },
+          {
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "209688170",
+            "victim_username": "TakenCeiling338",
+            "victim_slot": 25,
+            "time_utc": "2026-03-07T19:31:07.370000"
+          },
+          {
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": "germ_pzsfl_IVa_dickermax",
+            "victim_user_id": "84330159",
+            "victim_username": "YoloRaptorK15222",
+            "victim_slot": 18,
+            "time_utc": "2026-03-07T19:32:45.233000"
+          },
+          {
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:35:09.287000"
+          },
+          {
+            "killer_vehicle": "us_m24_chaffee",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:37:56.280000"
+          },
+          {
+            "killer_vehicle": "us_m24_chaffee",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": "sw_m24_chaffee_dk",
+            "victim_user_id": "19608329",
+            "victim_username": "Ranol",
+            "victim_slot": 7,
+            "time_utc": "2026-03-07T19:38:59.205000"
+          },
+          {
+            "killer_vehicle": "us_m24_chaffee",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "time_utc": "2026-03-07T19:39:27.668000"
+          },
+          {
+            "killer_vehicle": "us_m4a1_1942_sherman",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "victim_vehicle": "germ_flakpanzer_IV_Wirbelwind",
+            "victim_user_id": "84330159",
+            "victim_username": "YoloRaptorK15222",
+            "victim_slot": 18,
+            "time_utc": "2026-03-07T19:41:59.533000"
+          }
+        ]
+      },
+      "assists": 4,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "time_utc": "2026-03-07T19:34:38.945000"
+          },
+          {
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "killer_vehicle": "sw_sav_m43_1946",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "time_utc": "2026-03-07T19:35:10.045000"
+          },
+          {
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:39:33.841000"
+          },
+          {
+            "victim_vehicle": "us_m4a1_1942_sherman",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "killer_vehicle": "germ_stug_III_ausf_F",
+            "killer_user_id": "88804617",
+            "killer_username": "rebajas-bromista",
+            "killer_slot": 20,
+            "time_utc": "2026-03-07T19:43:26.076000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 3857,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "us_m10",
+        "us_m24_chaffee",
+        "us_m3_lee",
+        "us_m4a1_1942_sherman",
+        "us_m4a3_105_sherman"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "us_m10": 4,
+        "us_m24_chaffee": 3,
+        "us_m4a1_1942_sherman": 1
+      },
+      "vehicle_deaths": {
+        "us_m10": 2,
+        "us_m24_chaffee": 1
+      },
+      "awards": [
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_kill_streak",
+        "defender_tank",
+        "global_avenge_friendly",
+        "hidden_allDef_streak_1_tank",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_kill3_on_tank_destroyer",
+        "hidden_kill3_streak",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak",
+        "squad_kill",
+        "hidden_squad_streaks_1_stage",
+        "hidden_allsquad_streak",
+        "hidden_base_capturer",
+        "fr_volunteer_cross_streak",
+        "squad_assist",
+        "tank_marked_enemy_destroyed_by_ally",
+        "hidden_squad_streaks_2_stage",
+        "defender_tank",
+        "hidden_allDef_streak_2_tank",
+        "hidden_kill1_on_tank",
+        "marks_5_tanks",
+        "hidden_all_streak_tank",
+        "hidden_kill3_on_tank",
+        "multi_kill_air",
+        "fr_volunteer_cross_streak",
+        "heroic_wingman",
+        "hidden_allHeroic_streak",
+        "hidden_allHeroic_streak_air",
+        "hidden_allHeroic_streak_tank",
+        "hidden_allNearHeroic_streak",
+        "hidden_allNearHeroic_streak_air",
+        "hidden_allNearHeroic_streak_tank"
+      ]
+    },
+    {
+      "user_id": "93946998",
+      "username": "SQUEX6409",
+      "squadron_id": "1136164",
+      "squadron_tag": "[RPMS]",
+      "platform": "xboxScarlett",
+      "platform_type": "xboxlive",
+      "country": "Germany",
+      "team": 2,
+      "squad": 4098,
+      "auto_squad": false,
+      "slot": 22,
+      "wait_time": 1843.0,
+      "tier": 3,
+      "rank": 10,
+      "m_rank": 10,
+      "battle_rating": 3.7,
+      "min_battle_rating": 1.0,
+      "mean_battle_rating": 2.82,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 1,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "93946998",
+            "victim_username": "SQUEX6409",
+            "victim_slot": 22,
+            "killer_vehicle": "ussr_kv_1_zis_5",
+            "killer_user_id": "45454766",
+            "killer_username": "FullcaioDias",
+            "killer_slot": 13,
+            "time_utc": "2026-03-07T19:31:45.347000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_J",
+            "victim_user_id": "93946998",
+            "victim_username": "SQUEX6409",
+            "victim_slot": 22,
+            "killer_vehicle": "b7a2",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "time_utc": "2026-03-07T19:33:09.566000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 452,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_pzkpfw_IV_ausf_H",
+        "ju-87b-2",
+        "germ_sdkfz_234_2",
+        "hs-129b-3",
+        "germ_pzkpfw_IV_ausf_J"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "germ_sdkfz_234_2": 1,
+        "germ_pzkpfw_IV_ausf_J": 1,
+        "germ_pzkpfw_IV_ausf_H": 1
+      },
+      "awards": [
+        "fr_volunteer_cross_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "96994991",
+      "username": "eyxio",
+      "squadron_id": "1082296",
+      "squadron_tag": "-W1P-",
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Sweden",
+      "team": 2,
+      "squad": 4100,
+      "auto_squad": false,
+      "slot": 23,
+      "wait_time": 3309.0,
+      "tier": 3,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 2.7,
+      "mean_battle_rating": 3.2,
+      "kills": {
+        "air": 0,
+        "ground": 4,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "sw_sav_m43_1946",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "time_utc": "2026-03-07T19:35:10.045000"
+          },
+          {
+            "killer_vehicle": "sw_m24_chaffee_dk",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "victim_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "victim_user_id": "8732336",
+            "victim_username": "ThirtySeven",
+            "victim_slot": 31,
+            "time_utc": "2026-03-07T19:39:22.503000"
+          },
+          {
+            "killer_vehicle": "sw_m24_chaffee_dk",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "victim_vehicle": "us_m44",
+            "victim_user_id": "159463207",
+            "victim_username": "Kiritouhu2#1",
+            "victim_slot": 4,
+            "time_utc": "2026-03-07T19:39:30.967000"
+          },
+          {
+            "killer_vehicle": "sw_m24_chaffee_dk",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "victim_vehicle": "ussr_t_34_1942",
+            "victim_user_id": "139080189",
+            "victim_username": "Axolot56",
+            "victim_slot": 2,
+            "time_utc": "2026-03-07T19:39:58.122000"
+          }
+        ]
+      },
+      "assists": 2,
+      "deaths": {
+        "total": 6,
+        "vehicles": [
+          {
+            "victim_vehicle": "sw_m24_chaffee_dk",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "killer_vehicle": "us_m4a2_sherman",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "time_utc": "2026-03-07T19:30:24.232000"
+          },
+          {
+            "victim_vehicle": "sw_pvkv_III",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "time_utc": "2026-03-07T19:32:15.993000"
+          },
+          {
+            "victim_vehicle": "sw_sav_m43_1946",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "time_utc": "2026-03-07T19:35:14.594000"
+          },
+          {
+            "victim_vehicle": "sw_sav_m43_1946",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "killer_vehicle": "p-47d_22_re",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "time_utc": "2026-03-07T19:35:21.958000"
+          },
+          {
+            "victim_vehicle": "sw_l_62_anti_II",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "killer_vehicle": "ussr_t_34_1941_l_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "time_utc": "2026-03-07T19:37:15.664000"
+          },
+          {
+            "victim_vehicle": "sw_m24_chaffee_dk",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "killer_vehicle": "jp_type_5_na_to",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:41:13.019000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 2304,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "sw_sav_m43_1946",
+        "sw_l_62_anti_II",
+        "saab_b18a",
+        "sw_m24_chaffee_dk",
+        "sw_pvkv_III"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "sw_sav_m43_1946": 1,
+        "sw_m24_chaffee_dk": 3
+      },
+      "vehicle_deaths": {
+        "sw_m24_chaffee_dk": 2,
+        "sw_pvkv_III": 1,
+        "sw_sav_m43_1946": 2,
+        "sw_l_62_anti_II": 1
+      },
+      "awards": [
+        "tank_help_with_repairing",
+        "fr_volunteer_cross_streak",
+        "tank_help_with_repairing",
+        "defender_tank",
+        "global_avenge_friendly",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_kill_streak",
+        "defender_tank",
+        "hidden_allDef_streak_2_tank",
+        "hidden_kill1_on_tank",
+        "defender_tank",
+        "hidden_kill3_streak",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "global_shadow_assassin",
+        "hidden_battlepass_season_22_challenge_7_kill3_without_death",
+        "hidden_kill3_on_tank",
+        "multi_kill_air",
+        "tank_marked_enemy_destroyed_by_ally",
+        "fr_volunteer_cross_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "104405372",
+      "username": "AdrielElProfe",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "USA",
+      "team": 1,
+      "squad": 1004,
+      "auto_squad": true,
+      "slot": 24,
+      "wait_time": 33.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 3.7,
+      "mean_battle_rating": 3.88,
+      "kills": {
+        "air": 2,
+        "ground": 3,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "us_m4a2_sherman",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "victim_vehicle": "sw_m24_chaffee_dk",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "time_utc": "2026-03-07T19:30:24.232000"
+          },
+          {
+            "killer_vehicle": "p-47d_22_re",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "victim_vehicle": "sw_sav_m43_1946",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "time_utc": "2026-03-07T19:35:21.958000"
+          },
+          {
+            "killer_vehicle": "p-47d_22_re",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "victim_vehicle": "fw-190a-5_u2",
+            "victim_user_id": "88804617",
+            "victim_username": "rebajas-bromista",
+            "victim_slot": 20,
+            "time_utc": "2026-03-07T19:38:42.914000"
+          },
+          {
+            "killer_vehicle": "p-47d_22_re",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_G",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "time_utc": "2026-03-07T19:40:23.124000"
+          },
+          {
+            "killer_vehicle": "p-47d_22_re",
+            "killer_user_id": "104405372",
+            "killer_username": "AdrielElProfe",
+            "killer_slot": 24,
+            "victim_vehicle": null,
+            "victim_user_id": null,
+            "victim_username": null,
+            "victim_slot": null,
+            "time_utc": "2026-03-07T19:42:17.519000"
+          }
+        ]
+      },
+      "assists": 2,
+      "deaths": {
+        "total": 1,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_m4a2_sherman",
+            "victim_user_id": "104405372",
+            "victim_username": "AdrielElProfe",
+            "victim_slot": 24,
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:33:49.554000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 2131,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "p-47d_22_re",
+        "us_m24_chaffee",
+        "us_m4a2_sherman",
+        "us_t77e1",
+        "us_m44"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "us_m4a2_sherman": 1,
+        "p-47d_22_re": 4
+      },
+      "vehicle_deaths": {
+        "us_m4a2_sherman": 1
+      },
+      "awards": [
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "fr_volunteer_cross_streak",
+        "squad_assist",
+        "squad_kill",
+        "hidden_squad_streaks_1_stage",
+        "hidden_squad_streaks_2_stage",
+        "hidden_allsquad_streak",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "fr_volunteer_cross_streak",
+        "hidden_base_capturer",
+        "hidden_kill1_on_fighter",
+        "defender_bomber",
+        "defender_ground",
+        "global_avenge_friendly",
+        "hidden_allDef_streak_1_air",
+        "hidden_kill3_streak",
+        "hidden_marks_1_aircraft",
+        "global_shadow_assassin",
+        "hidden_kill3_on_fighter"
+      ]
+    },
+    {
+      "user_id": "209688170",
+      "username": "TakenCeiling338",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "xboxOne",
+      "platform_type": "xboxlive",
+      "country": "Germany",
+      "team": 2,
+      "squad": 2003,
+      "auto_squad": true,
+      "slot": 25,
+      "wait_time": 938.0,
+      "tier": 2,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 1.0,
+      "mean_battle_rating": 2.92,
+      "kills": {
+        "air": 0,
+        "ground": 1,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "killer_user_id": "209688170",
+            "killer_username": "TakenCeiling338",
+            "killer_slot": 25,
+            "victim_vehicle": "cn_isu_152",
+            "victim_user_id": "216942957",
+            "victim_username": "gabrielzonhtmj",
+            "victim_slot": 12,
+            "time_utc": "2026-03-07T19:30:56.524000"
+          }
+        ]
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 2,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "209688170",
+            "victim_username": "TakenCeiling338",
+            "victim_slot": 25,
+            "killer_vehicle": "us_m10",
+            "killer_user_id": "93887703",
+            "killer_username": "crazyranger03",
+            "killer_slot": 21,
+            "time_utc": "2026-03-07T19:31:07.370000"
+          },
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "209688170",
+            "victim_username": "TakenCeiling338",
+            "victim_slot": 25,
+            "killer_vehicle": "us_m24_chaffee",
+            "killer_user_id": "208128436",
+            "killer_username": "1550251896",
+            "killer_slot": 9,
+            "time_utc": "2026-03-07T19:31:15.070000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 400,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_stug_III_ausf_G",
+        "germ_sdkfz_251_21",
+        "germ_pzkpfw_IV_ausf_F2",
+        "germ_stuh_III_ausf_G",
+        "do_17e_1"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "germ_pzkpfw_IV_ausf_F2": 1
+      },
+      "vehicle_deaths": {
+        "germ_pzkpfw_IV_ausf_F2": 2
+      },
+      "awards": [
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "marks_killed_plane_10_ranks_higher",
+        "hidden_all_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "136494868",
+      "username": "Nahu_1207",
+      "squadron_id": "1125470",
+      "squadron_tag": "┾WLTAM┿",
+      "platform": "ps4",
+      "platform_type": "psn",
+      "country": "Germany",
+      "team": 2,
+      "squad": 2004,
+      "auto_squad": true,
+      "slot": 26,
+      "wait_time": 2229.0,
+      "tier": 2,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 3.46,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 2,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "136494868",
+            "victim_username": "Nahu_1207",
+            "victim_slot": 26,
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:29:46.102000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 245,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "germ_pzkpfw_IV_ausf_H",
+        "germ_sdkfz_234_2",
+        "germ_sdkfz_251_21",
+        "germ_pzkpfw_III_ausf_M",
+        "germ_pzkpfw_IV_ausf_F2"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "germ_sdkfz_234_2": 2
+      },
+      "awards": [
+        "tank_marked_enemy_destroyed_by_ally",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "34288181",
+      "username": "Masteryoda6656",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "ps5",
+      "platform_type": "psn",
+      "country": "Germany",
+      "team": 2,
+      "squad": 2004,
+      "auto_squad": true,
+      "slot": 27,
+      "wait_time": 1623.0,
+      "tier": 2,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 2.3,
+      "mean_battle_rating": 3.4,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 0,
+      "deaths": {
+        "total": 4,
+        "vehicles": [
+          {
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_J",
+            "victim_user_id": "34288181",
+            "victim_username": "Masteryoda6656",
+            "victim_slot": 27,
+            "killer_vehicle": "jp_type_4_chi_to_late",
+            "killer_user_id": "61235556",
+            "killer_username": "shawn32100",
+            "killer_slot": 15,
+            "time_utc": "2026-03-07T19:30:18.779000"
+          },
+          {
+            "victim_vehicle": "germ_pzsfl_IVa_dickermax",
+            "victim_user_id": "34288181",
+            "victim_username": "Masteryoda6656",
+            "victim_slot": 27,
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "time_utc": "2026-03-07T19:32:44.482000"
+          },
+          {
+            "victim_vehicle": "germ_sdkfz_251_21",
+            "victim_user_id": "34288181",
+            "victim_username": "Masteryoda6656",
+            "victim_slot": 27,
+            "killer_vehicle": "ki_61_1a_otsu",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:37:03.290000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 431,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "do_217j_2",
+        "germ_stug_III_ausf_G",
+        "germ_pzkpfw_IV_ausf_J",
+        "germ_pzsfl_IVa_dickermax",
+        "germ_sdkfz_251_21"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "germ_pzkpfw_IV_ausf_J": 1,
+        "germ_pzsfl_IVa_dickermax": 1,
+        "germ_sdkfz_251_21": 1,
+        "germ_stug_III_ausf_G": 1
+      },
+      "awards": [
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "58743901",
+      "username": "Palmetto_97",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "Russia",
+      "team": 1,
+      "squad": 1005,
+      "auto_squad": true,
+      "slot": 28,
+      "wait_time": 56.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 1.0,
+      "mean_battle_rating": 2.94,
+      "kills": {
+        "air": 0,
+        "ground": 5,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "ussr_t_34_1941_l_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "victim_vehicle": "germ_sdkfz_234_2",
+            "victim_user_id": "184589138",
+            "victim_username": "Sgt_ Norris Doms",
+            "victim_slot": 6,
+            "time_utc": "2026-03-07T19:35:56.641000"
+          },
+          {
+            "killer_vehicle": "ussr_t_34_1941_l_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "120792220",
+            "victim_username": "RT-7274",
+            "victim_slot": 0,
+            "time_utc": "2026-03-07T19:36:13.619000"
+          },
+          {
+            "killer_vehicle": "ussr_t_34_1941_l_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "victim_vehicle": "sw_l_62_anti_II",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "time_utc": "2026-03-07T19:37:15.664000"
+          },
+          {
+            "killer_vehicle": "ussr_kv_1_L_11",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+            "victim_user_id": "52964907",
+            "victim_username": "snakeeater1945",
+            "victim_slot": 14,
+            "time_utc": "2026-03-07T19:40:49.136000"
+          },
+          {
+            "killer_vehicle": "ussr_su_122",
+            "killer_user_id": "58743901",
+            "killer_username": "Palmetto_97",
+            "killer_slot": 28,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+            "victim_user_id": "52964907",
+            "victim_username": "snakeeater1945",
+            "victim_slot": 14,
+            "time_utc": "2026-03-07T19:44:45.052000"
+          }
+        ]
+      },
+      "assists": 2,
+      "deaths": {
+        "total": 4,
+        "vehicles": [
+          {
+            "victim_vehicle": "ussr_su_152",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "killer_vehicle": "sw_t_34_1941",
+            "killer_user_id": "19608329",
+            "killer_username": "Ranol",
+            "killer_slot": 7,
+            "time_utc": "2026-03-07T19:31:19.076000"
+          },
+          {
+            "victim_vehicle": "ussr_t_34_1941_l_11",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "killer_vehicle": "germ_infanterie_kampfpanzer_churchill",
+            "killer_user_id": "184589138",
+            "killer_username": "Sgt_ Norris Doms",
+            "killer_slot": 6,
+            "time_utc": "2026-03-07T19:37:51.732000"
+          },
+          {
+            "victim_vehicle": "ussr_kv_1_L_11",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:43:18.788000"
+          },
+          {
+            "victim_vehicle": "ussr_su_122",
+            "victim_user_id": "58743901",
+            "victim_username": "Palmetto_97",
+            "victim_slot": 28,
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:44:50.308000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 2605,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "i-15_1935_moscow",
+        "ussr_t_34_1941_l_11",
+        "ussr_su_152",
+        "ussr_su_122",
+        "ussr_kv_1_L_11"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "ussr_t_34_1941_l_11": 3,
+        "ussr_kv_1_L_11": 1,
+        "ussr_su_122": 1
+      },
+      "vehicle_deaths": {
+        "ussr_su_152": 1,
+        "ussr_t_34_1941_l_11": 1,
+        "ussr_kv_1_L_11": 1,
+        "ussr_su_122": 1
+      },
+      "awards": [
+        "fr_volunteer_cross_streak",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "hidden_base_capturer",
+        "hidden_kill3_on_tank",
+        "hidden_kill3_streak",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "defender_tank",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_heavy_tank",
+        "fr_volunteer_cross_streak",
+        "defender_tank",
+        "hidden_allDef_streak_2_tank",
+        "hidden_kill1_on_tank_destroyer",
+        "hidden_multitasker_tank_1_kill",
+        "marks_5_tanks",
+        "marks_killed_plane_10_ranks_higher",
+        "hidden_all_streak_tank"
+      ]
+    },
+    {
+      "user_id": "6832369",
+      "username": "Kilrak_Bloodfang",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "USA",
+      "team": 1,
+      "squad": 1005,
+      "auto_squad": true,
+      "slot": 29,
+      "wait_time": 175.0,
+      "tier": 3,
+      "rank": 9,
+      "m_rank": 9,
+      "battle_rating": 4.0,
+      "min_battle_rating": 2.7,
+      "mean_battle_rating": 3.73,
+      "kills": {
+        "air": 0,
+        "ground": 0,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": []
+      },
+      "assists": 3,
+      "deaths": {
+        "total": 4,
+        "vehicles": [
+          {
+            "victim_vehicle": "us_m19",
+            "victim_user_id": "6832369",
+            "victim_username": "Kilrak_Bloodfang",
+            "victim_slot": 29,
+            "killer_vehicle": "germ_stug_III_ausf_G",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:31:30.157000"
+          },
+          {
+            "victim_vehicle": "us_m42_duster",
+            "victim_user_id": "6832369",
+            "victim_username": "Kilrak_Bloodfang",
+            "victim_slot": 29,
+            "killer_vehicle": "germ_sdkfz_234_2",
+            "killer_user_id": "179560308",
+            "killer_username": "bramcracker7",
+            "killer_slot": 5,
+            "time_utc": "2026-03-07T19:38:49.892000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 1260,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "us_m24_chaffee",
+        "us_m42_duster",
+        "us_m4a2_sherman",
+        "us_m19",
+        "us_m44",
+        "a-20g"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {},
+      "vehicle_deaths": {
+        "us_m19": 2,
+        "us_m42_duster": 1,
+        "us_m24_chaffee": 1
+      },
+      "awards": [
+        "fr_volunteer_cross_streak",
+        "tank_die_hard",
+        "hidden_all_streak",
+        "fr_volunteer_cross_streak",
+        "fr_volunteer_cross_streak"
+      ]
+    },
+    {
+      "user_id": "13721329",
+      "username": "ShadowWolf168",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "UK",
+      "team": 2,
+      "squad": 2005,
+      "auto_squad": true,
+      "slot": 30,
+      "wait_time": 41.0,
+      "tier": 3,
+      "rank": 11,
+      "m_rank": 11,
+      "battle_rating": 4.7,
+      "min_battle_rating": 3.3,
+      "mean_battle_rating": 4.28,
+      "kills": {
+        "air": 0,
+        "ground": 2,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "uk_concept3_ngac",
+            "killer_user_id": "13721329",
+            "killer_username": "ShadowWolf168",
+            "killer_slot": 30,
+            "victim_vehicle": "us_m24_chaffee",
+            "victim_user_id": "208128436",
+            "victim_username": "1550251896",
+            "victim_slot": 9,
+            "time_utc": "2026-03-07T19:31:30.559000"
+          },
+          {
+            "killer_vehicle": "uk_17_pdr_m10_achilles",
+            "killer_user_id": "13721329",
+            "killer_username": "ShadowWolf168",
+            "killer_slot": 30,
+            "victim_vehicle": "jp_m24_chaffee",
+            "victim_user_id": "82764756",
+            "victim_username": "BaIIs",
+            "victim_slot": 17,
+            "time_utc": "2026-03-07T19:34:09.049000"
+          }
+        ]
+      },
+      "assists": 2,
+      "deaths": {
+        "total": 3,
+        "vehicles": [
+          {
+            "victim_vehicle": "uk_17_pdr_m10_achilles",
+            "victim_user_id": "13721329",
+            "victim_username": "ShadowWolf168",
+            "victim_slot": 30,
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:30:24.058000"
+          },
+          {
+            "victim_vehicle": "uk_concept3_ngac",
+            "victim_user_id": "13721329",
+            "victim_username": "ShadowWolf168",
+            "victim_slot": 30,
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:32:21.258000"
+          },
+          {
+            "victim_vehicle": "uk_17_pdr_m10_achilles",
+            "victim_user_id": "13721329",
+            "victim_username": "ShadowWolf168",
+            "victim_slot": 30,
+            "killer_vehicle": "jp_m24_chaffee",
+            "killer_user_id": "82764756",
+            "killer_username": "BaIIs",
+            "killer_slot": 17,
+            "time_utc": "2026-03-07T19:34:09.289000"
+          }
+        ]
+      },
+      "capture_zone": 0,
+      "damage_zone": 0,
+      "score": 1125,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "uk_a30_sp_avenger",
+        "uk_sherman_vc_firefly",
+        "uk_concept3_ngac",
+        "uk_a_22b_mk_3_churchill_1942",
+        "uk_17_pdr_m10_achilles"
+      ],
+      "is_premium": false,
+      "vehicle_kills": {
+        "uk_concept3_ngac": 1,
+        "uk_17_pdr_m10_achilles": 1
+      },
+      "vehicle_deaths": {
+        "uk_17_pdr_m10_achilles": 2,
+        "uk_concept3_ngac": 1
+      },
+      "awards": [
+        "defender_tank",
+        "global_avenge_friendly",
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_allDef_streak_1_tank",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "fr_volunteer_cross_streak",
+        "defender_tank",
+        "global_avenge_self",
+        "hidden_allDef_streak_2_tank",
+        "hidden_global_avenge_self_stage",
+        "hidden_kill1_on_tank_destroyer",
+        "fr_volunteer_cross_streak",
+        "hidden_win_streak"
+      ]
+    },
+    {
+      "user_id": "8732336",
+      "username": "ThirtySeven",
+      "squadron_id": null,
+      "squadron_tag": null,
+      "platform": "win64",
+      "platform_type": "pc",
+      "country": "China",
+      "team": 1,
+      "squad": 1006,
+      "auto_squad": true,
+      "slot": 31,
+      "wait_time": 1499.0,
+      "tier": 2,
+      "rank": 8,
+      "m_rank": 8,
+      "battle_rating": 3.7,
+      "min_battle_rating": 2.7,
+      "mean_battle_rating": 3.42,
+      "kills": {
+        "air": 0,
+        "ground": 5,
+        "naval": 0,
+        "team": 0,
+        "ai_air": 0,
+        "ai_ground": 0,
+        "ai_naval": 0,
+        "vehicles": [
+          {
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "victim_vehicle": "sw_pvkv_III",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "time_utc": "2026-03-07T19:32:15.993000"
+          },
+          {
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "victim_vehicle": "germ_pzsfl_IVa_dickermax",
+            "victim_user_id": "34288181",
+            "victim_username": "Masteryoda6656",
+            "victim_slot": 27,
+            "time_utc": "2026-03-07T19:32:44.482000"
+          },
+          {
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "victim_vehicle": "germ_pzkpfw_IV_ausf_J",
+            "victim_user_id": "84330159",
+            "victim_username": "YoloRaptorK15222",
+            "victim_slot": 18,
+            "time_utc": "2026-03-07T19:34:21.388000"
+          },
+          {
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "victim_vehicle": "us_m10",
+            "victim_user_id": "93887703",
+            "victim_username": "crazyranger03",
+            "victim_slot": 21,
+            "time_utc": "2026-03-07T19:34:38.945000"
+          },
+          {
+            "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "killer_user_id": "8732336",
+            "killer_username": "ThirtySeven",
+            "killer_slot": 31,
+            "victim_vehicle": "sw_sav_m43_1946",
+            "victim_user_id": "96994991",
+            "victim_username": "eyxio",
+            "victim_slot": 23,
+            "time_utc": "2026-03-07T19:35:14.594000"
+          }
+        ]
+      },
+      "assists": 1,
+      "deaths": {
+        "total": 1,
+        "vehicles": [
+          {
+            "victim_vehicle": "cn_m4a4_sherman_1st_ptg",
+            "victim_user_id": "8732336",
+            "victim_username": "ThirtySeven",
+            "victim_slot": 31,
+            "killer_vehicle": "sw_m24_chaffee_dk",
+            "killer_user_id": "96994991",
+            "killer_username": "eyxio",
+            "killer_slot": 23,
+            "time_utc": "2026-03-07T19:39:22.503000"
+          }
+        ]
+      },
+      "capture_zone": 1,
+      "damage_zone": 0,
+      "score": 2092,
+      "award_damage": 0,
+      "missile_evades": 0,
+      "lineup": [
+        "cn_m4a4_sherman",
+        "cn_m24_chaffee",
+        "p-40e_china",
+        "cn_m4a4_sherman_1st_ptg",
+        "p1y1_mod11_china"
+      ],
+      "is_premium": true,
+      "vehicle_kills": {
+        "cn_m4a4_sherman_1st_ptg": 5
+      },
+      "vehicle_deaths": {
+        "cn_m4a4_sherman_1st_ptg": 1
+      },
+      "awards": [
+        "global_destroy_enemy_marked_by_ally",
+        "hidden_kill1_on_tank",
+        "hidden_kill_streak",
+        "multi_kill_air",
+        "hidden_allMulty_streak",
+        "global_shadow_assassin",
+        "hidden_kill3_on_tank",
+        "hidden_kill3_streak",
+        "global_shadow_assassin",
+        "multi_kill_air",
+        "defender_tank",
+        "global_avenge_friendly",
+        "global_kills_without_death",
+        "global_shadow_assassin",
+        "hidden_allDef_streak_1_tank",
+        "marks_5_tanks",
+        "tank_kill_without_fail",
+        "hidden_all_streak_tank",
+        "hidden_base_capturer",
+        "fr_volunteer_cross_streak",
+        "tank_die_hard",
+        "hidden_all_streak"
+      ]
+    }
+  ]
+}

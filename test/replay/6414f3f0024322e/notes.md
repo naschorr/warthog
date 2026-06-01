@@ -1,0 +1,1 @@
+Medium kill game with a posthumous artillery kill, and an aircraft kill with the main gun of the SAV.
