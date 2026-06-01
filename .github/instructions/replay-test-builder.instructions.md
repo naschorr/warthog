@@ -1,9 +1,7 @@
 ---
 name: "Replay Test Builder Instructions"
-description: "Copilot instruction set for generating War Thunder replay regression tests from a replay match directory."
-applyTo:
-  - ".github/agents/replay-test-builder.agent.md"
-  - "test/replay/**/test_replay_*.py"
+description: "Copilot instruction set for generating War Thunder replay regression tests from a replay's battle log data."
+applyTo: ".github/agents/replay-test-builder.agent.md, test/replay/**/test_replay_*.py"
 ---
 
 # Replay Regression Test — Build Process
@@ -158,9 +156,9 @@ For each player, their lineup is in `player["lineup"]`, a list of vehicle ID str
 To resolve a BL display name (e.g. `"Sherman VC"`) to a `vehicle_id`:
 1. Look in the player's lineup list.
 2. For each `vehicle_id` in the lineup, look up its display name in the vehicle data JSON (`data/vehicle_data/processed_vehicle_data/*.json`), which is keyed by `vehicle_id` and has a `"name"` field.
-3. Match the BL display name against the `"name"` values (may need fuzzy matching for special characters like `⊙`, `☆`, `✸`, `★`, `🇨🇭`).
+3. Match the BL display name against the `"name"` values.
 
-**Important**: BL display names often have cosmetic prefixes (e.g. `⊙T-34`, `☆M24`, `✸M24`, `★P-47D`, `🇨🇭Bf 109 F`) that denote that the player's country and the vehicle's country of origin aren't the same. For example the M24 is a US light tank, but when China uses it there's a star pattern in front of it (sometimes transcribed as ✸M24). Similarly when Italy uses it there's a roundel in front of it (sometimes transcribed as ⊙M24). Japan's M24 also can often have a star as well to represent their rising sun symbol (sometimes transcribed as ☆M24).
+**Important**: BL display names may include cosmetic prefixes and annotations that are not part of the base vehicle name. These should be stripped or normalized before lookup so they match the parsed JSON.
 
 ---
 
@@ -172,23 +170,7 @@ This is the most labor-intensive step. For every `destroyed` or `shot down` line
 
 Format: `MM:SS <killer_display_name> (<killer_vehicle_display>) destroyed|shot down <victim_display_name> (<victim_vehicle_display>)`
 
-Usernames in the BL have clan tags and emoji that must be stripped:
-- `=TDGL= Pro_Gamer_20000` → `"Pro_Gamer_20000"`
-- `🎮 channdro` → `"channdro"`
-- `.Rdh1.Bymemory` → `"Bymemory"`
-- `[Vaygr] Trember` → `"Trember"`
-- `^UAOD^ ChasingRapture` → `"ChasingRapture"`
-- `=Vizzy= 🎮 C DESTROYER26` → `"C DESTROYER26"`
-- `=285AW= autumn1196` → `"autumn1196"`
-- `[iCAT] ACCTGU 145` → `"ACCTGU 145"`
-- `=JPs3V= _SP23` → `"_SP23"`
-- `-4b0- Wiggle#6` → `"Wiggle#6"`
-- `=IMPro= ooxxaa` → `"ooxxaa"`
-- `=TROY= Лейтенант Ебонов` → `"Лейтенант Ебонов"`
-- `=KPOHA= IBecameTheAmmo` → `"IBecameTheAmmo"`
-- `=CNGDP= Late Noon` → `"Late Noon"`
-
-**Clan tag patterns**: `=TAG=`, `[TAG]`, `^TAG^`, `-TAG-`, `.TAG.`, emoji prefixes. The stripped username must match the `username` field in the parsed JSON exactly.
+Usernames in the BL may include clan tags, emoji, or other decorative prefixes. Strip these decorations so the resulting username matches the `username` field in the parsed JSON exactly.
 
 ### 4b. Convert BL timestamp to elapsed seconds
 
@@ -426,7 +408,7 @@ Only use them to verify that the parser CAN find them — the BL is what defines
 1. **Don't use parsed JSON kill/death details as truth** — Only the battle log defines what kills/deaths actually happened.
 2. **Use `int` for `time_seconds`** — Not floats. BL timestamps are `MM:SS`, so `MM*60 + SS` is always an integer.
 3. **Strip clan tags from BL usernames** — The username in the test must match the parsed JSON's `username` field exactly.
-4. **Some BL display names have cosmetic prefixes** — `⊙`, `☆`, `✸`, `★`, `🇨🇭f` etc. are NOT part of the vehicle name for lookup purposes.
+4. **Some BL display names have cosmetic prefixes** — These prefixes are not part of the vehicle name for lookup purposes.
 5. **Each BL kill line generates TWO test entries** — One kill detail for the killer, one death detail for the victim.
 6. **Sort entries chronologically** within each player's `kill_details` and `death_details`.
 7. **`destroyed` and `shot down` = kill + death; `crashed` and `wrecked` = death only** — `set afire`, `severely damaged`, `critically damaged` are NOT kills/deaths. Crashed/wrecked entries generate a `DeathDetailTruth` with no killer fields (only `victim_vehicle` and `time_seconds`).
