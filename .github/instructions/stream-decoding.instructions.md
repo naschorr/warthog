@@ -1,4 +1,10 @@
-# rec_data Reverse Engineering Notes
+---
+name: "Replay Stream Decoding"
+description: "Instructions/notes for decoding War Thunder .wrpl replay stream data."
+applyTo: "src/replay_data_grabber/services/replay_stream_decoder_service.py, **/*.wrpl"
+---
+
+# Stream Decoding
 
 ## Target
 - File: `data/replays/#2025.07.10 23.43.17.wrpl`
@@ -99,7 +105,6 @@ Both suffixes can produce either ground or air kills depending on the victim EID
 - `ff ff` occurs **136,524 times** in 5,896,784 bytes = once every **~43 bytes** — far too dense
 - **4,257 distinct `ff ff XX YY` patterns** exist — cannot all be event types
 - **83,295** of those are `ff ff ff ff` (padding/fill data)
-- `ff ff` is a DATA VALUE appearing throughout payloads, NOT a structural boundary
 - All previous "event counts" (6,448 / 45 / 29 etc.) are counts of a 4-byte substring, not real event counts
 - The "29 kills = 29 `ff ff 9c f1`" match was coincidental — payloads for those 29 contain embedded `ff ff` everywhere
 
@@ -133,8 +138,3 @@ This mapping should still be valid — it came from parsing the preamble/BLK sec
 - `wrpl_kill_decode.py` -> `decode_out.txt` (17,238 lines) — based on flawed `ff ff` boundary assumption
 - `wrpl_kill_boundary.py` — older script with different boundary logic
 - `wrpl_event_structure.py` -> `structure_out.txt` — confirmed `ff ff` disproven as boundary
-
-## Key Open Questions
-1. **How are events actually framed?** Need to study the preamble (712 bytes) for a type registry or packet catalog. May need to look at pos=712 bytes raw and find where 21,367 actually comes from.
-2. **What comes right after the 712-byte preamble?** Read raw bytes at 712–800 without any `ff ff` assumptions.
-3. **Community RE?** War Thunder replay format may be partially documented elsewhere — check github/forums.

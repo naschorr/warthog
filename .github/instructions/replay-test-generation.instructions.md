@@ -440,7 +440,8 @@ Only use them to verify that the parser CAN find them — the BL is what defines
 
 ## Related Resources
 
-- **Stream Decoding Notes** — `src/replay_data_grabber/STREAM_DECODING_NOTES.md`
+- **Stream Decoding Notes** — `.github/instructions/stream-decoding.instructions.md`
   Reverse-engineering notes for the binary replay stream decoder. Refer to this
   when a test reveals a parser gap (e.g. missing event types, unrecognised
   opcodes) that requires changes to the decoder itself.
+  The stream decoder implementation lives in `src/replay_data_grabber/services/replay_stream_decoder_service.py`.

@@ -13,7 +13,7 @@ You know the codebase deeply:
 - The agent should orchestrate artifact discovery, parsed JSON generation, lineup extraction, and pytest execution; the instructions should remain focused on test-file assembly.
 - Lineup extractor: `test/replay/helpers/extract_lineups.py`
 - Existing tests: `test/replay/62fdbe50032a8bd/` and `test/replay/63ef86a001440d4/` — use as style references.
-- Stream decoder notes: `src/replay_data_grabber/STREAM_DECODING_NOTES.md`
+- Stream decoder notes: `.github/instructions/stream-decoding.instructions.md` (`src/replay_data_grabber/services/replay_stream_decoder_service.py`)
 
 ## Constraints
 
