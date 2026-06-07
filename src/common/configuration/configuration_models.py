@@ -1,6 +1,7 @@
+import json
 from pathlib import Path
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.common.utilities import get_root_directory
 from src.common.configuration.validators import Validators
@@ -26,6 +27,8 @@ class LoggingConfig(BaseModel):
 class VehicleServiceConfig(BaseModel):
     """Configuration for the Vehicle Service."""
 
+    model_config = ConfigDict(validate_default=True)
+
     processed_vehicle_data_directory_path: Path = Field(
         default=get_root_directory() / "data" / "vehicle_data" / "processed_vehicle_data",
         description="Path to the directory containing processed vehicle data files.",
@@ -44,10 +47,11 @@ class VehicleServiceConfig(BaseModel):
     @field_validator("game_version_to_release_datetime_file_path")
     @classmethod
     def ensure_game_version_file_exists(cls, v: Path) -> Path:
-        if not Validators.file_exists_validator(v):
-            raise ValueError(
-                f"Game version to release datetime file does not exist at {v}.\nUse `VehicleDataGrabber` launch option in VSCode, or execute the `src/vehicle_data_grabber/warthog_vehicle_data_grabber.py` script. Check configuration if it's still not found."
-            )
+        # Ensure the parent directory exists and create an empty release datetime map if the file is missing.
+        Validators.create_directory_validator(v.parent)
+        if not v.exists():
+            with open(v, "w", encoding="utf-8") as file:
+                json.dump({}, file)
         return v
 
 

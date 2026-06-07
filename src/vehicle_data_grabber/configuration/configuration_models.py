@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import BaseModel, Field, field_validator, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, field_validator, HttpUrl
 
 from src.common.utilities import get_root_directory
 from src.common.configuration.validators import Validators
@@ -8,6 +8,8 @@ from src.common.configuration.validators import Validators
 
 class VehicleDataOrchestratorConfig(BaseModel):
     """Configuration for the vehicle data orchestrator."""
+
+    model_config = ConfigDict(validate_default=True)
 
     working_directory_path: Path = Field(
         description="Working directory for cloning and processing the datamine repository.",
@@ -66,11 +68,17 @@ class VehicleDataOrchestratorConfig(BaseModel):
     @field_validator("game_version_release_datetimes_file_path")
     @classmethod
     def ensure_game_version_release_datetimes_file_path_exists(cls, v: Path) -> Path:
-        return Validators.file_exists_validator(v)
+        Validators.create_directory_validator(v.parent)
+        if not v.exists():
+            with open(v, "w", encoding="utf-8") as file:
+                file.write("{}")
+        return v
 
 
 class VehicleDataProcessorConfig(BaseModel):
     """Configuration for the vehicle data processor."""
+
+    model_config = ConfigDict(validate_default=True)
 
     processed_data_directory_path: Path = Field(
         description="Directory to save processed vehicle data files.",

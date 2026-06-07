@@ -118,6 +118,12 @@ class VehicleService:
 
         # No bucket? Use the newest one.
         if best_datetime_bucket is None:
+            if not datetime_buckets:
+                logger.warning(
+                    "No processed vehicle data buckets found for search datetime %s; returning empty vehicle data.",
+                    search_datetime,
+                )
+                return {}
             best_datetime_bucket = datetime_buckets[0]
 
         return self._vehicle_data[best_datetime_bucket]
