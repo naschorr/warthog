@@ -53,7 +53,10 @@ def create_heatmap_one_death_leave_rate_by_country_and_br(
         print("No data available after filtering")
         return None
 
-    df["left_after_one_death"] = ((df["status"] == "left") & (df["player.deaths"] == 1)).astype(int)
+    df["player.deaths.total"] = df["player.deaths"].apply(
+        lambda value: value.get("total") if isinstance(value, dict) else value
+    )
+    df["left_after_one_death"] = ((df["status"] == "left") & (df["player.deaths.total"] == 1)).astype(int)
 
     grouped = (
         df.groupby(["player.country", "battle_rating"])
