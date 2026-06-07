@@ -8,7 +8,7 @@ from pathlib import Path
 
 from pydantic import Field, field_validator, field_serializer
 
-from src.common.enums import BattleType
+from src.common.enums import BattleVehicleClassType, BattleType
 from src.common.models.serializable_model import SerializableModel
 from .player import Player
 
@@ -30,7 +30,7 @@ class Replay(SerializableModel):
     end_time: Optional[datetime] = Field(default=None)
     time_limit_minutes: int = Field(default=0)
     score_limit: int = Field(default=0)
-    battle_class: str = Field(default="")
+    battle_class: BattleVehicleClassType = Field(default=BattleVehicleClassType.AIR)
     battle_kill_streak: str = Field(default="")
     status: str = Field(default="left")
     time_played: float = Field(default=0.0)
@@ -58,6 +58,25 @@ class Replay(SerializableModel):
     def serialize_battle_type(cls, v: BattleType) -> str:
         """Serialize battle type to its string value."""
         return v.value if isinstance(v, BattleType) else str(v)
+
+    @field_validator("battle_class", mode="before")
+    @classmethod
+    def validate_battle_class(cls, v: str | BattleVehicleClassType) -> BattleVehicleClassType:
+        """Convert string battle class values to BattleVehicleClassType enum."""
+        if isinstance(v, str):
+            normalized = v.lower()
+            if "air_ground" in normalized:
+                return BattleVehicleClassType.AIR_GROUND
+            if "air" in normalized:
+                return BattleVehicleClassType.AIR
+            raise ValueError(f"Invalid battle class: {v}")
+        return v
+
+    @field_serializer("battle_class")
+    @classmethod
+    def serialize_battle_class(cls, v: BattleVehicleClassType) -> str:
+        """Serialize battle class to its string value."""
+        return v.value if isinstance(v, BattleVehicleClassType) else str(v)
 
     # Methods
 

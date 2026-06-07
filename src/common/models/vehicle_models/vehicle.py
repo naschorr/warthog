@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from pydantic import Field, field_serializer, field_validator
 
-from src.common.enums import Country, VehicleType
+from src.common.enums import Country, VehicleType, BattleVehicleClassType
 from .battle_rating import BattleRating
 from src.common.models.serializable_model import SerializableModel
 
@@ -15,7 +15,9 @@ class Vehicle(SerializableModel):
     country: Country = Field(description="Country that fielded the vehicle")
     vehicle_type: Optional[VehicleType] = Field(default=None, description="Type of the vehicle")
     rank: int = Field(description="Rank of the vehicle", ge=1)
-    battle_rating: BattleRating = Field(default_factory=BattleRating)
+    battle_rating: dict[BattleVehicleClassType, BattleRating] = Field(
+        default_factory=dict, description="Battle rating by vehicle class type"
+    )
     is_premium: bool = Field(description="Indicates if the vehicle is a premium vehicle")
 
     # Lifecycle

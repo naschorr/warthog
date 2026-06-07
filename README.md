@@ -53,22 +53,28 @@ When running it for the first time, I'd recommend running the [`VehicleDataGrabb
 
 ### Launch Options
 
-#### `ReplayDataGrabber - War Thunder (Overwrite)`
+#### `ReplayDataGrabber - War Thunder - All Replays`
 Iterates over the War Thunder replay directory, translating them into JSON replays for future usage. This one will overwrite existing JSON replays, if encountered. Make sure to set the War Thunder replay directory in the `src/config.json`!
 
-#### `ReplayDataGrabber - War Thunder`
-Iterates over the War Thunder replay directory, translating them into JSON replays for future usage. Make sure to set the War Thunder replay directory in the `src/config.json`!
+#### `ReplayDataGrabber - War Thunder - New Replays`
+Iterates over replays in the War Thunder replay directory that haven't already been processed, translating them into JSON replays for future usage. Make sure to set the War Thunder replay directory in the `src/config.json`!
 
 #### `VehicleDataGrabber`
 Retrieves datamined vehicle data (battle ratings, vehicle type, names, etc.) for all vehicles in War Thunder releases between now and your first JSON replay data. This vehicle data is then used to power the [analysis](https://github.com/naschorr/warthog/blob/main/src/replay_data_explorer/analysis.md).
 
 ### Development Specific Launch Options
 
-#### `Dev - ReplayDataGrabber - Copied Replays`
+#### `Dev - ReplayDataGrabber - All Replays`
 Iterates over the local copied replay store, translating them into JSON replays for future usage. This is handy to mass update JSON replays if the schema ever changes.
 
+#### `Dev - ReplayDataGrabber - New Replays`
+Iterates over replays in the local copied replay store that haven't already been processed, translating them into JSON replays for future usage.
+
+#### `Dev - ReplayDataGrabber - Single File`
+Processes a single raw replay file, and places it in the provided output directory.
+
 #### `Dev - ReplayDataCopier`
-Copies War Thunder replay data from the temporary game directory to a local copied replay store. This is handy to keep an archive of all replay data, again to rebuild the JSON replays if the schema ever changes.
+Copies the raw replay data from War Thunder into your local replay store. This will ignore preexisting files, and only copy over newly found replays.
 
 ## Contributing
 Make sure that the notebook's outputs are cleared, so that things can stay clean. There's a git filter set up to run the `jupyter nbconvert` script to clean the outputs automatically, though it does need some first time setup. Simply run this command from the project root to register the `.gitconfig` that contains the filter to the local git config and it'll start working!

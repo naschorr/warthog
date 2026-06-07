@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any, Callable, Optional
 from pathlib import Path
 
-from src.common.enums import BattleType, PlatformType, Country
+from src.common.enums import BattleVehicleClassType, BattleType, PlatformType, Country
 from src.common.services.vehicle_service import VehicleService
 from src.replay_data_grabber.models import Replay, Player
 from src.replay_data_grabber.models.deaths import Deaths
@@ -142,7 +142,11 @@ class ReplayParserService:
         offset += 48
 
         # Read battle class (128 bytes)
-        replay.battle_class = self._read_string(replay_data, offset, 128)
+        battle_class_raw = self._read_string(replay_data, offset, 128).lower()
+        if "air_ground" in battle_class_raw:
+            replay.battle_class = BattleVehicleClassType.AIR_GROUND
+        else:
+            replay.battle_class = BattleVehicleClassType.AIR
         offset += 128
 
         # Read battle kill streak (128 bytes)
@@ -200,6 +204,88 @@ class ReplayParserService:
         replay.author = next((player for player in replay.players if player.user_id == author_user_id))
 
         return replay
+
+    def get_session_id_from_replay_file(self, file_path: Path) -> str:
+        """Extract the session ID from a raw .wrpl file without full replay parsing.
+
+        Args:
+            file_path: Path to the .wrpl replay file.
+
+        Returns:
+            The session ID as a hexadecimal string.
+
+        Raises:
+            FileNotFoundError: If the replay file doesn't exist.
+            ValueError: If the file is not a valid replay file.
+        """
+        if not file_path.exists():
+            raise FileNotFoundError(f"Replay file not found: {file_path}")
+
+        # The session ID is stored near the beginning of the replay header.
+        # We only need the first ~740 bytes to read the session ID and avoid the full parse.
+        header_size = 740
+        with open(file_path, "rb") as f:
+            data = f.read(header_size)
+
+        if len(data) < header_size:
+            raise ValueError(f"Replay file is too small to contain a valid header: {file_path}")
+
+        if data[:4] != self.MAGIC:
+            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+
+        # Skip ahead to the session id field.
+        offset = 4  # magic
+        offset += 4  # version
+        offset += 128  # level
+        offset += 260  # level settings
+        offset += 128  # battle type
+        offset += 128  # environment
+        offset += 32  # visibility
+        offset += 4  # results offset
+        offset += 1  # difficulty
+        offset += 35  # padding
+        offset += 1  # session type
+        offset += 7  # padding
+
+        session_id_int = struct.unpack("<Q", data[offset : offset + 8])[0]
+        return format(session_id_int, "x")
+
+    def get_replay_start_time_from_replay_file(self, file_path: Path) -> datetime:
+        """Extract the replay start time from a raw .wrpl file without full parsing."""
+        if not file_path.exists():
+            raise FileNotFoundError(f"Replay file not found: {file_path}")
+
+        # We need enough bytes to reach the start time field at offset ~908.
+        header_size = 912
+        with open(file_path, "rb") as f:
+            data = f.read(header_size)
+
+        if len(data) < header_size:
+            raise ValueError(f"Replay file is too small to contain a valid header: {file_path}")
+
+        if data[:4] != self.MAGIC:
+            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+
+        offset = 4  # magic
+        offset += 4  # version
+        offset += 128  # level
+        offset += 260  # level settings
+        offset += 128  # battle type
+        offset += 128  # environment
+        offset += 32  # visibility
+        offset += 4  # results offset
+        offset += 1  # difficulty
+        offset += 35  # padding
+        offset += 1  # session type
+        offset += 7  # padding
+        offset += 8  # session id
+        offset += 4  # skipped offset
+        offset += 4  # set size
+        offset += 32  # skip
+        offset += 128  # loc name
+
+        start_time = struct.unpack("<I", data[offset : offset + 4])[0]
+        return datetime.fromtimestamp(start_time)
 
     def parse_replay_file(self, file_path: Path) -> Replay:
         """
@@ -269,7 +355,9 @@ class ReplayParserService:
                     break
 
             if player_info:
-                player = self._create_player_from_json(player_info, player_data, replay.battle_type, replay.start_time)
+                player = self._create_player_from_json(
+                    player_info, player_data, replay.battle_class, replay.battle_type, replay.start_time
+                )
                 replay.players.append(player)
             else:
                 logger.warning(f"No player info found for user ID: {user_id}")
@@ -410,13 +498,18 @@ class ReplayParserService:
         )
 
     def _get_player_battle_rating(
-        self, lineup: list[str], battle_type: BattleType, *, battle_datetime: Optional[datetime] = None
+        self,
+        battle_class: BattleVehicleClassType,
+        battle_type: BattleType,
+        lineup: list[str],
+        *,
+        battle_datetime: Optional[datetime] = None,
     ) -> float:
         """
         Get the battle rating for a player's vehicle lineup.
         """
         battle_rating = self._get_transformed_player_battle_rating(
-            max, lineup, battle_type, battle_datetime=battle_datetime
+            max, battle_class, battle_type, lineup, battle_datetime=battle_datetime
         )
         if battle_rating is not None:
             return battle_rating
@@ -424,13 +517,18 @@ class ReplayParserService:
         raise ValueError(f"Unable to determine battle rating for lineup: {lineup} and battle_type: {battle_type}")
 
     def _get_player_min_battle_rating(
-        self, lineup: list[str], battle_type: BattleType, *, battle_datetime: Optional[datetime] = None
+        self,
+        battle_class: BattleVehicleClassType,
+        battle_type: BattleType,
+        lineup: list[str],
+        *,
+        battle_datetime: Optional[datetime] = None,
     ) -> float:
         """
         Get the minimum battle rating for a player's vehicle lineup.
         """
         battle_rating = self._get_transformed_player_battle_rating(
-            min, lineup, battle_type, battle_datetime=battle_datetime
+            min, battle_class, battle_type, lineup, battle_datetime=battle_datetime
         )
         if battle_rating is not None:
             return battle_rating
@@ -440,7 +538,12 @@ class ReplayParserService:
         )
 
     def _get_player_mean_battle_rating(
-        self, lineup: list[str], battle_type: BattleType, *, battle_datetime: Optional[datetime] = None
+        self,
+        battle_class: BattleVehicleClassType,
+        battle_type: BattleType,
+        lineup: list[str],
+        *,
+        battle_datetime: Optional[datetime] = None,
     ) -> float:
         """
         Get the mean battle rating for a player's vehicle lineup.
@@ -450,7 +553,7 @@ class ReplayParserService:
             return round(sum(battle_ratings) / len(battle_ratings), 2)
 
         battle_rating = self._get_transformed_player_battle_rating(
-            compute_battle_rating_mean, lineup, battle_type, battle_datetime=battle_datetime
+            compute_battle_rating_mean, battle_class, battle_type, lineup, battle_datetime=battle_datetime
         )
         if battle_rating is not None:
             return battle_rating
@@ -460,8 +563,9 @@ class ReplayParserService:
     def _get_transformed_player_battle_rating(
         self,
         transform_func: Callable,
-        lineup: list[str],
+        battle_class: BattleVehicleClassType,
         battle_type: BattleType,
+        lineup: list[str],
         *,
         battle_datetime: Optional[datetime] = None,
     ) -> float:
@@ -476,12 +580,16 @@ class ReplayParserService:
 
         battle_ratings = []
         for vehicle in vehicles:
+            ## Load the vehicle's battle rating container depending on this replay's battle_class
+            battle_rating_container = vehicle.battle_rating[battle_class]
+
+            ## Load the correct battle rating based on the replay's battle_type
             if battle_type == BattleType.ARCADE:
-                battle_ratings.append(vehicle.battle_rating.arcade)
+                battle_ratings.append(battle_rating_container.arcade)
             elif battle_type == BattleType.REALISTIC:
-                battle_ratings.append(vehicle.battle_rating.realistic)
+                battle_ratings.append(battle_rating_container.realistic)
             elif battle_type == BattleType.SIMULATION:
-                battle_ratings.append(vehicle.battle_rating.simulation)
+                battle_ratings.append(battle_rating_container.simulation)
             else:
                 raise ValueError(f"Unknown battle type: {battle_type}")
 
@@ -492,6 +600,7 @@ class ReplayParserService:
         self,
         player_info: dict[str, Any],
         player_data: dict[str, Any],
+        battle_class: BattleVehicleClassType,
         battle_type: BattleType,
         start_time: Optional[datetime] = None,
     ) -> Player:
@@ -550,12 +659,14 @@ class ReplayParserService:
         player.rank = player_info.get("rank")
         player.m_rank = player_info.get("mrank")
         player.wait_time = player_info.get("wait_time", 0.0)
-        player.battle_rating = self._get_player_battle_rating(player.lineup, battle_type, battle_datetime=start_time)
+        player.battle_rating = self._get_player_battle_rating(
+            battle_class, battle_type, player.lineup, battle_datetime=start_time
+        )
         player.min_battle_rating = self._get_player_min_battle_rating(
-            player.lineup, battle_type, battle_datetime=start_time
+            battle_class, battle_type, player.lineup, battle_datetime=start_time
         )
         player.mean_battle_rating = self._get_player_mean_battle_rating(
-            player.lineup, battle_type, battle_datetime=start_time
+            battle_class, battle_type, player.lineup, battle_datetime=start_time
         )
 
         # Kill statistics

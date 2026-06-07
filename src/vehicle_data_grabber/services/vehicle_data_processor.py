@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 from src.common.utilities import JsonTools
-from src.common.enums import Country, VehicleType
+from src.common.enums import Country, VehicleType, BattleVehicleClassType
 from src.common.models.vehicle_models import Vehicle
 from src.vehicle_data_grabber.configuration import VehicleDataProcessorConfig
 
@@ -116,7 +116,7 @@ class VehicleDataProcessor:
         return text.strip()
 
     def _store_vehicle_map_json(self, data: dict[str, Vehicle], output_path: Path) -> None:
-        serializable_data = {key: vehicle.model_dump() for key, vehicle in data.items()}
+        serializable_data = {key: vehicle.model_dump(mode="json") for key, vehicle in data.items()}
         JsonTools.save_json(serializable_data, output_path)
 
     def _load_wpcost_blkx(self, wpcost_blkx_path: Path) -> dict:
@@ -637,14 +637,29 @@ class VehicleDataProcessor:
             # Get the vehicle type from the tags
             vehicle_type = self._get_vehicle_type_from_tags(tag_data)
 
+            # Get the various economic ratings for the vehicle
+            arcade_economic_rating = vehicle_data.get("economicRankArcade", 0)
+            realistic_economic_rating = vehicle_data.get("economicRankHistorical", 0)
+            simulation_economic_rating = vehicle_data.get("economicRankSimulation", 0)
+            realistic_ground_economic_rating = vehicle_data.get(
+                "economicRankTankHistorical", vehicle_data.get("economicRankHistorical", 0)
+            )
+            simulation_ground_economic_rating = vehicle_data.get(
+                "economicRankTankSimulation", vehicle_data.get("economicRankSimulation", 0)
+            )
+
+            # Build the battle rating map from the relevant economic ratings
             battle_rating = {
-                "arcade": self._calculate_battle_rating_from_economic_rating(vehicle_data.get("economicRankArcade", 0)),
-                "realistic": self._calculate_battle_rating_from_economic_rating(
-                    vehicle_data.get("economicRankHistorical", 0)
-                ),
-                "simulation": self._calculate_battle_rating_from_economic_rating(
-                    vehicle_data.get("economicRankSimulation", 0)
-                ),
+                BattleVehicleClassType.AIR_GROUND: {
+                    "arcade": self._calculate_battle_rating_from_economic_rating(arcade_economic_rating),
+                    "realistic": self._calculate_battle_rating_from_economic_rating(realistic_ground_economic_rating),
+                    "simulation": self._calculate_battle_rating_from_economic_rating(simulation_ground_economic_rating),
+                },
+                BattleVehicleClassType.AIR: {
+                    "arcade": self._calculate_battle_rating_from_economic_rating(arcade_economic_rating),
+                    "realistic": self._calculate_battle_rating_from_economic_rating(realistic_economic_rating),
+                    "simulation": self._calculate_battle_rating_from_economic_rating(simulation_economic_rating),
+                },
             }
             rank = vehicle_data.get("rank")
             if rank is None:

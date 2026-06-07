@@ -63,7 +63,3 @@ class WarthogReplayDataGrabberConfig(BaseModel):
 
     wt_ext_cli_service_config: WtExtCliServiceConfig = WtExtCliServiceConfig()
     replay_manager_service_config: ReplayManagerServiceConfig
-    overwrite_existing_replays: bool = Field(
-        default=False,
-        description="Whether to overwrite existing replays in the processed replay directory.",
-    )

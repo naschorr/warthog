@@ -117,6 +117,14 @@ class Player(SerializableModel):
             raise ValueError(f"Invalid country: {v}")
         return v
 
+    @field_validator("deaths", mode="before")
+    @classmethod
+    def validate_deaths(cls, v: int | Deaths) -> Deaths:
+        """Convert legacy integer death counts to a Deaths object."""
+        if isinstance(v, int):
+            return Deaths(total=v)
+        return v
+
     @field_serializer("country")
     @classmethod
     def serialize_country(cls, v: Country) -> str:
