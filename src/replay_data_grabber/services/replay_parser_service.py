@@ -37,94 +37,24 @@ class ReplayParserService:
         self._wt_ext_cli_client_service = wt_ext_cli_client_service
         self._replay_stream_decoder = ReplayStreamDecoderService(vehicle_service)
 
-    def parse_replay_data(self, replay_data: bytes) -> Replay:
-        """
-        Parse War Thunder replay data from bytes.
+    ## Methods
 
-        Args:
-            data: Raw bytes from a .wrpl file
+    def load_replay(self, file_path: Path, bytes_to_read: Optional[int] = None) -> bytes:
+        """Load replay bytes from disk and validate the replay header."""
+        if not file_path.exists():
+            raise FileNotFoundError(f"Replay file not found: {file_path}")
 
-        Returns:
-            Replay object containing parsed replay information
+        with open(file_path, "rb") as f:
+            data = f.read() if bytes_to_read is None else f.read(bytes_to_read)
 
-        Raises:
-            ValueError: If the data is not a valid replay file
-        """
-        ## TODO: The replay object should be constructed after the parts have been processed, and it should have stricter typing
-        replay = Replay()
+        required_size = self.HEADER_SIZE if bytes_to_read is None else bytes_to_read
+        if len(data) < required_size:
+            raise ValueError(f"Replay file is too small to contain the requested replay data: {file_path}")
 
-        header = self._parse_replay_header(replay_data)
+        if data[:4] != self.MAGIC:
+            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
 
-        replay.version = header["version"]
-        logger.debug(f"Replay version: {replay.version}")
-
-        replay.level = header["level"].replace("levels/", "").replace(".bin", "")
-        replay.level_settings = header["level_settings"]
-        replay.environment = header["environment"]
-        replay.visibility = header["visibility"]
-        replay.battle_type = header["battle_type"]
-        replay.session_type = header["session_type"]
-        replay.session_id = header["session_id"]
-        replay.loc_name = header["loc_name"]
-        replay.start_time = header["start_time"]
-        replay.time_limit_minutes = header["time_limit_minutes"]
-        replay.score_limit = header["score_limit"]
-        replay.battle_class = header["battle_class"]
-        replay.battle_kill_streak = header["battle_kill_streak"]
-
-        results_offset = header["results_offset"]
-
-        logger.info(f"Parsed replay header: {replay.session_id} - {replay.level} ({replay.battle_type})")
-
-        # Parse results if we have wt_ext_cli
-        results = {}
-        if results_offset > 0:
-            try:
-                results = self._wt_ext_cli_client_service.unpack_raw_blk(replay_data[results_offset:])
-            except Exception as e:
-                logger.error(f"Error unpacking results: {e}")
-        else:
-            logger.debug("No results data available in replay file")
-        self._parse_results(replay, results)
-
-        # Decode rec_data stream for per-vehicle kills/deaths and awards.
-        # Players are already built by _parse_results; we match them by slot index.
-        # Pass authoritative BLK death counts and team assignments so the decoder
-        # can cap EID attribution, enforce cross-team constraints, and fill gaps
-        # via timeline inference without overcounting.
-        slot_deaths = {i: p.deaths.total for i, p in enumerate(replay.players)}
-        slot_vehicle_death_caps: dict[int, dict[str, int]] = {}
-        for i, p in enumerate(replay.players):
-            veh_caps: dict[str, int] = {}
-            for d in getattr(p.deaths, "vehicles", []) or []:
-                veh = getattr(d, "victim_vehicle", None)
-                if not veh:
-                    continue
-                veh_caps[veh] = veh_caps.get(veh, 0) + 1
-            if veh_caps:
-                slot_vehicle_death_caps[i] = veh_caps
-        slot_teams = {i: p.team for i, p in enumerate(replay.players) if p.team is not None}
-        # First vehicle in each player's BLK lineup = their initial-spawn vehicle.
-        # Passed to the stream decoder so M6 can recover initial EIDs when the
-        # physics-predate guard would otherwise discard the attribution.
-        slot_initial_vehicles = {i: p.lineup[0] for i, p in enumerate(replay.players) if p.lineup}
-        try:
-            stream_result = self._replay_stream_decoder.decode_from_raw_replay(
-                replay_data,
-                slot_deaths=slot_deaths,
-                slot_vehicle_death_caps=slot_vehicle_death_caps,
-                slot_teams=slot_teams,
-                slot_initial_vehicles=slot_initial_vehicles,
-            )
-            self._apply_stream_result(replay, stream_result)
-        except Exception as exc:
-            logger.warning(f"Stream decode failed, skipping vehicle-level stats: {exc}")
-
-        # Build the author player object
-        author_user_id = results.get("authorUserId", "")
-        replay.author = next((player for player in replay.players if player.user_id == author_user_id))
-
-        return replay
+        return data
 
     def _parse_replay_header(self, replay_data: bytes) -> dict[str, Any]:
         """Parse the replay header from raw replay bytes."""
@@ -224,36 +154,94 @@ class ReplayParserService:
             "battle_kill_streak": battle_kill_streak,
         }
 
-    def load_replay(self, file_path: Path, bytes_to_read: Optional[int] = None) -> bytes:
-        """Load replay bytes from disk and validate the replay header."""
-        if not file_path.exists():
-            raise FileNotFoundError(f"Replay file not found: {file_path}")
+    def parse_replay_data(self, replay_data: bytes) -> Replay:
+        """
+        Parse War Thunder replay data from bytes.
 
-        with open(file_path, "rb") as f:
-            data = f.read() if bytes_to_read is None else f.read(bytes_to_read)
+        Args:
+            data: Raw bytes from a .wrpl file
 
-        required_size = self.HEADER_SIZE if bytes_to_read is None else bytes_to_read
-        if len(data) < required_size:
-            raise ValueError(f"Replay file is too small to contain the requested replay data: {file_path}")
+        Returns:
+            Replay object containing parsed replay information
 
-        if data[:4] != self.MAGIC:
-            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+        Raises:
+            ValueError: If the data is not a valid replay file
+        """
+        ## TODO: The replay object should be constructed after the parts have been processed, and it should have stricter typing
+        replay = Replay()
 
-        return data
+        header = self._parse_replay_header(replay_data)
 
-    def get_session_id_from_replay_file(self, file_path: Path) -> str:
-        """Extract the session ID from a raw .wrpl file without full replay parsing."""
-        data = self.load_replay(file_path, self.HEADER_OFFSET)
-        header = self._parse_replay_header(data)
-        return header["session_id"]
+        replay.version = header["version"]
+        logger.debug(f"Replay version: {replay.version}")
 
-    def get_start_time_from_replay_file(self, file_path: Path) -> datetime:
-        """Extract the replay start time from a raw .wrpl file without full parsing."""
-        data = self.load_replay(file_path, self.HEADER_SIZE)
-        header = self._parse_replay_header(data)
-        if header["start_time"] is None:
-            raise ValueError("Replay header does not contain a valid start time")
-        return header["start_time"]
+        replay.level = header["level"].replace("levels/", "").replace(".bin", "")
+        replay.level_settings = header["level_settings"]
+        replay.environment = header["environment"]
+        replay.visibility = header["visibility"]
+        replay.battle_type = header["battle_type"]
+        replay.session_type = header["session_type"]
+        replay.session_id = header["session_id"]
+        replay.loc_name = header["loc_name"]
+        replay.start_time = header["start_time"]
+        replay.time_limit_minutes = header["time_limit_minutes"]
+        replay.score_limit = header["score_limit"]
+        replay.battle_class = header["battle_class"]
+        replay.battle_kill_streak = header["battle_kill_streak"]
+
+        results_offset = header["results_offset"]
+
+        logger.info(f"Parsed replay header: {replay.session_id} - {replay.level} ({replay.battle_type})")
+
+        # Parse results if we have wt_ext_cli
+        results = {}
+        if results_offset > 0:
+            try:
+                results = self._wt_ext_cli_client_service.unpack_raw_blk(replay_data[results_offset:])
+            except Exception as e:
+                logger.error(f"Error unpacking results: {e}")
+        else:
+            logger.debug("No results data available in replay file")
+        self._parse_results(replay, results)
+
+        # Decode rec_data stream for per-vehicle kills/deaths and awards.
+        # Players are already built by _parse_results; we match them by slot index.
+        # Pass authoritative BLK death counts and team assignments so the decoder
+        # can cap EID attribution, enforce cross-team constraints, and fill gaps
+        # via timeline inference without overcounting.
+        slot_deaths = {i: p.deaths.total for i, p in enumerate(replay.players)}
+        slot_vehicle_death_caps: dict[int, dict[str, int]] = {}
+        for i, p in enumerate(replay.players):
+            veh_caps: dict[str, int] = {}
+            for d in getattr(p.deaths, "vehicles", []) or []:
+                veh = getattr(d, "victim_vehicle", None)
+                if not veh:
+                    continue
+                veh_caps[veh] = veh_caps.get(veh, 0) + 1
+            if veh_caps:
+                slot_vehicle_death_caps[i] = veh_caps
+        slot_teams = {i: p.team for i, p in enumerate(replay.players) if p.team is not None}
+        # First vehicle in each player's BLK lineup = their initial-spawn vehicle.
+        # Passed to the stream decoder so M6 can recover initial EIDs when the
+        # physics-predate guard would otherwise discard the attribution.
+        slot_initial_vehicles = {i: p.lineup[0] for i, p in enumerate(replay.players) if p.lineup}
+        try:
+            stream_result = self._replay_stream_decoder.decode_from_raw_replay(
+                replay_data,
+                slot_deaths=slot_deaths,
+                slot_vehicle_death_caps=slot_vehicle_death_caps,
+                slot_teams=slot_teams,
+                slot_initial_vehicles=slot_initial_vehicles,
+            )
+            self._apply_stream_result(replay, stream_result)
+        except Exception as exc:
+            logger.warning(f"Stream decode failed, skipping vehicle-level stats: {exc}")
+
+        # Build the author player object
+        author_user_id = results.get("authorUserId", "")
+        replay.author = next((player for player in replay.players if player.user_id == author_user_id))
+
+        return replay
 
     def parse_replay_file(self, file_path: Path) -> Replay:
         """
@@ -288,6 +276,20 @@ class ReplayParserService:
         except Exception as e:
             logger.error(f"Error parsing replay file {file_path}: {e}")
             raise
+
+    def get_session_id_from_replay_file(self, file_path: Path) -> str:
+        """Extract the session ID from a raw .wrpl file without full replay parsing."""
+        data = self.load_replay(file_path, self.HEADER_OFFSET)
+        header = self._parse_replay_header(data)
+        return header["session_id"]
+
+    def get_start_time_from_replay_file(self, file_path: Path) -> datetime:
+        """Extract the replay start time from a raw .wrpl file without full parsing."""
+        data = self.load_replay(file_path, self.HEADER_SIZE)
+        header = self._parse_replay_header(data)
+        if header["start_time"] is None:
+            raise ValueError("Replay header does not contain a valid start time")
+        return header["start_time"]
 
     def _read_string(self, data: bytes, offset: int, length: int) -> str:
         """Read a null-terminated string from the data."""
