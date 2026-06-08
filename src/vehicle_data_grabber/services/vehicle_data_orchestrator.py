@@ -57,7 +57,9 @@ class VehicleDataOrchestrator:
         if replays:
             processed_replays = [replay for replay in replays if replay.start_time is not None]
             if processed_replays:
-                oldest_replay_date = min(replay.start_time for replay in processed_replays if replay.start_time is not None)
+                oldest_replay_date = min(
+                    replay.start_time for replay in processed_replays if replay.start_time is not None
+                )
 
         # If there are no processed replays with start time, fall back to raw replay headers.
         if oldest_replay_date is None:
@@ -72,7 +74,7 @@ class VehicleDataOrchestrator:
 
             for replay_file in raw_replay_files.keys():
                 try:
-                    start_time = self._replay_manager_service._replay_parser_service.get_replay_start_time_from_replay_file(
+                    start_time = self._replay_manager_service._replay_parser_service.get_start_time_from_replay_file(
                         replay_file
                     )
                     if oldest_replay_date is None or start_time < oldest_replay_date:
@@ -124,9 +126,7 @@ class VehicleDataOrchestrator:
                         local_datamine_path = candidate_path
                         logger.info(f"Using stored datamine data for version {version} from {local_datamine_path}")
                     else:
-                        logger.warning(
-                            f"Stored datamine data for version {version} is incomplete; cloning fresh data."
-                        )
+                        logger.warning(f"Stored datamine data for version {version} is incomplete; cloning fresh data.")
 
             if local_datamine_path is not None:
                 repository_path = local_datamine_path

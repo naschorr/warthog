@@ -26,6 +26,8 @@ class ReplayParserService:
     """
 
     MAGIC = b"\xe5\xac\x00\x10"
+    HEADER_SIZE = 912
+    HEADER_OFFSET = 740
 
     def __init__(self, *, vehicle_service: VehicleService, wt_ext_cli_client_service: WtExtCliClientService):
         """
@@ -51,107 +53,26 @@ class ReplayParserService:
         ## TODO: The replay object should be constructed after the parts have been processed, and it should have stricter typing
         replay = Replay()
 
-        # Check magic number
-        if replay_data[:4] != self.MAGIC:
-            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+        header = self._parse_replay_header(replay_data)
 
-        offset = 4
-
-        # Read version
-        replay.version = struct.unpack("<I", replay_data[offset : offset + 4])[0]
-        offset += 4
+        replay.version = header["version"]
         logger.debug(f"Replay version: {replay.version}")
 
-        # Read level (128 bytes)
-        replay.level = self._read_string(replay_data, offset, 128)
-        replay.level = replay.level.replace("levels/", "").replace(".bin", "")
-        offset += 128
+        replay.level = header["level"].replace("levels/", "").replace(".bin", "")
+        replay.level_settings = header["level_settings"]
+        replay.environment = header["environment"]
+        replay.visibility = header["visibility"]
+        replay.battle_type = header["battle_type"]
+        replay.session_type = header["session_type"]
+        replay.session_id = header["session_id"]
+        replay.loc_name = header["loc_name"]
+        replay.start_time = header["start_time"]
+        replay.time_limit_minutes = header["time_limit_minutes"]
+        replay.score_limit = header["score_limit"]
+        replay.battle_class = header["battle_class"]
+        replay.battle_kill_streak = header["battle_kill_streak"]
 
-        # Read level settings (260 bytes)
-        replay.level_settings = self._read_string(replay_data, offset, 260)
-        offset += 260
-
-        # Read battle type (128 bytes)
-        _battle_type_alt = self._read_string(replay_data, offset, 128)
-        offset += 128
-
-        # Read environment (128 bytes)
-        replay.environment = self._read_string(replay_data, offset, 128)
-        offset += 128
-
-        # Read visibility (32 bytes)
-        replay.visibility = self._read_string(replay_data, offset, 32)
-        offset += 32
-
-        # Read results offset
-        results_offset = struct.unpack("<I", replay_data[offset : offset + 4])[0]
-        offset += 4
-
-        # Read difficulty
-        difficulty_byte = replay_data[offset]
-        difficulty_value = int(difficulty_byte & 0x0F)
-        if difficulty_value == 0:
-            replay.battle_type = BattleType.ARCADE
-        elif difficulty_value == 5:
-            replay.battle_type = BattleType.REALISTIC
-        elif difficulty_value == 10:
-            replay.battle_type = BattleType.SIMULATION
-        else:
-            replay.battle_type = BattleType.UNKNOWN
-        offset += 1
-
-        # Skip 35 bytes
-        offset += 35
-
-        # Read session type
-        replay.session_type = replay_data[offset]
-        offset += 1
-
-        # Skip 7 bytes
-        offset += 7
-
-        # Read session ID (as 64-bit unsigned int, convert to hex)
-        session_id_int = struct.unpack("<Q", replay_data[offset : offset + 8])[0]
-        replay.session_id = format(session_id_int, "x")
-        offset += 8
-
-        # Skip 4 bytes
-        offset += 4
-
-        # Read set size
-        _set_size = struct.unpack("<I", replay_data[offset : offset + 4])[0]
-        offset += 4
-
-        # Skip 32 bytes
-        offset += 32
-
-        # Read loc name (128 bytes)
-        replay.loc_name = self._read_string(replay_data, offset, 128)
-        offset += 128
-
-        # Read start time, time limit, score limit
-        start_time = struct.unpack("<I", replay_data[offset : offset + 4])[0]
-        replay.start_time = datetime.fromtimestamp(start_time)
-        offset += 4
-        replay.time_limit_minutes = struct.unpack("<I", replay_data[offset : offset + 4])[0]
-        offset += 4
-        replay.score_limit = struct.unpack("<I", replay_data[offset : offset + 4])[0]
-        offset += 4
-
-        # Skip 48 bytes
-        offset += 48
-
-        # Read battle class (128 bytes)
-        battle_class_raw = self._read_string(replay_data, offset, 128).lower()
-        if "air_ground" in battle_class_raw:
-            replay.battle_class = BattleVehicleClassType.AIR_GROUND
-        else:
-            replay.battle_class = BattleVehicleClassType.AIR
-        offset += 128
-
-        # Read battle kill streak (128 bytes)
-        replay.battle_kill_streak = self._read_string(replay_data, offset, 128)
-        offset += 128
+        results_offset = header["results_offset"]
 
         logger.info(f"Parsed replay header: {replay.session_id} - {replay.level} ({replay.battle_type})")
 
@@ -205,87 +126,134 @@ class ReplayParserService:
 
         return replay
 
+    def _parse_replay_header(self, replay_data: bytes) -> dict[str, Any]:
+        """Parse the replay header from raw replay bytes."""
+        if len(replay_data) < self.HEADER_OFFSET:
+            raise ValueError("Replay data is too small to contain a valid header")
+
+        if replay_data[:4] != self.MAGIC:
+            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+
+        offset = 4
+        version = struct.unpack_from("<I", replay_data, offset)[0]
+        offset += 4
+
+        level = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        level_settings = self._read_string(replay_data, offset, 260)
+        offset += 260
+
+        _ = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        environment = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        visibility = self._read_string(replay_data, offset, 32)
+        offset += 32
+
+        results_offset = struct.unpack_from("<I", replay_data, offset)[0]
+        offset += 4
+
+        battle_type = BattleType.UNKNOWN
+        if len(replay_data) >= offset + 1:
+            difficulty_byte = replay_data[offset]
+            difficulty_value = int(difficulty_byte & 0x0F)
+            if difficulty_value == 0:
+                battle_type = BattleType.ARCADE
+            elif difficulty_value == 5:
+                battle_type = BattleType.REALISTIC
+            elif difficulty_value == 10:
+                battle_type = BattleType.SIMULATION
+        offset += 1
+
+        offset += 35
+
+        session_type = replay_data[offset] if len(replay_data) > offset else 0
+        offset += 1
+
+        offset += 7
+
+        session_id = format(struct.unpack_from("<Q", replay_data, offset)[0], "x")
+        offset += 8
+
+        offset += 4
+        offset += 4
+        offset += 32
+
+        loc_name = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        start_time = None
+        if len(replay_data) >= offset + 4:
+            start_time = datetime.fromtimestamp(struct.unpack_from("<I", replay_data, offset)[0])
+        offset += 4
+
+        time_limit_minutes = struct.unpack_from("<I", replay_data, offset)[0] if len(replay_data) >= offset + 4 else 0
+        offset += 4
+
+        score_limit = struct.unpack_from("<I", replay_data, offset)[0] if len(replay_data) >= offset + 4 else 0
+        offset += 4
+
+        battle_class_raw = self._read_string(replay_data, offset, 128).lower()
+        if "air_ground" in battle_class_raw:
+            battle_class = BattleVehicleClassType.AIR_GROUND
+        else:
+            battle_class = BattleVehicleClassType.AIR
+        offset += 128
+
+        battle_kill_streak = self._read_string(replay_data, offset, 128)
+        offset += 128
+
+        return {
+            "version": version,
+            "level": level,
+            "level_settings": level_settings,
+            "battle_type": battle_type,
+            "environment": environment,
+            "visibility": visibility,
+            "results_offset": results_offset,
+            "session_type": session_type,
+            "session_id": session_id,
+            "loc_name": loc_name,
+            "start_time": start_time,
+            "time_limit_minutes": time_limit_minutes,
+            "score_limit": score_limit,
+            "battle_class": battle_class,
+            "battle_kill_streak": battle_kill_streak,
+        }
+
+    def load_replay(self, file_path: Path, bytes_to_read: Optional[int] = None) -> bytes:
+        """Load replay bytes from disk and validate the replay header."""
+        if not file_path.exists():
+            raise FileNotFoundError(f"Replay file not found: {file_path}")
+
+        with open(file_path, "rb") as f:
+            data = f.read() if bytes_to_read is None else f.read(bytes_to_read)
+
+        required_size = self.HEADER_SIZE if bytes_to_read is None else bytes_to_read
+        if len(data) < required_size:
+            raise ValueError(f"Replay file is too small to contain the requested replay data: {file_path}")
+
+        if data[:4] != self.MAGIC:
+            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+
+        return data
+
     def get_session_id_from_replay_file(self, file_path: Path) -> str:
-        """Extract the session ID from a raw .wrpl file without full replay parsing.
+        """Extract the session ID from a raw .wrpl file without full replay parsing."""
+        data = self.load_replay(file_path, self.HEADER_OFFSET)
+        header = self._parse_replay_header(data)
+        return header["session_id"]
 
-        Args:
-            file_path: Path to the .wrpl replay file.
-
-        Returns:
-            The session ID as a hexadecimal string.
-
-        Raises:
-            FileNotFoundError: If the replay file doesn't exist.
-            ValueError: If the file is not a valid replay file.
-        """
-        if not file_path.exists():
-            raise FileNotFoundError(f"Replay file not found: {file_path}")
-
-        # The session ID is stored near the beginning of the replay header.
-        # We only need the first ~740 bytes to read the session ID and avoid the full parse.
-        header_size = 740
-        with open(file_path, "rb") as f:
-            data = f.read(header_size)
-
-        if len(data) < header_size:
-            raise ValueError(f"Replay file is too small to contain a valid header: {file_path}")
-
-        if data[:4] != self.MAGIC:
-            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
-
-        # Skip ahead to the session id field.
-        offset = 4  # magic
-        offset += 4  # version
-        offset += 128  # level
-        offset += 260  # level settings
-        offset += 128  # battle type
-        offset += 128  # environment
-        offset += 32  # visibility
-        offset += 4  # results offset
-        offset += 1  # difficulty
-        offset += 35  # padding
-        offset += 1  # session type
-        offset += 7  # padding
-
-        session_id_int = struct.unpack("<Q", data[offset : offset + 8])[0]
-        return format(session_id_int, "x")
-
-    def get_replay_start_time_from_replay_file(self, file_path: Path) -> datetime:
+    def get_start_time_from_replay_file(self, file_path: Path) -> datetime:
         """Extract the replay start time from a raw .wrpl file without full parsing."""
-        if not file_path.exists():
-            raise FileNotFoundError(f"Replay file not found: {file_path}")
-
-        # We need enough bytes to reach the start time field at offset ~908.
-        header_size = 912
-        with open(file_path, "rb") as f:
-            data = f.read(header_size)
-
-        if len(data) < header_size:
-            raise ValueError(f"Replay file is too small to contain a valid header: {file_path}")
-
-        if data[:4] != self.MAGIC:
-            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
-
-        offset = 4  # magic
-        offset += 4  # version
-        offset += 128  # level
-        offset += 260  # level settings
-        offset += 128  # battle type
-        offset += 128  # environment
-        offset += 32  # visibility
-        offset += 4  # results offset
-        offset += 1  # difficulty
-        offset += 35  # padding
-        offset += 1  # session type
-        offset += 7  # padding
-        offset += 8  # session id
-        offset += 4  # skipped offset
-        offset += 4  # set size
-        offset += 32  # skip
-        offset += 128  # loc name
-
-        start_time = struct.unpack("<I", data[offset : offset + 4])[0]
-        return datetime.fromtimestamp(start_time)
+        data = self.load_replay(file_path, self.HEADER_SIZE)
+        header = self._parse_replay_header(data)
+        if header["start_time"] is None:
+            raise ValueError("Replay header does not contain a valid start time")
+        return header["start_time"]
 
     def parse_replay_file(self, file_path: Path) -> Replay:
         """
@@ -307,8 +275,7 @@ class ReplayParserService:
         logger.info(f"Parsing replay file: {file_path}")
 
         try:
-            with open(file_path, "rb") as f:
-                data = f.read()
+            data = self.load_replay(file_path)
             replay = self.parse_replay_data(data)
 
             # Normal replays are prepended with a #, but saved ones aren't?
