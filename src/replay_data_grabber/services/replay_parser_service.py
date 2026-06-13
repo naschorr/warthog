@@ -237,9 +237,13 @@ class ReplayParserService:
         except Exception as exc:
             logger.warning(f"Stream decode failed, skipping vehicle-level stats: {exc}")
 
-        # Build the author player object
-        author_user_id = results.get("authorUserId", "")
+        # Build the author player object. Some replays omit a matching author entry
+        # in the results/playerInfo data, so we must not raise if the author is missing.
+        author_user_id_raw = results.get("authorUserId", "")
+        author_user_id = str(author_user_id_raw) if author_user_id_raw is not None else ""
         replay.author = next((player for player in replay.players if player.user_id == author_user_id))
+        if author_user_id and replay.author.user_id != author_user_id:
+            logger.warning(f"No author player found for authorUserId: {author_user_id}")
 
         return replay
 

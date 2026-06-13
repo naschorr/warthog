@@ -152,7 +152,7 @@ def parse_arguments():
     parser.add_argument(
         "--replay-dir-path",
         "-d",
-        type=str,
+        type=str.strip,
         help="Path to directory containing replay files to be processed (ex: /path/to/replays/)",
     )
 
@@ -160,7 +160,7 @@ def parse_arguments():
     mode_group.add_argument(
         "--file",
         "-f",
-        type=str,
+        type=str.strip,
         help="Path to a single .wrpl replay file to parse and output as JSON",
     )
     mode_group.add_argument(
@@ -177,7 +177,7 @@ def parse_arguments():
     parser.add_argument(
         "--output",
         "-o",
-        type=str,
+        type=str.strip,
         help="Path to output directory to store processed replay data",
     )
 
@@ -202,6 +202,7 @@ def main():
     # Initialize the main class
     processing_mode = ProcessingMode.FILE if args.file else ProcessingMode.ALL if args.all else ProcessingMode.NEW
     replay_data_grabber = WarthogReplayDataGrabber(
+        raw_replay_path=Path(args.file) if args.file else None,
         raw_replay_dir_path=raw_replay_dir_path,
         processed_replay_dir_path=args.output,
         processing_mode=processing_mode,

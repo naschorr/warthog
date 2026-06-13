@@ -175,6 +175,7 @@ class ReplayManagerService:
         Returns:
             Parsed Replay object
         """
+        replay_file_path = Path(str(replay_file_path).strip())
         if not replay_file_path.exists():
             raise FileNotFoundError(f"Replay file does not exist: {replay_file_path}")
 
