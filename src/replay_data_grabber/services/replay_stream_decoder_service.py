@@ -1162,9 +1162,37 @@ class ReplayStreamDecoderService:
             raise ValueError("Replay too short to contain stream offsets")
         stream_header_size = struct.unpack("<I", raw[748:752])[0]
         results_offset = struct.unpack("<I", raw[684:688])[0]
-        compressed_start = 1224 + stream_header_size + 2  # skip 2-byte zlib header
+        compressed_start = 1224 + stream_header_size
+        compressed_start = ReplayStreamDecoderService._find_compressed_stream_start(
+            raw, compressed_start, results_offset
+        )
         compressed_data = raw[compressed_start:results_offset]
         return zlib.decompress(compressed_data)
+
+    @staticmethod
+    def _find_compressed_stream_start(raw: bytes, start_offset: int, results_offset: int) -> int:
+        """
+        Locate the zlib-compressed rec_data stream start within the replay data.
+
+        Some replay versions include a small additional prefix after the stream
+        header before the actual zlib-compressed payload begins.  This helper
+        scans a short window for the first valid zlib header and returns its
+        offset.
+        """
+        if start_offset >= results_offset:
+            raise ValueError("Replay stream header offset is invalid")
+
+        max_scan = min(results_offset, start_offset + 128)
+        for offset in range(start_offset, max_scan - 1):
+            if raw[offset] != 0x78:
+                continue
+            # Zlib headers begin with 0x78 and must satisfy the 31-check
+            header_word = (raw[offset] << 8) | raw[offset + 1]
+            if header_word % 31 != 0:
+                continue
+            return offset
+
+        raise ValueError("Could not locate zlib compressed stream in replay data")
 
     # ------------------------------------------------------------------
     # Event parsers
