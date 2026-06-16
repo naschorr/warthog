@@ -373,6 +373,9 @@ class ReplayParserService:
                 logger.debug(f"Stream: no player at slot {slot} for vehicle_kills")
                 continue
             for veh, count in veh_counts.items():
+                if player.lineup and veh not in player.lineup:
+                    logger.debug(f"Stream: skipping vehicle kill for {veh} not in BLK lineup for slot {slot}")
+                    continue
                 player.vehicle_kills[veh] = player.vehicle_kills.get(veh, 0) + count
 
         # Apply vehicle_deaths (best-effort)
@@ -382,6 +385,9 @@ class ReplayParserService:
                 logger.debug(f"Stream: no player at slot {slot} for vehicle_deaths")
                 continue
             for veh, count in veh_counts.items():
+                if player.lineup and veh not in player.lineup:
+                    logger.debug(f"Stream: skipping vehicle death for {veh} not in BLK lineup for slot {slot}")
+                    continue
                 player.vehicle_deaths[veh] = player.vehicle_deaths.get(veh, 0) + count
 
         # Apply awards
@@ -392,20 +398,9 @@ class ReplayParserService:
                 continue
             player.awards.extend(award_list)
 
-        # Apply vehicle timeline: supplement lineup with vehicles seen in the stream
-        # but absent from the BLK lineup (e.g. aircraft that share no tankModels/ prefix).
-        # Death inference and capping is handled inside the stream decoder using the
-        # slot_deaths map passed at decode time.
-        for slot, timeline in stream_result.slot_vehicle_timeline.items():
-            player = slot_map.get(slot)
-            if player is None:
-                continue
-            seen: set[str] = set()
-            for _offset, veh in timeline:
-                if veh not in seen:
-                    seen.add(veh)
-                    if veh not in player.lineup:
-                        player.lineup.append(veh)
+        # Preserve the authoritative BLK lineup.
+        # Stream timeline data is used only for death attribution and should not
+        # mutate the replay's official player lineup.
 
         # Apply per-event kill/death detail records
         _TICK_DURATION_S = 0.1  # ~10 Hz simulation tick rate
