@@ -116,6 +116,26 @@
             "args": [
                 "--output-dir-path", "${workspaceFolder}/data/replays"
             ]
+        },
+        {
+            "name": "Dev - BoosterBuddy",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/replay_data_explorer/warthog_booster_buddy.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "stopOnEntry": false,
+            "redirectOutput": true,
+            "args": [
+                "--config-path", "${workspaceFolder}/src/config.dev.json",
+                "--type", "${input:boosterType}",
+                "--audience", "${input:boosterAudience}",
+                "--amount-percent", "${input:boosterAmountPercent}",
+                "--duration-matches", "${input:boosterDurationMatches}"
+            ]
         }
     ],
     "inputs": [
@@ -129,6 +149,38 @@
             "type": "promptString",
             "description": "Path to the output directory",
             "default": "${workspaceFolder}/data/replays"
+        },
+        {
+            "id": "boosterType",
+            "type": "pickString",
+            "description": "Booster type",
+            "options": [
+                "research",
+                "silver_lions"
+            ],
+            "default": "research"
+        },
+        {
+            "id": "boosterAudience",
+            "type": "pickString",
+            "description": "Booster audience",
+            "options": [
+                "self",
+                "public"
+            ],
+            "default": "self"
+        },
+        {
+            "id": "boosterAmountPercent",
+            "type": "promptString",
+            "description": "Booster percentage (ex: `15`, `75`, `300`)",
+            "default": "150"
+        },
+        {
+            "id": "boosterDurationMatches",
+            "type": "promptString",
+            "description": "Duration in matches",
+            "default": "1"
         }
     ]
 }

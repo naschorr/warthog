@@ -76,6 +76,9 @@ Processes a single raw replay file, and places it in the provided output directo
 #### `Dev - ReplayDataCopier`
 Copies the raw replay data from War Thunder into your local replay store. This will ignore preexisting files, and only copy over newly found replays.
 
+#### `Dev - BoosterBuddy`
+Simple helper that appends a new booster entry to `src/config.dev.json`. The launch option prompts for booster type (`research`, or `silver_lions`), audience (`self` or `public`), booster percentage, and match duration, and the script records the current local timestamp. Audience defaults to `self`; the `audience` field is only written when set to `public`.
+
 ## Contributing
 Make sure that the notebook's outputs are cleared, so that things can stay clean. There's a git filter set up to run the `jupyter nbconvert` script to clean the outputs automatically, though it does need some first time setup. Simply run this command from the project root to register the `.gitconfig` that contains the filter to the local git config and it'll start working!
 
