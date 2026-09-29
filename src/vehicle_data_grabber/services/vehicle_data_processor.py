@@ -536,10 +536,12 @@ class VehicleDataProcessor:
             return VehicleType.FIGHTER
         elif "type_strike_aircraft" in tags:
             return VehicleType.STRIKE_AIRCRAFT
-        elif "type_bomber" in tags:
-            return VehicleType.BOMBER
         elif "type_strike_ucav" in tags:
             return VehicleType.STRIKE_AIRCRAFT
+        elif "type_bomber" in tags:
+            return VehicleType.BOMBER
+        elif "nuclear_bomber" in tags:
+            return VehicleType.BOMBER
 
         # Helicopter types
         elif "type_attack_helicopter" in tags:
