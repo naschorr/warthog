@@ -1,0 +1,94 @@
+{
+  "events": [
+    {
+      "source_line": "2:52 Ranol (⊙T-34) destroyed Proto5510 (Jagdpanzer IV)",
+      "killer_username": "Ranol",
+      "victim_username": "Proto5510",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "germ_jgdpz_IV_L48",
+      "time_seconds": 172
+    },
+    {
+      "source_line": "4:26 Ranol (⊙T-34) destroyed MAURILAZCANO (Sd.Kfz.234/2)",
+      "killer_username": "Ranol",
+      "victim_username": "MAURILAZCANO",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "germ_sdkfz_234_2",
+      "time_seconds": 266
+    },
+    {
+      "source_line": "4:38 Ranol (⊙T-34) destroyed ray_tay-tay2208 (Matilda III)",
+      "killer_username": "Ranol",
+      "victim_username": "ray_tay-tay2208",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "uk_a_12_mk_2_matilda_2",
+      "time_seconds": 278
+    },
+    {
+      "source_line": "5:01 Proto5510 (Dicker Max) destroyed Ranol (⊙T-34)",
+      "killer_username": "Proto5510",
+      "victim_username": "Ranol",
+      "killer_vehicle": "germ_pzsfl_IVa_dickermax",
+      "victim_vehicle": "sw_t_34_1941",
+      "time_seconds": 301
+    },
+    {
+      "source_line": "8:03 P1ls3n (T-34) destroyed Ranol (⊙Pz.IV)",
+      "killer_username": "P1ls3n",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_t_34_1942",
+      "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "time_seconds": 483
+    },
+    {
+      "source_line": "8:32 Ranol (⊙Pz.IV) destroyed ray_tay-tay2208 (AEC AA)",
+      "killer_username": "Ranol",
+      "victim_username": "ray_tay-tay2208",
+      "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "victim_vehicle": "uk_armored_car_mk_2_aa",
+      "time_seconds": 512
+    },
+    {
+      "source_line": "10:50 gallinitagarka (KV-1) destroyed Ranol (M24DK)",
+      "killer_username": "gallinitagarka",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_kv_1_L_11",
+      "victim_vehicle": "sw_m24_chaffee_dk",
+      "time_seconds": 650
+    },
+    {
+      "source_line": "11:55 Ranol (SAV 20.12.48) destroyed Proto5510 (Ostwind)",
+      "killer_username": "Ranol",
+      "victim_username": "Proto5510",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "germ_flakpanzer_IV_Ostwind",
+      "time_seconds": 715
+    },
+    {
+      "source_line": "12:44 Ranol (SAV 20.12.48) destroyed BAtoloco (Pz.III L)",
+      "killer_username": "Ranol",
+      "victim_username": "BAtoloco",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "germ_pzkpfw_III_ausf_L",
+      "time_seconds": 764
+    },
+    {
+      "source_line": "13:34 Proto5510 (Sd.Kfz.234/2) destroyed Ranol (SAV 20.12.48)",
+      "killer_username": "Proto5510",
+      "victim_username": "Ranol",
+      "killer_vehicle": "germ_sdkfz_234_2",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 814
+    },
+    {
+      "source_line": "15:17 Ranol (Pvkv II) destroyed BAtoloco (Sd.Kfz.251/21)",
+      "killer_username": "Ranol",
+      "victim_username": "BAtoloco",
+      "killer_vehicle": "sw_pvkv_II",
+      "victim_vehicle": "germ_sdkfz_251_21",
+      "time_seconds": 917
+    }
+  ],
+  "awards": {},
+  "exact_award_counts": []
+}

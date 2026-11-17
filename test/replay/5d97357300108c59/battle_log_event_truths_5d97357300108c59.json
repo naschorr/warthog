@@ -632,5 +632,32 @@
       "victim_vehicle": "us_m3_bradley",
       "time_seconds": 655
     }
+  ],
+  "awards": {
+    "Ranol": [
+      "tank_die_hard",
+      "hidden_all_streak",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_allDef_streak_1_tank",
+      "hidden_global_avenge_self_stage",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "defender_tank",
+      "hidden_allDef_streak_2_tank",
+      "tank_marked_enemy_destroyed_by_ally",
+      "tank_marked_enemy_destroyed_by_ally",
+      "global_shadow_assassin",
+      "hidden_kill3_on_tank",
+      "hidden_kill3_streak",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_kill1_on_tank_destroyer",
+      "squad_best",
+      "hidden_allsquad_streak"
+    ]
+  },
+  "exact_award_counts": [
+    "Ranol"
   ]
 }

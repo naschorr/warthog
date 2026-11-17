@@ -10,10 +10,15 @@ Provides:
 
 from __future__ import annotations
 
+import json
+import re
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
+
+import pytest
 
 # ---------------------------------------------------------------------------
 # Source-of-truth dataclasses
@@ -64,6 +69,8 @@ class PlayerTruth:
     # True only for the player who recorded the replay.  Their kill/death detail
     # assertions are hard failures; all others are xfail(strict=False).
     is_author: bool = False
+    # Compare the complete award multiset instead of asserting minimum counts.
+    awards_exact: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -158,3 +165,264 @@ def assert_award_counts(
         assert (
             actual >= expected_min
         ), f"{username}: expected at least {expected_min}x '{award_id}', got {actual}"
+
+
+def assert_exact_kills(
+    actual: list[dict],
+    expected: list[KillDetailTruth],
+    username: str,
+    battle_start: datetime,
+) -> None:
+    """Assert a complete kill-detail list matches its battle-log truths."""
+    unmatched = list(actual)
+    for truth in expected:
+        matched = find_kill(unmatched, truth, battle_start)
+        assert matched is not None, f"{username}: battle-log kill not found: {truth}"
+        unmatched.remove(matched)
+    assert not unmatched, f"{username}: unexpected parsed kill details: {unmatched}"
+
+
+def assert_exact_deaths(
+    actual: list[dict],
+    expected: list[DeathDetailTruth],
+    username: str,
+    battle_start: datetime,
+) -> None:
+    """Assert a complete death-detail list matches its battle-log truths."""
+    unmatched = list(actual)
+    for truth in expected:
+        matched = find_death(unmatched, truth, battle_start)
+        assert matched is not None, f"{username}: battle-log death not found: {truth}"
+        unmatched.remove(matched)
+    assert not unmatched, f"{username}: unexpected parsed death details: {unmatched}"
+
+
+class ReplayBattleLogAssertions:
+    """Shared fixture loading, mapping, and source-coverage assertions."""
+
+    BATTLE_LOG_PATH: Path
+    REPLAY_TRUTH_DATA: dict[str, Any]
+    REQUIRE_MUNITION_LINES = False
+
+    _MUNITION_TARGET_PATTERN = re.compile(
+        r"\b(?:\d+(?:[.,]\d+)?\s*(?:lbs?|kgs?|pounds?|kilograms?)\b|"
+        r"(?:bomb|rocket|missile|torpedo|mine|shell|projectile|grenade)s?\b)",
+        re.IGNORECASE,
+    )
+
+    @staticmethod
+    def load_truth_data(path: Path) -> dict[str, Any]:
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def build_event_truths(
+        event_data: dict[str, Any], player_names: list[str]
+    ) -> tuple[dict[str, list[KillDetailTruth]], dict[str, list[DeathDetailTruth]]]:
+        kills = {name: [] for name in player_names}
+        deaths = {name: [] for name in player_names}
+        for event in event_data["events"]:
+            killer = event["killer_username"]
+            victim = event["victim_username"]
+            elapsed = (
+                event["time_seconds"] if event.get("time_matchable", True) else None
+            )
+            killer_vehicle = event["killer_vehicle"]
+            victim_vehicle = event["victim_vehicle"]
+            kills[killer].append(
+                KillDetailTruth(
+                    killer_vehicle,
+                    victim_username=victim,
+                    victim_vehicle=victim_vehicle,
+                    time_seconds=elapsed,
+                )
+            )
+            if victim is not None and victim_vehicle is not None:
+                deaths[victim].append(
+                    DeathDetailTruth(
+                        victim_vehicle,
+                        killer_username=killer,
+                        killer_vehicle=killer_vehicle,
+                        time_seconds=elapsed,
+                    )
+                )
+
+        for entries in (*kills.values(), *deaths.values()):
+            entries.sort(
+                key=lambda truth: (
+                    truth.time_seconds if truth.time_seconds is not None else -1
+                )
+            )
+        return kills, deaths
+
+    @staticmethod
+    def build_players(
+        scalars: list[tuple[str, int, int, int, int]],
+        author_username: str,
+        truth_data: dict[str, Any],
+    ) -> list[PlayerTruth]:
+        player_names = [name for name, *_ in scalars]
+        kills_by_player, deaths_by_player = (
+            ReplayBattleLogAssertions.build_event_truths(truth_data, player_names)
+        )
+        awards_by_player = truth_data["awards"]
+        exact_award_counts = set(truth_data["exact_award_counts"])
+        unknown_award_players = set(awards_by_player) - set(player_names)
+        unknown_exact_players = exact_award_counts - set(player_names)
+        if unknown_award_players or unknown_exact_players:
+            raise ValueError(
+                "Award truths reference players absent from scalar truths: "
+                f"{sorted(unknown_award_players | unknown_exact_players)}"
+            )
+
+        return [
+            PlayerTruth(
+                username=name,
+                team=team,
+                kills_ground=ground,
+                kills_air=air,
+                deaths_total=deaths,
+                awards=awards_by_player.get(name, []),
+                awards_exact=name in exact_award_counts,
+                kill_details=kills_by_player[name],
+                death_details=deaths_by_player[name],
+                is_author=name == author_username,
+            )
+            for name, team, ground, air, deaths in scalars
+        ]
+
+    @classmethod
+    def is_munition_destruction_line(cls, line: str) -> bool:
+        match = re.search(r"\bdestroyed\s+(.+)$", line, re.IGNORECASE)
+        return bool(match and cls._MUNITION_TARGET_PATTERN.search(match.group(1)))
+
+    def test_battle_log_event_truths_cover_all_event_lines(self) -> None:
+        source_lines = [
+            line
+            for line in self.BATTLE_LOG_PATH.read_text(encoding="utf-8").splitlines()
+            if re.match(r"^\d+:\d+\s+", line)
+            and ("destroyed" in line or "shot down" in line)
+        ]
+        source_line_counts = Counter(source_lines)
+        truth_lines = Counter(
+            event["source_line"] for event in self.REPLAY_TRUTH_DATA["events"]
+        )
+        munition_lines = Counter(
+            line for line in source_lines if self.is_munition_destruction_line(line)
+        )
+        if self.REQUIRE_MUNITION_LINES:
+            assert munition_lines
+        assert source_line_counts == truth_lines + munition_lines
+
+
+class ReplayMetadataAssertions:
+    """Shared metadata assertions for parsed replay regression tests."""
+
+    SESSION_ID: str
+    PLAYERS: list[PlayerTruth]
+    PLAYER_COUNT = 32
+
+    def test_session_id(self, replay: dict[str, Any]) -> None:
+        assert replay["session_id"] == self.SESSION_ID
+
+    def test_player_count(self, replay: dict[str, Any]) -> None:
+        assert len(replay["players"]) == self.PLAYER_COUNT
+
+    def test_author_username(self, replay: dict[str, Any]) -> None:
+        author_truth = next(player for player in self.PLAYERS if player.is_author)
+        assert replay["author"]["username"] == author_truth.username
+
+
+class ReplayPlayerAssertions:
+    """Shared scalar, award, and event assertions for each replay's players."""
+
+    COMPLETE_KILL_DETAILS: set[str] = set()
+    COMPLETE_DEATH_DETAILS: set[str] = set()
+
+    def test_team(
+        self, players_by_name: dict[str, dict[str, Any]], truth: PlayerTruth
+    ) -> None:
+        assert players_by_name[truth.username]["team"] == truth.team
+
+    def test_kills_ground(
+        self, players_by_name: dict[str, dict[str, Any]], truth: PlayerTruth
+    ) -> None:
+        assert players_by_name[truth.username]["kills"]["ground"] == truth.kills_ground
+
+    def test_kills_air(
+        self, players_by_name: dict[str, dict[str, Any]], truth: PlayerTruth
+    ) -> None:
+        assert players_by_name[truth.username]["kills"]["air"] == truth.kills_air
+
+    def test_deaths_total(
+        self, players_by_name: dict[str, dict[str, Any]], truth: PlayerTruth
+    ) -> None:
+        assert players_by_name[truth.username]["deaths"]["total"] == truth.deaths_total
+
+    def test_awards_present(
+        self, players_by_name: dict[str, dict[str, Any]], truth: PlayerTruth
+    ) -> None:
+        if not truth.awards:
+            pytest.skip("no awards defined for this player")
+        actual = players_by_name[truth.username]["awards"]
+        assert_awards_present(actual, truth.awards, truth.username)
+
+    def test_award_counts(
+        self, players_by_name: dict[str, dict[str, Any]], truth: PlayerTruth
+    ) -> None:
+        if not truth.awards:
+            pytest.skip("no awards defined for this player")
+        actual = players_by_name[truth.username]["awards"]
+        if truth.awards_exact:
+            assert Counter(actual) == Counter(
+                truth.awards
+            ), f"{truth.username}: award counts differ from expected"
+            return
+        assert_award_counts(actual, truth.awards, truth.username)
+
+    def test_kill_details(
+        self,
+        players_by_name: dict[str, dict[str, Any]],
+        truth: PlayerTruth,
+        battle_start: datetime,
+    ) -> None:
+        if not truth.kill_details:
+            pytest.skip("no battle-log kill events for this player")
+        actual = players_by_name[truth.username]["kills"]["vehicles"]
+        if truth.is_author or truth.username in self.COMPLETE_KILL_DETAILS:
+            assert_exact_kills(actual, truth.kill_details, truth.username, battle_start)
+            return
+        missing = [
+            event
+            for event in truth.kill_details
+            if find_kill(actual, event, battle_start) is None
+        ]
+        if missing:
+            pytest.xfail(
+                f"{truth.username}: {len(missing)}/{len(truth.kill_details)} "
+                "kill detail(s) not resolved"
+            )
+
+    def test_death_details(
+        self,
+        players_by_name: dict[str, dict[str, Any]],
+        truth: PlayerTruth,
+        battle_start: datetime,
+    ) -> None:
+        if not truth.death_details:
+            pytest.skip("no battle-log death events for this player")
+        actual = players_by_name[truth.username]["deaths"]["vehicles"]
+        if truth.is_author or truth.username in self.COMPLETE_DEATH_DETAILS:
+            assert_exact_deaths(
+                actual, truth.death_details, truth.username, battle_start
+            )
+            return
+        missing = [
+            event
+            for event in truth.death_details
+            if find_death(actual, event, battle_start) is None
+        ]
+        if missing:
+            pytest.xfail(
+                f"{truth.username}: {len(missing)}/{len(truth.death_details)} "
+                "death detail(s) not resolved"
+            )

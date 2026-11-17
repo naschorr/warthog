@@ -1,0 +1,1127 @@
+{
+  "events": [
+    {
+      "source_line": "1:54 -CHILE- Perjuro (KV-1) destroyed Ranol (M24DK)",
+      "killer_username": "Perjuro",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_kv_1_zis_5",
+      "victim_vehicle": "sw_m24_chaffee_dk",
+      "time_seconds": 114
+    },
+    {
+      "source_line": "2:10 -CHILE- Perjuro (KV-1) destroyed 🎮 Zonney0007 (Sd.Kfz.234/2)",
+      "killer_username": "Perjuro",
+      "victim_username": "Zonney0007",
+      "killer_vehicle": "ussr_kv_1_zis_5",
+      "victim_vehicle": "germ_sdkfz_234_2",
+      "time_seconds": 130
+    },
+    {
+      "source_line": "2:13 -BLGco- PinCushion45 (Sd.Kfz.234/2) destroyed [ManGO] Zam__ (M10)",
+      "killer_username": "PinCushion45",
+      "victim_username": "Zam__",
+      "killer_vehicle": "germ_sdkfz_234_2",
+      "victim_vehicle": "us_m10",
+      "time_seconds": 133
+    },
+    {
+      "source_line": "2:13 =Belka= 🎮 No-X1m- (M19A1) destroyed -BLGco- Siran2007YT (Sd.Kfz.234/2)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Siran2007YT",
+      "killer_vehicle": "us_m19",
+      "victim_vehicle": "germ_sdkfz_234_2",
+      "time_seconds": 133
+    },
+    {
+      "source_line": "2:25 bosco3202 (Sturer Emil) destroyed =Belka= 🎮 No-X1m- (M19A1)",
+      "killer_username": "bosco3202",
+      "victim_username": "No-X1m-",
+      "killer_vehicle": "germ_pzsflk40_sturer_emil",
+      "victim_vehicle": "us_m19",
+      "time_seconds": 145
+    },
+    {
+      "source_line": "2:40 marcosilvavil45 (M10) destroyed Pawin_Krittayamo (SARC MkVI (6pdr))",
+      "killer_username": "marcosilvavil45",
+      "victim_username": "Pawin_Krittayamo",
+      "killer_vehicle": "us_m10",
+      "victim_vehicle": "uk_marmon_herrington_mk_6_6pdr",
+      "time_seconds": 160
+    },
+    {
+      "source_line": "2:56 *YHW* Metarou (SAV 20.12.48) destroyed [RIZZS] 🎮 StubblyStew310 (M4)",
+      "killer_username": "Metarou",
+      "victim_username": "StubblyStew310",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m4_sherman",
+      "time_seconds": 176
+    },
+    {
+      "source_line": "3:03 bosco3202 (Sturer Emil) destroyed alexEC (KV-2)",
+      "killer_username": "bosco3202",
+      "victim_username": "alexEC",
+      "killer_vehicle": "germ_pzsflk40_sturer_emil",
+      "victim_vehicle": "ussr_kv_2_1939",
+      "time_seconds": 183
+    },
+    {
+      "source_line": "3:16 🎮 Zonney0007 (Pz.IV J) destroyed marcosilvavil45 (M10)",
+      "killer_username": "Zonney0007",
+      "victim_username": "marcosilvavil45",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_J",
+      "victim_vehicle": "us_m10",
+      "time_seconds": 196
+    },
+    {
+      "source_line": "3:30 🎮 Sophia 87208673 (M24) destroyed Thorkell_83 (AMX-13 (FL11))",
+      "killer_username": "Sophia 87208673",
+      "victim_username": "Thorkell_83",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "fr_amx_13_fl_11",
+      "time_seconds": 210
+    },
+    {
+      "source_line": "3:30 -CHILE- Perjuro (KV-1) destroyed 🎮 b1 Val (AMX-13 (FL11))",
+      "killer_username": "Perjuro",
+      "victim_username": "b1 Val",
+      "killer_vehicle": "ussr_kv_1_zis_5",
+      "victim_vehicle": "fr_amx_13_fl_11",
+      "time_seconds": 210
+    },
+    {
+      "source_line": "3:33 Ranol (⊙T-34) destroyed 🎮 kodiak par (KV-1)",
+      "killer_username": "Ranol",
+      "victim_username": "kodiak par",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "ussr_kv_1_L_11",
+      "time_seconds": 213
+    },
+    {
+      "source_line": "3:47 ^flank^ obsidianwolf13 (☆T-34) destroyed 🎮 Toxic85828 (T-34)",
+      "killer_username": "obsidianwolf13",
+      "victim_username": "Toxic85828",
+      "killer_vehicle": "cn_t_34_1942",
+      "victim_vehicle": "ussr_t_34_1942",
+      "time_seconds": 227
+    },
+    {
+      "source_line": "3:57 -BLGco- PinCushion45 (Sd.Kfz.234/2) destroyed -LVMH- FAN_Falcon (M4A1)",
+      "killer_username": "PinCushion45",
+      "victim_username": "FAN_Falcon",
+      "killer_vehicle": "germ_sdkfz_234_2",
+      "victim_vehicle": "us_m4a1_1942_sherman",
+      "time_seconds": 237
+    },
+    {
+      "source_line": "4:03 Ranol (⊙T-34) destroyed Yogui78 (M4A1)",
+      "killer_username": "Ranol",
+      "victim_username": "Yogui78",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "us_m4a1_1942_sherman",
+      "time_seconds": 243
+    },
+    {
+      "source_line": "4:09 Pawin_Krittayamo (SARC MkVI (6pdr)) destroyed Ribacio (SU-152)",
+      "killer_username": "Pawin_Krittayamo",
+      "victim_username": "Ribacio",
+      "killer_vehicle": "uk_marmon_herrington_mk_6_6pdr",
+      "victim_vehicle": "ussr_su_152",
+      "time_seconds": 249
+    },
+    {
+      "source_line": "4:27 =Belka= 🎮 No-X1m- (M4A2) destroyed Pawin_Krittayamo (SARC MkVI (6pdr))",
+      "killer_username": "No-X1m-",
+      "victim_username": "Pawin_Krittayamo",
+      "killer_vehicle": "us_m4a2_sherman",
+      "victim_vehicle": "uk_marmon_herrington_mk_6_6pdr",
+      "time_seconds": 267
+    },
+    {
+      "source_line": "4:27 Ranol (⊙T-34) destroyed -SOIG- 🎮 alpha_overcoat0 (M44)",
+      "killer_username": "Ranol",
+      "victim_username": "alpha_overcoat0",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "us_m44",
+      "time_seconds": 267
+    },
+    {
+      "source_line": "4:27 -CHILE- Perjuro (KV-1) destroyed ^flank^ obsidianwolf13 (☆T-34)",
+      "killer_username": "Perjuro",
+      "victim_username": "obsidianwolf13",
+      "killer_vehicle": "ussr_kv_1_zis_5",
+      "victim_vehicle": "cn_t_34_1942",
+      "time_seconds": 267
+    },
+    {
+      "source_line": "4:38 =Belka= 🎮 No-X1m- (M4A2) destroyed [DPA] 🎮 KlutzyObject6 (StuG III G)",
+      "killer_username": "No-X1m-",
+      "victim_username": "KlutzyObject6",
+      "killer_vehicle": "us_m4a2_sherman",
+      "victim_vehicle": "germ_stug_III_ausf_G",
+      "time_seconds": 278
+    },
+    {
+      "source_line": "5:02 HASBU___ (M4A1) destroyed ➡ICoFI➡ 🎮 Evokekirby (☆M10)",
+      "killer_username": "HASBU___",
+      "victim_username": "Evokekirby",
+      "killer_vehicle": "us_m4a1_1942_sherman",
+      "victim_vehicle": "cn_m10",
+      "time_seconds": 302
+    },
+    {
+      "source_line": "5:04 🎮 Sophia 87208673 (M24) destroyed 🎮 b1 Val (ARL-44 (ACL-1))",
+      "killer_username": "Sophia 87208673",
+      "victim_username": "b1 Val",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "fr_arl_44_acl1",
+      "time_seconds": 304
+    },
+    {
+      "source_line": "5:09 *YHW* Metarou (SAV 20.12.48) destroyed [RIZZS] 🎮 StubblyStew310 (M4A1)",
+      "killer_username": "Metarou",
+      "victim_username": "StubblyStew310",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m4a1_1942_sherman",
+      "time_seconds": 309
+    },
+    {
+      "source_line": "5:09 [RIZZS] 🎮 StubblyStew310 (M4A1) destroyed -THLFS- 🎮 xK1NGSH0TZx (SAV 20.12.48)",
+      "killer_username": "StubblyStew310",
+      "victim_username": "xK1NGSH0TZx",
+      "killer_vehicle": "us_m4a1_1942_sherman",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 309
+    },
+    {
+      "source_line": "5:09 -THLFS- 🎮 xK1NGSH0TZx (SAV 20.12.48) destroyed -LVMH- FAN_Falcon (M24)",
+      "killer_username": "xK1NGSH0TZx",
+      "victim_username": "FAN_Falcon",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 309
+    },
+    {
+      "source_line": "5:22 bosco3202 (Sturer Emil) destroyed HASBU___ (M4A1)",
+      "killer_username": "bosco3202",
+      "victim_username": "HASBU___",
+      "killer_vehicle": "germ_pzsflk40_sturer_emil",
+      "victim_vehicle": "us_m4a1_1942_sherman",
+      "time_seconds": 322
+    },
+    {
+      "source_line": "5:32 🎮 Toxic85828 (T-34) destroyed Ranol (⊙T-34)",
+      "killer_username": "Toxic85828",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_t_34_1942",
+      "victim_vehicle": "sw_t_34_1941",
+      "time_seconds": 332
+    },
+    {
+      "source_line": "5:49 =Belka= 🎮 No-X1m- (M4A2) destroyed Thorkell_83 (⊙M55)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Thorkell_83",
+      "killer_vehicle": "us_m4a2_sherman",
+      "victim_vehicle": "fr_m55",
+      "time_seconds": 349
+    },
+    {
+      "source_line": "5:56 Pawin_Krittayamo (Cromwell V (RP-3)) destroyed =Belka= 🎮 No-X1m- (M4A2)",
+      "killer_username": "Pawin_Krittayamo",
+      "victim_username": "No-X1m-",
+      "killer_vehicle": "uk_a27m_cromwell_5_rp3",
+      "victim_vehicle": "us_m4a2_sherman",
+      "time_seconds": 356
+    },
+    {
+      "source_line": "6:01 🎮 XanDerJacK_guNna (T-34) destroyed 🎮 b1 Val (⊙M10)",
+      "killer_username": "XanDerJacK_guNna",
+      "victim_username": "b1 Val",
+      "killer_vehicle": "ussr_t_34_1941_l_11",
+      "victim_vehicle": "fr_m10",
+      "time_seconds": 361
+    },
+    {
+      "source_line": "6:13 marcosilvavil45 (P-400) destroyed [BMD] 🎮 oliveshellhound (L-62 ANTI II)",
+      "killer_username": "marcosilvavil45",
+      "victim_username": "oliveshellhound",
+      "killer_vehicle": "p-400",
+      "victim_vehicle": "sw_l_62_anti_II",
+      "time_seconds": 373
+    },
+    {
+      "source_line": "6:16 Thorkell_83 (⊙M10) destroyed [ManGO] Zam__ (M24)",
+      "killer_username": "Thorkell_83",
+      "victim_username": "Zam__",
+      "killer_vehicle": "fr_m10",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 376
+    },
+    {
+      "source_line": "6:19 🎮 Toxic85828 (T-34) destroyed 🎮 Zonney0007 (Pz.IV J)",
+      "killer_username": "Toxic85828",
+      "victim_username": "Zonney0007",
+      "killer_vehicle": "ussr_t_34_1942",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_J",
+      "time_seconds": 379
+    },
+    {
+      "source_line": "6:23 Ribacio (KV-1) destroyed -BLGco- PinCushion45 (Sd.Kfz.234/2)",
+      "killer_username": "Ribacio",
+      "victim_username": "PinCushion45",
+      "killer_vehicle": "ussr_kv_1_L_11",
+      "victim_vehicle": "germ_sdkfz_234_2",
+      "time_seconds": 383
+    },
+    {
+      "source_line": "6:25 *YHW* Metarou (SAV 20.12.48) destroyed [RIZZS] 🎮 StubblyStew310 (M3)",
+      "killer_username": "Metarou",
+      "victim_username": "StubblyStew310",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m3_lee",
+      "time_seconds": 385
+    },
+    {
+      "source_line": "6:29 Thorkell_83 (⊙M10) destroyed 🎮 XanDerJacK_guNna (T-34)",
+      "killer_username": "Thorkell_83",
+      "victim_username": "XanDerJacK_guNna",
+      "killer_vehicle": "fr_m10",
+      "victim_vehicle": "ussr_t_34_1941_l_11",
+      "time_seconds": 389
+    },
+    {
+      "source_line": "6:33 _06254039349256 (T-34-57) destroyed Thorkell_83 (⊙M10)",
+      "killer_username": "_06254039349256",
+      "victim_username": "Thorkell_83",
+      "killer_vehicle": "ussr_t_34_1941_57",
+      "victim_vehicle": "fr_m10",
+      "time_seconds": 393
+    },
+    {
+      "source_line": "6:42 🎮 Sophia 87208673 (M24) destroyed 🎮 b1 Val (CCKW 353 AA)",
+      "killer_username": "Sophia 87208673",
+      "victim_username": "b1 Val",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "fr_cckw_353_bofors",
+      "time_seconds": 402
+    },
+    {
+      "source_line": "6:42 ➡ICoFI➡ 🎮 Evokekirby (CCKW 353 (M45)) shot down marcosilvavil45 (P-400)",
+      "killer_username": "Evokekirby",
+      "victim_username": "marcosilvavil45",
+      "killer_vehicle": "cn_gmc_cckw_353_m45_quad",
+      "victim_vehicle": "p-400",
+      "time_seconds": 402
+    },
+    {
+      "source_line": "6:43 🎮 Toxic85828 (T-34) destroyed -THLFS- 🎮 xK1NGSH0TZx (Sherman III/IV)",
+      "killer_username": "Toxic85828",
+      "victim_username": "xK1NGSH0TZx",
+      "killer_vehicle": "ussr_t_34_1942",
+      "victim_vehicle": "sw_sherman_3_4",
+      "time_seconds": 403
+    },
+    {
+      "source_line": "6:44 Ranol (SAV 20.12.48) destroyed -CHILE- Perjuro (KV-1)",
+      "killer_username": "Ranol",
+      "victim_username": "Perjuro",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_kv_1_zis_5",
+      "time_seconds": 404
+    },
+    {
+      "source_line": "6:50 🎮 Zonney0007 (Pz.IV H) destroyed 🎮 Sophia 87208673 (M24)",
+      "killer_username": "Zonney0007",
+      "victim_username": "Sophia 87208673",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 410
+    },
+    {
+      "source_line": "7:05 🎮 Zonney0007 (Pz.IV H) destroyed _06254039349256 (T-34-57)",
+      "killer_username": "Zonney0007",
+      "victim_username": "_06254039349256",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": "ussr_t_34_1941_57",
+      "time_seconds": 425
+    },
+    {
+      "source_line": "7:27 -LVMH- FAN_Falcon (M24) destroyed Pawin_Krittayamo (Cromwell V (RP-3))",
+      "killer_username": "FAN_Falcon",
+      "victim_username": "Pawin_Krittayamo",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "uk_a27m_cromwell_5_rp3",
+      "time_seconds": 447
+    },
+    {
+      "source_line": "7:31 Ranol (SAV 20.12.48) destroyed Yogui78 (M24)",
+      "killer_username": "Ranol",
+      "victim_username": "Yogui78",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 451
+    },
+    {
+      "source_line": "7:36 Ribacio (KV-1) destroyed 🎮 HayHay9797 (Sd.Kfz.251/21)",
+      "killer_username": "Ribacio",
+      "victim_username": "HayHay9797",
+      "killer_vehicle": "ussr_kv_1_L_11",
+      "victim_vehicle": "germ_sdkfz_251_21",
+      "time_seconds": 456
+    },
+    {
+      "source_line": "7:55 Ranol (SAV 20.12.48) destroyed 🎮 Toxic85828 (T-34)",
+      "killer_username": "Ranol",
+      "victim_username": "Toxic85828",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_t_34_1942",
+      "time_seconds": 475
+    },
+    {
+      "source_line": "7:59 [BMD] 🎮 oliveshellhound (⊙Hurricane) shot down =Belka= 🎮 No-X1m- (P-63A)",
+      "killer_username": "oliveshellhound",
+      "victim_username": "No-X1m-",
+      "killer_vehicle": "hurricane_mk1_late_finland",
+      "victim_vehicle": "p-63a-10",
+      "time_seconds": 479
+    },
+    {
+      "source_line": "7:59 ➡ICoFI➡ 🎮 Evokekirby (CCKW 353 (M45)) shot down [ManGO] Zam__ (P-51)",
+      "killer_username": "Evokekirby",
+      "victim_username": "Zam__",
+      "killer_vehicle": "cn_gmc_cckw_353_m45_quad",
+      "victim_vehicle": "p-51_mk1a_usaaf",
+      "time_seconds": 479
+    },
+    {
+      "source_line": "8:08 🎮 Toxic85828 (T-34) destroyed 🎮 InDommWeTrust (Pz.Bef.Wg.IV J)",
+      "killer_username": "Toxic85828",
+      "victim_username": "InDommWeTrust",
+      "killer_vehicle": "ussr_t_34_1941",
+      "victim_vehicle": "germ_panzerbefelhswagen_IV_ausf_J",
+      "time_seconds": 488
+    },
+    {
+      "source_line": "8:31 *YHW* Metarou (SAV 20.12.48) destroyed Ribacio (KV-1)",
+      "killer_username": "Metarou",
+      "victim_username": "Ribacio",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_kv_1_L_11",
+      "time_seconds": 511
+    },
+    {
+      "source_line": "8:40 Pawin_Krittayamo (⊙Hellcat) shot down marcosilvavil45 (P-38E)",
+      "killer_username": "Pawin_Krittayamo",
+      "victim_username": "marcosilvavil45",
+      "killer_vehicle": "hellcat_fmk1",
+      "victim_vehicle": "p-38e",
+      "time_seconds": 520
+    },
+    {
+      "source_line": "8:46 ➡ICoFI➡ 🎮 Evokekirby (CCKW 353 (M45)) shot down HASBU___ (P-51C)",
+      "killer_username": "Evokekirby",
+      "victim_username": "HASBU___",
+      "killer_vehicle": "cn_gmc_cckw_353_m45_quad",
+      "victim_vehicle": "p-51c-10-nt",
+      "time_seconds": 526
+    },
+    {
+      "source_line": "9:14 HASBU___ (M2A2) shot down Pawin_Krittayamo (⊙Hellcat)",
+      "killer_username": "HASBU___",
+      "victim_username": "Pawin_Krittayamo",
+      "killer_vehicle": "us_m2a2",
+      "victim_vehicle": "hellcat_fmk1",
+      "time_seconds": 554
+    },
+    {
+      "source_line": "9:17 _06254039349256 (T-34-57) destroyed Thorkell_83 (ARL-44 (ACL-1))",
+      "killer_username": "_06254039349256",
+      "victim_username": "Thorkell_83",
+      "killer_vehicle": "ussr_t_34_1941_57",
+      "victim_vehicle": "fr_arl_44_acl1",
+      "time_seconds": 557
+    },
+    {
+      "source_line": "9:25 Ranol (SAV 20.12.48) destroyed alexEC (KV-1)",
+      "killer_username": "Ranol",
+      "victim_username": "alexEC",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_kv_1s",
+      "time_seconds": 565
+    },
+    {
+      "source_line": "9:35 marcosilvavil45 (T77E1) shot down 🎮 HayHay9797 (He 51 A)",
+      "killer_username": "marcosilvavil45",
+      "victim_username": "HayHay9797",
+      "killer_vehicle": "us_t77e1",
+      "victim_vehicle": "he51a1",
+      "time_seconds": 575
+    },
+    {
+      "source_line": "9:38 [ManGO] Zam__ (M4A3 (105)) destroyed ➡ICoFI➡ 🎮 Evokekirby (CCKW 353 (M45))",
+      "killer_username": "Zam__",
+      "victim_username": "Evokekirby",
+      "killer_vehicle": "us_m4a3_105_sherman",
+      "victim_vehicle": "cn_gmc_cckw_353_m45_quad",
+      "time_seconds": 578
+    },
+    {
+      "source_line": "10:07 marcosilvavil45 (T77E1) shot down [BMD] 🎮 oliveshellhound (⊙Hurricane)",
+      "killer_username": "marcosilvavil45",
+      "victim_username": "oliveshellhound",
+      "killer_vehicle": "us_t77e1",
+      "victim_vehicle": "hurricane_mk1_late_finland",
+      "time_seconds": 607
+    },
+    {
+      "source_line": "10:35 Ranol (SAV 20.12.48) destroyed [ManGO] Zam__ (M4A3 (105))",
+      "killer_username": "Ranol",
+      "victim_username": "Zam__",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m4a3_105_sherman",
+      "time_seconds": 635
+    },
+    {
+      "source_line": "10:38 Ranol (SAV 20.12.48) destroyed _06254039349256 (T-34-57)",
+      "killer_username": "Ranol",
+      "victim_username": "_06254039349256",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_t_34_1941_57",
+      "time_seconds": 638
+    },
+    {
+      "source_line": "10:42 -LVMH- FAN_Falcon (M24) destroyed Pawin_Krittayamo (Cromwell V)",
+      "killer_username": "FAN_Falcon",
+      "victim_username": "Pawin_Krittayamo",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "uk_a27m_cromwell_5",
+      "time_seconds": 642
+    },
+    {
+      "source_line": "10:43 Ranol (SAV 20.12.48) destroyed -LVMH- FAN_Falcon (M24)",
+      "killer_username": "Ranol",
+      "victim_username": "FAN_Falcon",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 643
+    },
+    {
+      "source_line": "10:47 *YHW* Metarou (SAV 20.12.48) destroyed Ribacio (T-34)",
+      "killer_username": "Metarou",
+      "victim_username": "Ribacio",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_t_34_1942",
+      "time_seconds": 647
+    },
+    {
+      "source_line": "10:47 =Belka= 🎮 No-X1m- (M4) destroyed Ranol (SAV 20.12.48)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Ranol",
+      "killer_vehicle": "us_m4_sherman",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 647
+    },
+    {
+      "source_line": "11:14 -CHILE- Perjuro (T-34-57) destroyed [DPA] 🎮 KlutzyObject6 (StuH 42 G)",
+      "killer_username": "Perjuro",
+      "victim_username": "KlutzyObject6",
+      "killer_vehicle": "ussr_t_34_1941_57",
+      "victim_vehicle": "germ_stuh_III_ausf_G",
+      "time_seconds": 674
+    },
+    {
+      "source_line": "11:17 🎮 Zonney0007 (Pz.IV H) destroyed -CHILE- Perjuro (T-34-57)",
+      "killer_username": "Zonney0007",
+      "victim_username": "Perjuro",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": null,
+      "time_seconds": 677
+    },
+    {
+      "source_line": "11:21 marcosilvavil45 (T77E1) destroyed *YHW* Metarou (SAV 20.12.48)",
+      "killer_username": "marcosilvavil45",
+      "victim_username": "Metarou",
+      "killer_vehicle": "us_t77e1",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 681
+    },
+    {
+      "source_line": "11:23 [BMD] 🎮 oliveshellhound (⊙Pz.IV) destroyed 🎮 Toxic85828 (T-34)",
+      "killer_username": "oliveshellhound",
+      "victim_username": "Toxic85828",
+      "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "victim_vehicle": "ussr_t_34_1941",
+      "time_seconds": 683
+    },
+    {
+      "source_line": "11:55 ^flank^ obsidianwolf13 (Martin 139WC) destroyed Ribacio (BTR-152A)",
+      "killer_username": "obsidianwolf13",
+      "victim_username": "Ribacio",
+      "killer_vehicle": "martin_139wc",
+      "victim_vehicle": "ussr_btr_152a",
+      "time_seconds": 715
+    },
+    {
+      "source_line": "12:01 Ranol (SAV 20.12.48) destroyed marcosilvavil45 (T77E1)",
+      "killer_username": "Ranol",
+      "victim_username": "marcosilvavil45",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_t77e1",
+      "time_seconds": 721
+    },
+    {
+      "source_line": "12:07 marcosilvavil45 (T77E1) shot down ^flank^ obsidianwolf13 (Martin 139WC)",
+      "killer_username": "marcosilvavil45",
+      "victim_username": "obsidianwolf13",
+      "killer_vehicle": "us_t77e1",
+      "victim_vehicle": "martin_139wc",
+      "time_seconds": 727
+    },
+    {
+      "source_line": "12:14 =Belka= 🎮 No-X1m- (M4) destroyed Pawin_Krittayamo (Crusader AA Mk I)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Pawin_Krittayamo",
+      "killer_vehicle": "us_m4_sherman",
+      "victim_vehicle": "uk_crusader_aa_mk_1",
+      "time_seconds": 734
+    },
+    {
+      "source_line": "12:20 -CHILE- Perjuro (I-185) destroyed [BMD] 🎮 oliveshellhound (⊙Pz.IV)",
+      "killer_username": "Perjuro",
+      "victim_username": "oliveshellhound",
+      "killer_vehicle": "i_185_m71_standard",
+      "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "time_seconds": 740
+    },
+    {
+      "source_line": "12:27 🎮 Zonney0007 (Pz.IV H) destroyed Yogui78 (M10)",
+      "killer_username": "Zonney0007",
+      "victim_username": "Yogui78",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": "us_m10",
+      "time_seconds": 747
+    },
+    {
+      "source_line": "12:38 -CHILE- Perjuro (I-185) destroyed Thorkell_83 (VTT DCA)",
+      "killer_username": "Perjuro",
+      "victim_username": "Thorkell_83",
+      "killer_vehicle": "i_185_m71_standard",
+      "victim_vehicle": "fr_amx_vtt_dca",
+      "time_seconds": 758
+    },
+    {
+      "source_line": "12:48 =Belka= 🎮 No-X1m- (M4) destroyed 🎮 Zonney0007 (Pz.IV H)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Zonney0007",
+      "killer_vehicle": "us_m4_sherman",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "time_seconds": 768
+    },
+    {
+      "source_line": "12:54 Ranol (SAV 20.12.48) destroyed =Belka= 🎮 No-X1m- (M4)",
+      "killer_username": "Ranol",
+      "victim_username": "No-X1m-",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m4_sherman",
+      "time_seconds": 774
+    },
+    {
+      "source_line": "12:59 -CHILE- Perjuro (I-185) destroyed *YHW* Metarou (Ikv 103)",
+      "killer_username": "Perjuro",
+      "victim_username": "Metarou",
+      "killer_vehicle": "i_185_m71_standard",
+      "victim_vehicle": "sw_ikv_103",
+      "time_seconds": 779
+    },
+    {
+      "source_line": "13:12 Ranol (SAV 20.12.48) destroyed HASBU___ (M2A2)",
+      "killer_username": "Ranol",
+      "victim_username": "HASBU___",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m2a2",
+      "time_seconds": 792
+    },
+    {
+      "source_line": "13:22 Thorkell_83 (VTT DCA) shot down _06254039349256 (Yak-7)",
+      "killer_username": "Thorkell_83",
+      "victim_username": "_06254039349256",
+      "killer_vehicle": "fr_amx_vtt_dca",
+      "victim_vehicle": "yak-7b",
+      "time_seconds": 802
+    },
+    {
+      "source_line": "13:38 bosco3202 (Sturer Emil) destroyed marcosilvavil45 (M10)",
+      "killer_username": "bosco3202",
+      "victim_username": "marcosilvavil45",
+      "killer_vehicle": "germ_pzsflk40_sturer_emil",
+      "victim_vehicle": "us_m10",
+      "time_seconds": 818
+    },
+    {
+      "source_line": "14:02 =Belka= 🎮 No-X1m- (A-36) destroyed Ranol (SAV 20.12.48)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Ranol",
+      "killer_vehicle": "p-51_a-36",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 842
+    },
+    {
+      "source_line": "14:24 =Belka= 🎮 No-X1m- (A-36) shot down -BLGco- PinCushion45 (Ju 87 D)",
+      "killer_username": "No-X1m-",
+      "victim_username": "PinCushion45",
+      "killer_vehicle": "p-51_a-36",
+      "victim_vehicle": "ju-87d-5",
+      "time_seconds": 864
+    },
+    {
+      "source_line": "14:28 *YHW* Metarou (J26) shot down -CHILE- Perjuro (I-185)",
+      "killer_username": "Metarou",
+      "victim_username": "Perjuro",
+      "killer_vehicle": "p-51d-20-na_j26",
+      "victim_vehicle": "i_185_m71_standard",
+      "time_seconds": 868
+    },
+    {
+      "source_line": "14:33 Ribacio (ZiS-12 (94-KM)) shot down 🎮 Zonney0007 (Ju 87 R)",
+      "killer_username": "Ribacio",
+      "victim_username": "Zonney0007",
+      "killer_vehicle": "ussr_zis_12_94KM_1945",
+      "victim_vehicle": "ju-87r-2_snake",
+      "time_seconds": 873
+    },
+    {
+      "source_line": "14:46 =Belka= 🎮 No-X1m- (A-36) shot down *YHW* Metarou (J26)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Metarou",
+      "killer_vehicle": "p-51_a-36",
+      "victim_vehicle": "p-51d-20-na_j26",
+      "time_seconds": 886
+    },
+    {
+      "source_line": "15:06 _06254039349256 (T-34) destroyed ^flank^ obsidianwolf13 (☆M24)",
+      "killer_username": "_06254039349256",
+      "victim_username": "obsidianwolf13",
+      "killer_vehicle": "ussr_t_34_1942",
+      "victim_vehicle": "cn_m24_chaffee",
+      "time_seconds": 906
+    },
+    {
+      "source_line": "15:25 -CHILE- Perjuro (BTR-152D) destroyed bosco3202 (Sturer Emil)",
+      "killer_username": "Perjuro",
+      "victim_username": "bosco3202",
+      "killer_vehicle": "ussr_btr_152d",
+      "victim_vehicle": "germ_pzsflk40_sturer_emil",
+      "time_seconds": 925
+    },
+    {
+      "source_line": "16:48 bosco3202 (Fw 190 A) destroyed -CHILE- Perjuro (BTR-152D)",
+      "killer_username": "bosco3202",
+      "victim_username": "Perjuro",
+      "killer_vehicle": "fw-190a-5_u2",
+      "victim_vehicle": "ussr_btr_152d",
+      "time_seconds": 1008
+    },
+    {
+      "source_line": "16:54 Ribacio (ZiS-12 (94-KM)) shot down bosco3202 (Fw 190 A)",
+      "killer_username": "Ribacio",
+      "victim_username": "bosco3202",
+      "killer_vehicle": "ussr_zis_12_94KM_1945",
+      "victim_vehicle": "fw-190a-5_u2",
+      "time_seconds": 1014
+    },
+    {
+      "source_line": "16:59 🎮 Zonney0007 (Marder III H) destroyed marcosilvavil45 (T77E1)",
+      "killer_username": "Zonney0007",
+      "victim_username": "marcosilvavil45",
+      "killer_vehicle": "germ_pzkpfw_38t_Marder_III_ausf_H",
+      "victim_vehicle": "us_t77e1",
+      "time_seconds": 1019
+    },
+    {
+      "source_line": "17:06 [BMD] 🎮 oliveshellhound (L-62 ANTI II) shot down -LVMH- FAN_Falcon (F4U-1)",
+      "killer_username": "oliveshellhound",
+      "victim_username": "FAN_Falcon",
+      "killer_vehicle": "sw_l_62_anti_II",
+      "victim_vehicle": "f4u-1d",
+      "time_seconds": 1026
+    },
+    {
+      "source_line": "17:09 -LVMH- FAN_Falcon (F4U-1) destroyed [BMD] 🎮 oliveshellhound (L-62 ANTI II)",
+      "killer_username": "FAN_Falcon",
+      "victim_username": "oliveshellhound",
+      "killer_vehicle": "f4u-1d",
+      "victim_vehicle": "sw_l_62_anti_II",
+      "time_seconds": 1029
+    },
+    {
+      "source_line": "17:39 *YHW* Metarou (⊙T-34) destroyed _06254039349256 (T-34)",
+      "killer_username": "Metarou",
+      "victim_username": "_06254039349256",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "ussr_t_34_1942",
+      "time_seconds": 1059
+    },
+    {
+      "source_line": "17:46 ➡ICoFI➡ 🎮 Evokekirby (Martin 139WC) destroyed 🎮 Toxic85828 (T-34)",
+      "killer_username": "Evokekirby",
+      "victim_username": "Toxic85828",
+      "killer_vehicle": "martin_139wc",
+      "victim_vehicle": "ussr_t_34_1941",
+      "time_seconds": 1066
+    },
+    {
+      "source_line": "17:53 Ribacio (ZiS-12 (94-KM)) destroyed 🎮 Zonney0007 (Marder III H)",
+      "killer_username": "Ribacio",
+      "victim_username": "Zonney0007",
+      "killer_vehicle": "ussr_zis_12_94KM_1945",
+      "victim_vehicle": "germ_pzkpfw_38t_Marder_III_ausf_H",
+      "time_seconds": 1073
+    },
+    {
+      "source_line": "18:20 Ribacio (ZiS-12 (94-KM)) shot down ➡ICoFI➡ 🎮 Evokekirby (Martin 139WC)",
+      "killer_username": "Ribacio",
+      "victim_username": "Evokekirby",
+      "killer_vehicle": "ussr_zis_12_94KM_1945",
+      "victim_vehicle": "martin_139wc",
+      "time_seconds": 1100
+    },
+    {
+      "source_line": "18:21 -CHILE- Perjuro (Pe-8) destroyed Ranol (Pbv 301)",
+      "killer_username": "Perjuro",
+      "victim_username": "Ranol",
+      "killer_vehicle": "pe-8_m82",
+      "victim_vehicle": "sw_pbv_301",
+      "time_seconds": 1101
+    },
+    {
+      "source_line": "18:21 -CHILE- Perjuro (Pe-8) destroyed *YHW* Metarou (⊙T-34)",
+      "killer_username": "Perjuro",
+      "victim_username": "Metarou",
+      "killer_vehicle": "pe-8_m82",
+      "victim_vehicle": "sw_t_34_1941",
+      "time_seconds": 1101
+    },
+    {
+      "source_line": "19:12 =Belka= 🎮 No-X1m- (A-36) destroyed Ranol (Pvkv II)",
+      "killer_username": "No-X1m-",
+      "victim_username": "Ranol",
+      "killer_vehicle": "p-51_a-36",
+      "victim_vehicle": "sw_pvkv_II",
+      "time_seconds": 1152
+    },
+    {
+      "source_line": "19:33 🎮 Toxic85828 (T-34) destroyed [DPA] 🎮 KlutzyObject6 (Sd.Kfz.234/2)",
+      "killer_username": "Toxic85828",
+      "victim_username": "KlutzyObject6",
+      "killer_vehicle": "ussr_t_34_1941_l_11",
+      "victim_vehicle": "germ_sdkfz_234_2",
+      "time_seconds": 1173
+    },
+    {
+      "source_line": "19:39 [BMD] 🎮 oliveshellhound (M24DK) destroyed Yogui78 (M16)",
+      "killer_username": "oliveshellhound",
+      "victim_username": "Yogui78",
+      "killer_vehicle": "sw_m24_chaffee_dk",
+      "victim_vehicle": "us_halftrack_m16",
+      "time_seconds": 1179
+    },
+    {
+      "source_line": "20:30 -BLGco- Siran2007YT (Dicker Max) destroyed marcosilvavil45 (M4A2)",
+      "killer_username": "Siran2007YT",
+      "victim_username": "marcosilvavil45",
+      "killer_vehicle": "germ_pzsfl_IVa_dickermax",
+      "victim_vehicle": "us_m4a2_sherman",
+      "time_seconds": 1230
+    },
+    {
+      "source_line": "20:50 🎮 Toxic85828 (T-34) destroyed [BMD] 🎮 oliveshellhound (M24DK)",
+      "killer_username": "Toxic85828",
+      "victim_username": "oliveshellhound",
+      "killer_vehicle": "ussr_t_34_1941_l_11",
+      "victim_vehicle": "sw_m24_chaffee_dk",
+      "time_seconds": 1250
+    },
+    {
+      "source_line": "20:55 =Belka= 🎮 No-X1m- (A-36) shot down [DPA] 🎮 KlutzyObject6 (He 111 H)",
+      "killer_username": "No-X1m-",
+      "victim_username": "KlutzyObject6",
+      "killer_vehicle": "p-51_a-36",
+      "victim_vehicle": "he-111h-6",
+      "time_seconds": 1255
+    },
+    {
+      "source_line": "20:55 Ranol (⊙Pz.IV) destroyed 🎮 Toxic85828 (T-34)",
+      "killer_username": "Ranol",
+      "victim_username": "Toxic85828",
+      "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "victim_vehicle": "ussr_t_34_1941_l_11",
+      "time_seconds": 1255
+    },
+    {
+      "source_line": "21:14 Ranol (⊙Pz.IV) destroyed -LVMH- FAN_Falcon (M4A3 (105))",
+      "killer_username": "Ranol",
+      "victim_username": "FAN_Falcon",
+      "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "victim_vehicle": "us_m4a3_105_sherman",
+      "time_seconds": 1274
+    },
+    {
+      "source_line": "21:20 bosco3202 (Ostwind) destroyed Ribacio (ZiS-12 (94-KM))",
+      "killer_username": "bosco3202",
+      "victim_username": "Ribacio",
+      "killer_vehicle": "germ_flakpanzer_IV_Ostwind",
+      "victim_vehicle": "ussr_zis_12_94KM_1945",
+      "time_seconds": 1280
+    },
+    {
+      "source_line": "21:21 Ranol (⊙Pz.IV) destroyed _06254039349256 (BTR-152A)",
+      "killer_username": "Ranol",
+      "victim_username": "_06254039349256",
+      "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "victim_vehicle": "ussr_btr_152a",
+      "time_seconds": 1281,
+      "time_matchable": false
+    },
+    {
+      "source_line": "22:05 *YHW* Metarou (J26) shot down -CHILE- Perjuro (Pe-8)",
+      "killer_username": "Metarou",
+      "victim_username": "Perjuro",
+      "killer_vehicle": "p-51d-20-na_j26",
+      "victim_vehicle": "pe-8_m82",
+      "time_seconds": 1325
+    },
+    {
+      "source_line": "22:37 -BLGco- Siran2007YT (Dicker Max) destroyed Ribacio (KV-1)",
+      "killer_username": "Siran2007YT",
+      "victim_username": "Ribacio",
+      "killer_vehicle": "germ_pzsfl_IVa_dickermax",
+      "victim_vehicle": null,
+      "time_seconds": 1357
+    },
+    {
+      "source_line": "22:47 Ranol (⊙Pz.IV) destroyed 🎮 Toxic85828 (T-34)",
+      "killer_username": "Ranol",
+      "victim_username": "Toxic85828",
+      "killer_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "victim_vehicle": "ussr_t_34_1941_l_11",
+      "time_seconds": 1367
+    }
+  ],
+  "awards": {
+    "xK1NGSH0TZx": [
+      "hidden_win_streak",
+      "hidden_kill_streak",
+      "hidden_kill1_on_tank_destroyer"
+    ],
+    "Zonney0007": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "global_avenge_friendly",
+      "marks_killed_plane_10_ranks_higher",
+      "marks_5_tanks"
+    ],
+    "Ranol": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "global_shadow_assassin",
+      "global_shadow_assassin",
+      "global_shadow_assassin",
+      "global_shadow_assassin",
+      "global_shadow_assassin",
+      "global_shadow_assassin",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "global_kills_without_death",
+      "global_kills_without_death",
+      "global_kills_without_death",
+      "global_avenge_friendly",
+      "global_avenge_friendly",
+      "global_avenge_friendly",
+      "global_avenge_self",
+      "global_avenge_self",
+      "global_base_defender",
+      "global_destroy_enemy_marked_by_ally",
+      "marks_killed_plane_10_ranks_higher",
+      "defender_bomber",
+      "heroic_tankman",
+      "final_blow",
+      "marks_5_tanks",
+      "marks_10_tanks"
+    ],
+    "Siran2007YT": [
+      "defender_tank",
+      "tank_marked_enemy_destroyed_by_ally"
+    ],
+    "HayHay9797": [
+      "hidden_win_streak"
+    ],
+    "obsidianwolf13": [
+      "defender_tank",
+      "tank_die_hard"
+    ],
+    "Pawin_Krittayamo": [
+      "defender_tank",
+      "global_avenge_friendly",
+      "global_avenge_self"
+    ],
+    "Metarou": [
+      "defender_tank",
+      "defender_tank",
+      "global_shadow_assassin",
+      "global_shadow_assassin",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "global_avenge_self",
+      "global_kills_without_death",
+      "global_destroy_enemy_marked_by_ally",
+      "marks_5_tanks"
+    ],
+    "bosco3202": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "global_avenge_friendly",
+      "global_avenge_friendly",
+      "global_avenge_self",
+      "global_avenge_self",
+      "global_shadow_assassin",
+      "global_destroy_enemy_marked_by_ally",
+      "marks_5_tanks"
+    ],
+    "oliveshellhound": [
+      "marks_killed_plane_10_ranks_higher",
+      "global_base_defender"
+    ],
+    "PinCushion45": [
+      "defender_tank",
+      "global_destroy_enemy_marked_by_ally",
+      "marks_landing_after_critical_hit"
+    ],
+    "Evokekirby": [
+      "defender_tank",
+      "global_shadow_assassin",
+      "global_avenge_self",
+      "row_air_assist",
+      "defender_fighter"
+    ],
+    "InDommWeTrust": [
+      "tank_die_hard"
+    ],
+    "Thorkell_83": [
+      "defender_tank",
+      "global_base_capturer"
+    ],
+    "b1 Val": [
+      "tank_die_hard"
+    ],
+    "KlutzyObject6": [
+      "heroic_wingman"
+    ],
+    "_06254039349256": [
+      "defender_tank",
+      "defender_tank",
+      "global_avenge_friendly",
+      "global_base_defender",
+      "global_destroy_enemy_marked_by_ally"
+    ],
+    "No-X1m-": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "global_avenge_friendly",
+      "global_avenge_friendly",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "global_avenge_self",
+      "global_kills_without_death",
+      "global_shadow_assassin",
+      "marks_killed_plane_10_ranks_higher",
+      "marks_5_tanks"
+    ],
+    "FAN_Falcon": [
+      "defender_tank",
+      "global_avenge_self",
+      "global_base_capturer"
+    ],
+    "XanDerJacK_guNna": [
+      "tank_die_hard"
+    ],
+    "Zam__": [
+      "global_avenge_self"
+    ],
+    "marcosilvavil45": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_ground"
+    ],
+    "HASBU___": [
+      "defender_tank",
+      "defender_tank"
+    ],
+    "alexEC": [
+      "tank_die_hard"
+    ],
+    "Sophia 87208673": [
+      "defender_tank",
+      "global_shadow_assassin",
+      "tank_marked_enemy_destroyed_by_ally"
+    ],
+    "StubblyStew310": [
+      "defender_tank"
+    ],
+    "Ribacio": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "global_avenge_friendly",
+      "global_avenge_friendly",
+      "global_base_capturer",
+      "defender_fighter"
+    ],
+    "Toxic85828": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "tank_kill_without_fail",
+      "tank_kill_without_fail",
+      "global_base_capturer",
+      "global_base_capturer",
+      "heroic_wingman",
+      "marks_5_tanks"
+    ],
+    "Perjuro": [
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "global_shadow_assassin",
+      "global_base_defender",
+      "defender_fighter",
+      "first_blood",
+      "marks_5_tanks",
+      "marks_10_tanks"
+    ]
+  },
+  "exact_award_counts": []
+}

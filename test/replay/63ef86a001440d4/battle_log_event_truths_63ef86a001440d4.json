@@ -1,0 +1,1341 @@
+{
+  "events": [
+    {
+      "source_line": "1:38 🎮 channdro (ASU-57) destroyed Starka228 (Marder III H)",
+      "killer_username": "channdro",
+      "victim_username": "Starka228",
+      "killer_vehicle": "ussr_asu_57",
+      "victim_vehicle": "germ_pzkpfw_38t_Marder_III_ausf_H",
+      "time_seconds": 98
+    },
+    {
+      "source_line": "1:45 [Vaygr] Trember (Pz.IV H) destroyed 🎮 LarryErkniq (M4A2)",
+      "killer_username": "Trember",
+      "victim_username": "LarryErkniq",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": "us_m4a2_sherman",
+      "time_seconds": 105
+    },
+    {
+      "source_line": "2:21 =IMPro= ooxxaa (SAV 20.12.48) destroyed .Rdh1.Bymemory (T-34)",
+      "killer_username": "ooxxaa",
+      "victim_username": "Bymemory",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_t_34_1941_cast_turret",
+      "time_seconds": 141
+    },
+    {
+      "source_line": "2:23 =TDGL= Pro_Gamer_20000 (SU-76M) destroyed =285AW= autumn1196 (☆M24)",
+      "killer_username": "Pro_Gamer_20000",
+      "victim_username": "autumn1196",
+      "killer_vehicle": "ussr_su_76m_1943",
+      "victim_vehicle": "jp_m24_chaffee",
+      "time_seconds": 143
+    },
+    {
+      "source_line": "2:24 =TROY= Лейтенант Ебонов (T14) destroyed i_Scorched (Marder III H)",
+      "killer_username": "Лейтенант Ебонов",
+      "victim_username": "i_Scorched",
+      "killer_vehicle": "us_t14",
+      "victim_vehicle": "germ_pzkpfw_38t_Marder_III_ausf_H",
+      "time_seconds": 144
+    },
+    {
+      "source_line": "2:30 MGrizzB (⊙M24) destroyed 🎮 Stampedinbuny420 (Pz.IV H)",
+      "killer_username": "MGrizzB",
+      "victim_username": "Stampedinbuny420",
+      "killer_vehicle": "it_m24_chaffee",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "time_seconds": 150
+    },
+    {
+      "source_line": "2:39 USS_Liberty_K1K3 (Pvkv m/43 (1946)) destroyed 🎮 DARKLORD574699 (M24)",
+      "killer_username": "USS_Liberty_K1K3",
+      "victim_username": "DARKLORD574699",
+      "killer_vehicle": "sw_pvkv_m43_1946",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 159
+    },
+    {
+      "source_line": "2:41 StealthCookie (M55) destroyed Laughing Hawk (ARL-44 (ACL-1))",
+      "killer_username": "StealthCookie",
+      "victim_username": "Laughing Hawk",
+      "killer_vehicle": "us_m55",
+      "victim_vehicle": "fr_arl_44_acl1",
+      "time_seconds": 161
+    },
+    {
+      "source_line": "2:51 =TROY= Лейтенант Ебонов (T14) destroyed ^UAOD^ ChasingRapture (Sherman VC)",
+      "killer_username": "Лейтенант Ебонов",
+      "victim_username": "ChasingRapture",
+      "killer_vehicle": "us_t14",
+      "victim_vehicle": "uk_sherman_vc_firefly",
+      "time_seconds": 171
+    },
+    {
+      "source_line": "3:19 🎮 Darkcart 8430 (M24) destroyed USS_Liberty_K1K3 (Pvkv m/43 (1946))",
+      "killer_username": "Darkcart 8430",
+      "victim_username": "USS_Liberty_K1K3",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "sw_pvkv_m43_1946",
+      "time_seconds": 199
+    },
+    {
+      "source_line": "3:45 =IMPro= ooxxaa (SAV 20.12.48) destroyed 🎮 LMEESH35 (M4)",
+      "killer_username": "ooxxaa",
+      "victim_username": "LMEESH35",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m4_sherman",
+      "time_seconds": 225
+    },
+    {
+      "source_line": "3:50 MGrizzB (⊙M24) destroyed =285AW= autumn1196 (Na-To)",
+      "killer_username": "MGrizzB",
+      "victim_username": "autumn1196",
+      "killer_vehicle": "it_m24_chaffee",
+      "victim_vehicle": "jp_type_5_na_to",
+      "time_seconds": 230
+    },
+    {
+      "source_line": "3:51 =IMPro= ooxxaa (SAV 20.12.48) destroyed 🎮 DARKLORD574699 (M4A3 (105))",
+      "killer_username": "ooxxaa",
+      "victim_username": "DARKLORD574699",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m4a3_105_sherman",
+      "time_seconds": 231
+    },
+    {
+      "source_line": "3:51 ql toxic lp (Sherman VC) destroyed ZaddyLongStyle (M10)",
+      "killer_username": "ql toxic lp",
+      "victim_username": "ZaddyLongStyle",
+      "killer_vehicle": "uk_sherman_vc_firefly",
+      "victim_vehicle": "us_m10",
+      "time_seconds": 231
+    },
+    {
+      "source_line": "4:00 =CNGDP= Late Noon (✸M24) destroyed 🎮 LarryErkniq (M4)",
+      "killer_username": "Late Noon",
+      "victim_username": "LarryErkniq",
+      "killer_vehicle": "cn_m24_chaffee",
+      "victim_vehicle": "us_m4_sherman",
+      "time_seconds": 240
+    },
+    {
+      "source_line": "4:03 =Vizzy= 🎮 C DESTROYER26 (M55) destroyed -4b0- Wiggle#6 (Churchill VII)",
+      "killer_username": "C DESTROYER26",
+      "victim_username": "Wiggle#6",
+      "killer_vehicle": "us_m55",
+      "victim_vehicle": "uk_a_22f_mk_7_churchill_1944",
+      "time_seconds": 243
+    },
+    {
+      "source_line": "4:07 USS_Liberty_K1K3 (Pvkv m/43 (1946)) destroyed =TDGL= Pro_Gamer_20000 (SU-76M)",
+      "killer_username": "USS_Liberty_K1K3",
+      "victim_username": "Pro_Gamer_20000",
+      "killer_vehicle": "sw_pvkv_m43_1946",
+      "victim_vehicle": "ussr_su_76m_1943",
+      "time_seconds": 247
+    },
+    {
+      "source_line": "4:08 =JPs3V= _SP23 (☆M24) destroyed 🎮 Darkcart 8430 (M24)",
+      "killer_username": "_SP23",
+      "victim_username": "Darkcart 8430",
+      "killer_vehicle": "jp_m24_chaffee",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 248
+    },
+    {
+      "source_line": "4:25 USS_Liberty_K1K3 (Pvkv m/43 (1946)) destroyed StealthCookie (M55)",
+      "killer_username": "USS_Liberty_K1K3",
+      "victim_username": "StealthCookie",
+      "killer_vehicle": "sw_pvkv_m43_1946",
+      "victim_vehicle": "us_m55",
+      "time_seconds": 265
+    },
+    {
+      "source_line": "4:38 [Vaygr] Trember (Pz.IV H) destroyed =Vizzy= 🎮 C DESTROYER26 (M55)",
+      "killer_username": "Trember",
+      "victim_username": "C DESTROYER26",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": "us_m55",
+      "time_seconds": 278
+    },
+    {
+      "source_line": "4:41 Ranol (⊙T-34) destroyed 🎮 channdro (ASU-57)",
+      "killer_username": "Ranol",
+      "victim_username": "channdro",
+      "killer_vehicle": "sw_t_34_1941",
+      "victim_vehicle": "ussr_asu_57",
+      "time_seconds": 281
+    },
+    {
+      "source_line": "4:45 MGrizzB (⊙M24) destroyed i_Scorched (Pz.IV H)",
+      "killer_username": "MGrizzB",
+      "victim_username": "i_Scorched",
+      "killer_vehicle": "it_m24_chaffee",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "time_seconds": 285
+    },
+    {
+      "source_line": "4:53 =TDGL= SCHNOOKUMSPRIME (M4A1) destroyed Ranol (⊙T-34)",
+      "killer_username": "SCHNOOKUMSPRIME",
+      "victim_username": "Ranol",
+      "killer_vehicle": "us_m4a1_1942_sherman",
+      "victim_vehicle": "sw_t_34_1941",
+      "time_seconds": 293
+    },
+    {
+      "source_line": "5:03 Laughing Hawk (⊙M4A1) destroyed =TDGL= SCHNOOKUMSPRIME (M4A1)",
+      "killer_username": "Laughing Hawk",
+      "victim_username": "SCHNOOKUMSPRIME",
+      "killer_vehicle": "fr_m4a1_sherman",
+      "victim_vehicle": "us_m4a1_1942_sherman",
+      "time_seconds": 303
+    },
+    {
+      "source_line": "5:04 ql toxic lp (Sherman VC) destroyed 🎮 DARKLORD574699 (M16)",
+      "killer_username": "ql toxic lp",
+      "victim_username": "DARKLORD574699",
+      "killer_vehicle": "uk_sherman_vc_firefly",
+      "victim_vehicle": "us_halftrack_m16",
+      "time_seconds": 304
+    },
+    {
+      "source_line": "5:10 Laughing Hawk (⊙M4A1) destroyed =TDGL= ExtremistMagpie (KV-2)",
+      "killer_username": "Laughing Hawk",
+      "victim_username": "ExtremistMagpie",
+      "killer_vehicle": "fr_m4a1_sherman",
+      "victim_vehicle": "ussr_kv_2_1939",
+      "time_seconds": 310
+    },
+    {
+      "source_line": "5:12 =CNGDP= Late Noon (✸M24) destroyed 🎮 LMEESH35 (M4A1)",
+      "killer_username": "Late Noon",
+      "victim_username": "LMEESH35",
+      "killer_vehicle": "cn_m24_chaffee",
+      "victim_vehicle": "us_m4a1_1942_sherman",
+      "time_seconds": 312
+    },
+    {
+      "source_line": "5:16 .Rdh1.Bymemory (T-34) destroyed Starka228 (Pz.IV H)",
+      "killer_username": "Bymemory",
+      "victim_username": "Starka228",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "time_seconds": 316
+    },
+    {
+      "source_line": "5:17 StealthCookie (M44) destroyed ql toxic lp (Sherman VC)",
+      "killer_username": "StealthCookie",
+      "victim_username": "ql toxic lp",
+      "killer_vehicle": "us_m44",
+      "victim_vehicle": "uk_sherman_vc_firefly",
+      "time_seconds": 317
+    },
+    {
+      "source_line": "5:23 .Rdh1.Bymemory (T-34) destroyed =IMPro= ooxxaa (SAV 20.12.48)",
+      "killer_username": "Bymemory",
+      "victim_username": "ooxxaa",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 323
+    },
+    {
+      "source_line": "5:38 [iCAT] ACCTGU 145 (T-34-57) destroyed =JPs3V= _SP23 (☆M24)",
+      "killer_username": "ACCTGU 145",
+      "victim_username": "_SP23",
+      "killer_vehicle": "ussr_t_34_1941_57",
+      "victim_vehicle": "jp_m24_chaffee",
+      "time_seconds": 338
+    },
+    {
+      "source_line": "5:38 ^UAOD^ ChasingRapture (Churchill NA75) destroyed MGrizzB (⊙M24)",
+      "killer_username": "ChasingRapture",
+      "victim_username": "MGrizzB",
+      "killer_vehicle": "uk_churchill_na75",
+      "victim_vehicle": "it_m24_chaffee",
+      "time_seconds": 338
+    },
+    {
+      "source_line": "5:45 🎮 channdro (★P-47D) destroyed -4b0- Wiggle#6 (Avenger)",
+      "killer_username": "channdro",
+      "victim_username": "Wiggle#6",
+      "killer_vehicle": "p-47d_ussr",
+      "victim_vehicle": "uk_a30_sp_avenger",
+      "time_seconds": 345
+    },
+    {
+      "source_line": "6:06 🎮 channdro (★P-47D) destroyed ^UAOD^ ChasingRapture (Churchill NA75)",
+      "killer_username": "channdro",
+      "victim_username": "ChasingRapture",
+      "killer_vehicle": "p-47d_ussr",
+      "victim_vehicle": "uk_churchill_na75",
+      "time_seconds": 366
+    },
+    {
+      "source_line": "6:06 🎮 channdro (★P-47D) destroyed Undertaker1134 (Crusader III)",
+      "killer_username": "channdro",
+      "victim_username": "Undertaker1134",
+      "killer_vehicle": "p-47d_ussr",
+      "victim_vehicle": "uk_crusader_mk_3",
+      "time_seconds": 366
+    },
+    {
+      "source_line": "6:18 =CNGDP= Late Noon (✸M24) destroyed =Vizzy= 🎮 C DESTROYER26 (M4A2)",
+      "killer_username": "Late Noon",
+      "victim_username": "C DESTROYER26",
+      "killer_vehicle": "cn_m24_chaffee",
+      "victim_vehicle": "us_m4a2_sherman",
+      "time_seconds": 378
+    },
+    {
+      "source_line": "6:21 =TDGL= ExtremistMagpie (I-185) destroyed Starka228 (Marder III H)",
+      "killer_username": "ExtremistMagpie",
+      "victim_username": "Starka228",
+      "killer_vehicle": "i_185_m82",
+      "victim_vehicle": "germ_pzkpfw_38t_Marder_III_ausf_H",
+      "time_seconds": 381
+    },
+    {
+      "source_line": "6:21 ZaddyLongStyle (M24) destroyed 🎮 Stampedinbuny420 (StuG III G)",
+      "killer_username": "ZaddyLongStyle",
+      "victim_username": "Stampedinbuny420",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "germ_stug_III_ausf_G",
+      "time_seconds": 381
+    },
+    {
+      "source_line": "6:26 =CNGDP= Late Noon (✸M24) destroyed [iCAT] ACCTGU 145 (T-34-57)",
+      "killer_username": "Late Noon",
+      "victim_username": "ACCTGU 145",
+      "killer_vehicle": "cn_m24_chaffee",
+      "victim_vehicle": "ussr_t_34_1941_57",
+      "time_seconds": 386
+    },
+    {
+      "source_line": "6:32 .Rdh1.Bymemory (T-34) destroyed =285AW= autumn1196 (☆M42)",
+      "killer_username": "Bymemory",
+      "victim_username": "autumn1196",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "jp_m42_duster",
+      "time_seconds": 392
+    },
+    {
+      "source_line": "6:35 🎮 channdro (★P-47D) destroyed ql toxic lp (Sherman VC)",
+      "killer_username": "channdro",
+      "victim_username": "ql toxic lp",
+      "killer_vehicle": "p-47d_ussr",
+      "victim_vehicle": "uk_sherman_vc_firefly",
+      "time_seconds": 395
+    },
+    {
+      "source_line": "6:40 =CNGDP= Late Noon (✸M24) destroyed 🎮 LMEESH35 (M3A1)",
+      "killer_username": "Late Noon",
+      "victim_username": "LMEESH35",
+      "killer_vehicle": "cn_m24_chaffee",
+      "victim_vehicle": "us_m3a1_stuart",
+      "time_seconds": 400
+    },
+    {
+      "source_line": "6:41 =TDGL= SCHNOOKUMSPRIME (P-400) destroyed =KPOHA= IBecameTheAmmo (Pz.IV H)",
+      "killer_username": "SCHNOOKUMSPRIME",
+      "victim_username": "IBecameTheAmmo",
+      "killer_vehicle": "p-400",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "time_seconds": 401
+    },
+    {
+      "source_line": "6:42 MGrizzB (🇨🇭Bf 109 F) destroyed -4b0- Wiggle#6 (Ystervark)",
+      "killer_username": "MGrizzB",
+      "victim_username": "Wiggle#6",
+      "killer_vehicle": "bf-109f-4_hungary",
+      "victim_vehicle": "uk_ystervark_spaa",
+      "time_seconds": 402
+    },
+    {
+      "source_line": "6:44 .Rdh1.Bymemory (T-34) destroyed USS_Liberty_K1K3 (Pvkv m/43 (1946))",
+      "killer_username": "Bymemory",
+      "victim_username": "USS_Liberty_K1K3",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "sw_pvkv_m43_1946",
+      "time_seconds": 404
+    },
+    {
+      "source_line": "7:04 MGrizzB (🇨🇭Bf 109 F) destroyed Laughing Hawk (⊙M4A1)",
+      "killer_username": "MGrizzB",
+      "victim_username": "Laughing Hawk",
+      "killer_vehicle": "bf-109f-4_hungary",
+      "victim_vehicle": "fr_m4a1_sherman",
+      "time_seconds": 424
+    },
+    {
+      "source_line": "7:04 =285AW= autumn1196 (☆M19A1) shot down =TDGL= ExtremistMagpie (I-185)",
+      "killer_username": "autumn1196",
+      "victim_username": "ExtremistMagpie",
+      "killer_vehicle": "jp_m19",
+      "victim_vehicle": "i_185_m82",
+      "time_seconds": 424
+    },
+    {
+      "source_line": "7:12 🎮 Darkcart 8430 (M4A2) destroyed i_Scorched (Pz.III M)",
+      "killer_username": "Darkcart 8430",
+      "victim_username": "i_Scorched",
+      "killer_vehicle": "us_m4a2_sherman",
+      "victim_vehicle": "germ_pzkpfw_III_ausf_M",
+      "time_seconds": 432
+    },
+    {
+      "source_line": "7:16 Ranol (SAV 20.12.48) destroyed 🎮 Darkcart 8430 (M4A2)",
+      "killer_username": "Ranol",
+      "victim_username": "Darkcart 8430",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m4a2_sherman",
+      "time_seconds": 436
+    },
+    {
+      "source_line": "7:18 .Rdh1.Bymemory (T-34) destroyed ql toxic lp (Achilles)",
+      "killer_username": "Bymemory",
+      "victim_username": "ql toxic lp",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "uk_17_pdr_m10_achilles",
+      "time_seconds": 438
+    },
+    {
+      "source_line": "7:20 MGrizzB (🇨🇭Bf 109 F) destroyed -4b0- Wiggle#6 (Ystervark)",
+      "killer_username": "MGrizzB",
+      "victim_username": "Wiggle#6",
+      "killer_vehicle": "bf-109f-4_hungary",
+      "victim_vehicle": "uk_ystervark_spaa",
+      "time_seconds": 440
+    },
+    {
+      "source_line": "7:24 Ranol (SAV 20.12.48) destroyed =TDGL= Pro_Gamer_20000 (T-50)",
+      "killer_username": "Ranol",
+      "victim_username": "Pro_Gamer_20000",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_t_50",
+      "time_seconds": 444
+    },
+    {
+      "source_line": "7:27 =285AW= autumn1196 (☆M19A1) shot down 🎮 channdro (★P-47D)",
+      "killer_username": "autumn1196",
+      "victim_username": "channdro",
+      "killer_vehicle": "jp_m19",
+      "victim_vehicle": "p-47d_ussr",
+      "time_seconds": 447
+    },
+    {
+      "source_line": "7:39 Ranol (SAV 20.12.48) destroyed 🎮 DARKLORD574699 (M16)",
+      "killer_username": "Ranol",
+      "victim_username": "DARKLORD574699",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_halftrack_m16",
+      "time_seconds": 459
+    },
+    {
+      "source_line": "7:52 Ranol (SAV 20.12.48) destroyed Jandamarra (ASU-57)",
+      "killer_username": "Ranol",
+      "victim_username": "Jandamarra",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "ussr_asu_57",
+      "time_seconds": 472
+    },
+    {
+      "source_line": "7:56 -4b0- Wiggle#6 (Sherman VC) shot down MGrizzB (🇨🇭Bf 109 F)",
+      "killer_username": "Wiggle#6",
+      "victim_username": "MGrizzB",
+      "killer_vehicle": "uk_sherman_vc_firefly",
+      "victim_vehicle": "bf-109f-4_hungary",
+      "time_seconds": 476
+    },
+    {
+      "source_line": "8:20 =JPs3V= _SP23 (Chi-To) destroyed =TDGL= Pro_Gamer_20000 (BT-7M)",
+      "killer_username": "_SP23",
+      "victim_username": "Pro_Gamer_20000",
+      "killer_vehicle": "jp_type_4_chi_to",
+      "victim_vehicle": "ussr_bt_7_m",
+      "time_seconds": 500
+    },
+    {
+      "source_line": "8:25 [Vaygr] Trember (Pz.IV H) destroyed StealthCookie (M44)",
+      "killer_username": "Trember",
+      "victim_username": "StealthCookie",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": "us_m44",
+      "time_seconds": 505
+    },
+    {
+      "source_line": "8:28 =Vizzy= 🎮 C DESTROYER26 (M4A2) destroyed =CNGDP= Late Noon (✸M24)",
+      "killer_username": "C DESTROYER26",
+      "victim_username": "Late Noon",
+      "killer_vehicle": "us_m4a2_sherman",
+      "victim_vehicle": "cn_m24_chaffee",
+      "time_seconds": 508
+    },
+    {
+      "source_line": "8:51 .Rdh1.Bymemory (T-34) destroyed Ranol (SAV 20.12.48)",
+      "killer_username": "Bymemory",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 531
+    },
+    {
+      "source_line": "8:58 MGrizzB (🇨🇭Bf 109 F) destroyed i_Scorched (Sd.Kfz.251/21)",
+      "killer_username": "MGrizzB",
+      "victim_username": "i_Scorched",
+      "killer_vehicle": "bf-109f-4_hungary",
+      "victim_vehicle": "germ_sdkfz_251_21",
+      "time_seconds": 538
+    },
+    {
+      "source_line": "9:07 .Rdh1.Bymemory (T-34) destroyed -4b0- Wiggle#6 (Sherman VC)",
+      "killer_username": "Bymemory",
+      "victim_username": "Wiggle#6",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "uk_sherman_vc_firefly",
+      "time_seconds": 547
+    },
+    {
+      "source_line": "9:15 Laughing Hawk (VTT DCA) shot down Jandamarra (Yak-3)",
+      "killer_username": "Laughing Hawk",
+      "victim_username": "Jandamarra",
+      "killer_vehicle": "fr_amx_vtt_dca",
+      "victim_vehicle": "yak-3",
+      "time_seconds": 555
+    },
+    {
+      "source_line": "9:19 .Rdh1.Bymemory (T-34) destroyed Undertaker1134 (Ystervark)",
+      "killer_username": "Bymemory",
+      "victim_username": "Undertaker1134",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "uk_ystervark_spaa",
+      "time_seconds": 559
+    },
+    {
+      "source_line": "9:29 .Rdh1.Bymemory (T-34) destroyed =JPs3V= _SP23 (Chi-To)",
+      "killer_username": "Bymemory",
+      "victim_username": "_SP23",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "jp_type_4_chi_to",
+      "time_seconds": 569
+    },
+    {
+      "source_line": "9:37 .Rdh1.Bymemory (T-34) destroyed =285AW= autumn1196 (☆M19A1)",
+      "killer_username": "Bymemory",
+      "victim_username": "autumn1196",
+      "killer_vehicle": "ussr_t_34_1941_cast_turret",
+      "victim_vehicle": "jp_m19",
+      "time_seconds": 577
+    },
+    {
+      "source_line": "9:44 [Vaygr] Trember (Pz.IV H) destroyed =Vizzy= 🎮 C DESTROYER26 (M4A2)",
+      "killer_username": "Trember",
+      "victim_username": "C DESTROYER26",
+      "killer_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "victim_vehicle": "us_m4a2_sherman",
+      "time_seconds": 584
+    },
+    {
+      "source_line": "9:49 MGrizzB (🇨🇭Bf 109 F) destroyed ^UAOD^ ChasingRapture (Crusader AA Mk II)",
+      "killer_username": "MGrizzB",
+      "victim_username": "ChasingRapture",
+      "killer_vehicle": "bf-109f-4_hungary",
+      "victim_vehicle": "uk_crusader_aa_mk_2",
+      "time_seconds": 589
+    },
+    {
+      "source_line": "10:05 MGrizzB (🇨🇭Bf 109 F) destroyed Laughing Hawk (VTT DCA)",
+      "killer_username": "MGrizzB",
+      "victim_username": "Laughing Hawk",
+      "killer_vehicle": "bf-109f-4_hungary",
+      "victim_vehicle": "fr_amx_vtt_dca",
+      "time_seconds": 605
+    },
+    {
+      "source_line": "10:23 ZaddyLongStyle (M24) destroyed Ranol (M24DK)",
+      "killer_username": "ZaddyLongStyle",
+      "victim_username": "Ranol",
+      "killer_vehicle": "us_m24_chaffee",
+      "victim_vehicle": "sw_m24_chaffee_dk",
+      "time_seconds": 623
+    },
+    {
+      "source_line": "10:32 🎮 channdro (KV-1E) destroyed [Vaygr] Trember (Pz.IV H)",
+      "killer_username": "channdro",
+      "victim_username": "Trember",
+      "killer_vehicle": "ussr_kv_1e",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_H",
+      "time_seconds": 632
+    },
+    {
+      "source_line": "10:43 Laughing Hawk (VTT DCA) shot down MGrizzB (🇨🇭Bf 109 F)",
+      "killer_username": "Laughing Hawk",
+      "victim_username": "MGrizzB",
+      "killer_vehicle": "fr_amx_vtt_dca",
+      "victim_vehicle": "bf-109f-4_hungary",
+      "time_seconds": 643
+    },
+    {
+      "source_line": "10:49 =CNGDP= Late Noon (✸M4A4 (1st PTG)) destroyed =TDGL= ExtremistMagpie (SMK)",
+      "killer_username": "Late Noon",
+      "victim_username": "ExtremistMagpie",
+      "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+      "victim_vehicle": "ussr_smk",
+      "time_seconds": 649
+    },
+    {
+      "source_line": "10:52 =285AW= autumn1196 (Ki-43) shot down [iCAT] ACCTGU 145 (Yak-9T)",
+      "killer_username": "autumn1196",
+      "victim_username": "ACCTGU 145",
+      "killer_vehicle": "ki_43_3_otsu",
+      "victim_vehicle": "yak-9t",
+      "time_seconds": 652
+    },
+    {
+      "source_line": "11:13 =KPOHA= IBecameTheAmmo (8,8 cm Flak 37 Sfl.) destroyed =Vizzy= 🎮 C DESTROYER26 (M55)",
+      "killer_username": "IBecameTheAmmo",
+      "victim_username": "C DESTROYER26",
+      "killer_vehicle": "germ_sdkfz_9_flak37",
+      "victim_vehicle": "us_m55",
+      "time_seconds": 673
+    },
+    {
+      "source_line": "11:26 Ranol (Pvkv II) destroyed 🎮 Darkcart 8430 (M10)",
+      "killer_username": "Ranol",
+      "victim_username": "Darkcart 8430",
+      "killer_vehicle": "sw_pvkv_II",
+      "victim_vehicle": "us_m10",
+      "time_seconds": 686
+    },
+    {
+      "source_line": "11:39 =TDGL= Pro_Gamer_20000 (T-34) destroyed Ranol (Pvkv II)",
+      "killer_username": "Pro_Gamer_20000",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_t_34_1941_l_11",
+      "victim_vehicle": "sw_pvkv_II",
+      "time_seconds": 699
+    },
+    {
+      "source_line": "11:44 StealthCookie (M55) destroyed [Vaygr] Trember (Pz.IV G)",
+      "killer_username": "StealthCookie",
+      "victim_username": "Trember",
+      "killer_vehicle": "us_m55",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_G",
+      "time_seconds": 704
+    },
+    {
+      "source_line": "11:56 =JPs3V= _SP23 (Chi-Nu) destroyed StealthCookie (M55)",
+      "killer_username": "_SP23",
+      "victim_username": "StealthCookie",
+      "killer_vehicle": "jp_type_3_chi_nu",
+      "victim_vehicle": "us_m55",
+      "time_seconds": 716
+    },
+    {
+      "source_line": "12:07 =KPOHA= IBecameTheAmmo (8,8 cm Flak 37 Sfl.) destroyed MGrizzB (M42)",
+      "killer_username": "IBecameTheAmmo",
+      "victim_username": "MGrizzB",
+      "killer_vehicle": "germ_sdkfz_9_flak37",
+      "victim_vehicle": "it_m15_42_contraereo",
+      "time_seconds": 727
+    },
+    {
+      "source_line": "12:12 🎮 channdro (KV-1E) destroyed ^UAOD^ ChasingRapture (Crusader AA Mk II)",
+      "killer_username": "channdro",
+      "victim_username": "ChasingRapture",
+      "killer_vehicle": "ussr_kv_1e",
+      "victim_vehicle": "uk_crusader_aa_mk_2",
+      "time_seconds": 732
+    },
+    {
+      "source_line": "12:19 =KPOHA= IBecameTheAmmo (8,8 cm Flak 37 Sfl.) destroyed =TDGL= Pro_Gamer_20000 (T-34)",
+      "killer_username": "IBecameTheAmmo",
+      "victim_username": "Pro_Gamer_20000",
+      "killer_vehicle": "germ_sdkfz_9_flak37",
+      "victim_vehicle": "ussr_t_34_1941_l_11",
+      "time_seconds": 739
+    },
+    {
+      "source_line": "12:20 =CNGDP= Late Noon (✸M4A4 (1st PTG)) destroyed .Rdh1.Bymemory (T-34)",
+      "killer_username": "Late Noon",
+      "victim_username": "Bymemory",
+      "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+      "victim_vehicle": "ussr_t_34_1941_cast_turret",
+      "time_seconds": 740
+    },
+    {
+      "source_line": "12:31 🎮 channdro (KV-1E) destroyed Ranol (⊙Pz.IV)",
+      "killer_username": "channdro",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_kv_1e",
+      "victim_vehicle": "sw_pzkpfw_IV_ausf_J",
+      "time_seconds": 751
+    },
+    {
+      "source_line": "12:39 =TDGL= ExtremistMagpie (ZiS-12 (94-KM)) destroyed [Vaygr] Trember (Pz.IV F2)",
+      "killer_username": "ExtremistMagpie",
+      "victim_username": "Trember",
+      "killer_vehicle": "ussr_zis_12_94KM_1945",
+      "victim_vehicle": "germ_pzkpfw_IV_ausf_F2",
+      "time_seconds": 759
+    },
+    {
+      "source_line": "12:49 =KPOHA= IBecameTheAmmo (8,8 cm Flak 37 Sfl.) destroyed =Vizzy= 🎮 C DESTROYER26 (T77E1)",
+      "killer_username": "IBecameTheAmmo",
+      "victim_username": "C DESTROYER26",
+      "killer_vehicle": "germ_sdkfz_9_flak37",
+      "victim_vehicle": "us_t77e1",
+      "time_seconds": 769
+    },
+    {
+      "source_line": "13:08 =JPs3V= _SP23 (Chi-Nu) destroyed =TDGL= SCHNOOKUMSPRIME (M24)",
+      "killer_username": "_SP23",
+      "victim_username": "SCHNOOKUMSPRIME",
+      "killer_vehicle": "jp_type_3_chi_nu",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 788
+    },
+    {
+      "source_line": "13:21 ^UAOD^ ChasingRapture (Concept 3) destroyed 🎮 channdro (KV-1E)",
+      "killer_username": "ChasingRapture",
+      "victim_username": "channdro",
+      "killer_vehicle": "uk_concept3_ngac",
+      "victim_vehicle": "ussr_kv_1e",
+      "time_seconds": 801
+    },
+    {
+      "source_line": "13:24 .Rdh1.Bymemory (La-5) destroyed Laughing Hawk (VTT DCA)",
+      "killer_username": "Bymemory",
+      "victim_username": "Laughing Hawk",
+      "killer_vehicle": "la-5fn",
+      "victim_vehicle": "fr_amx_vtt_dca",
+      "time_seconds": 804
+    },
+    {
+      "source_line": "13:26 =285AW= autumn1196 (Ki-43) shot down StealthCookie (P-51)",
+      "killer_username": "autumn1196",
+      "victim_username": "StealthCookie",
+      "killer_vehicle": "ki_43_3_otsu",
+      "victim_vehicle": "p-51_mk1a_usaaf",
+      "time_seconds": 806
+    },
+    {
+      "source_line": "13:27 Ranol (SAV 20.12.48) destroyed ZaddyLongStyle (M24)",
+      "killer_username": "Ranol",
+      "victim_username": "ZaddyLongStyle",
+      "killer_vehicle": "sw_sav_fm48",
+      "victim_vehicle": "us_m24_chaffee",
+      "time_seconds": 807
+    },
+    {
+      "source_line": "13:27 =KPOHA= IBecameTheAmmo (8,8 cm Flak 37 Sfl.) destroyed 🎮 Darkcart 8430 (M10)",
+      "killer_username": "IBecameTheAmmo",
+      "victim_username": "Darkcart 8430",
+      "killer_vehicle": "germ_sdkfz_9_flak37",
+      "victim_vehicle": "us_m10",
+      "time_seconds": 807
+    },
+    {
+      "source_line": "13:51 =CNGDP= Late Noon (✸M4A4 (1st PTG)) destroyed =TDGL= ExtremistMagpie (ZiS-12 (94-KM))",
+      "killer_username": "Late Noon",
+      "victim_username": "ExtremistMagpie",
+      "killer_vehicle": "cn_m4a4_sherman_1st_ptg",
+      "victim_vehicle": "ussr_zis_12_94KM_1945",
+      "time_seconds": 831
+    },
+    {
+      "source_line": "14:15 .Rdh1.Bymemory (La-5) destroyed =KPOHA= IBecameTheAmmo (8,8 cm Flak 37 Sfl.)",
+      "killer_username": "Bymemory",
+      "victim_username": "IBecameTheAmmo",
+      "killer_vehicle": "la-5fn",
+      "victim_vehicle": "germ_sdkfz_9_flak37",
+      "time_seconds": 855
+    },
+    {
+      "source_line": "14:24 🎮 channdro (★P-47D) destroyed Ranol (SAV 20.12.48)",
+      "killer_username": "channdro",
+      "victim_username": "Ranol",
+      "killer_vehicle": "p-47d_ussr",
+      "victim_vehicle": "sw_sav_fm48",
+      "time_seconds": 864
+    },
+    {
+      "source_line": "14:34 ZaddyLongStyle (M4A1) destroyed =JPs3V= _SP23 (Chi-Nu)",
+      "killer_username": "ZaddyLongStyle",
+      "victim_username": "_SP23",
+      "killer_vehicle": "us_m4a1_1942_sherman",
+      "victim_vehicle": "jp_type_3_chi_nu",
+      "time_seconds": 874
+    },
+    {
+      "source_line": "14:44 🎮 channdro (★P-47D) destroyed ^UAOD^ ChasingRapture (Concept 3)",
+      "killer_username": "channdro",
+      "victim_username": "ChasingRapture",
+      "killer_vehicle": "p-47d_ussr",
+      "victim_vehicle": "uk_concept3_ngac",
+      "time_seconds": 884
+    },
+    {
+      "source_line": "15:04 ^UAOD^ ChasingRapture (⊙M44) shot down 🎮 channdro (★P-47D)",
+      "killer_username": "ChasingRapture",
+      "victim_username": "channdro",
+      "killer_vehicle": "uk_m44",
+      "victim_vehicle": "p-47d_ussr",
+      "time_seconds": 904
+    },
+    {
+      "source_line": "15:06 Ranol (Pbv 301) shot down .Rdh1.Bymemory (La-5)",
+      "killer_username": "Ranol",
+      "victim_username": "Bymemory",
+      "killer_vehicle": "sw_pbv_301",
+      "victim_vehicle": "la-5fn",
+      "time_seconds": 906
+    }
+  ],
+  "awards": {
+    "LMEESH35": [
+      "tank_die_hard",
+      "hidden_all_streak",
+      "fr_volunteer_cross_streak",
+      "hidden_win_streak"
+    ],
+    "Trember": [
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_allDef_streak_1_tank",
+      "defender_tank",
+      "global_shadow_assassin",
+      "hidden_allDef_streak_2_tank",
+      "hidden_kill3_on_tank",
+      "hidden_kill3_streak",
+      "defender_tank",
+      "fr_volunteer_cross_streak",
+      "squad_assist",
+      "hidden_squad_streaks_1_stage",
+      "hidden_allsquad_streak"
+    ],
+    "MGrizzB": [
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "fr_volunteer_cross_streak",
+      "tank_marked_enemy_destroyed_by_ally",
+      "global_shadow_assassin",
+      "hidden_battlepass_season_22_challenge_7_kill3_without_death",
+      "hidden_kill3_on_tank",
+      "hidden_kill3_streak",
+      "hidden_kill1_on_fighter",
+      "defender_ground",
+      "global_destroy_enemy_marked_by_ally",
+      "marks_5_tanks",
+      "multi_kill_air",
+      "hidden_allMulty_streak",
+      "hidden_all_streak_tank",
+      "hidden_kill3_on_fighter",
+      "multi_kill_air",
+      "multi_kill_air",
+      "hidden_win_streak"
+    ],
+    "Pro_Gamer_20000": [
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "marks_killed_plane_10_ranks_higher",
+      "hidden_all_streak",
+      "squad_kill",
+      "hidden_squad_streaks_1_stage",
+      "hidden_allsquad_streak",
+      "squad_kill",
+      "hidden_squad_streaks_2_stage",
+      "fr_volunteer_cross_streak",
+      "tank_marked_enemy_destroyed_by_ally",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_win_streak",
+      "squad_best"
+    ],
+    "IBecameTheAmmo": [
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "defender_tank",
+      "global_shadow_assassin",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill3_on_tank_destroyer",
+      "hidden_kill3_streak",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "hidden_allMulty_streak",
+      "global_shadow_assassin",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "global_kills_without_death",
+      "global_shadow_assassin",
+      "marks_5_tanks",
+      "tank_kill_without_fail",
+      "hidden_all_streak_tank"
+    ],
+    "_SP23": [
+      "tank_marked_enemy_destroyed_by_ally",
+      "tank_marked_enemy_destroyed_by_ally",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "tank_marked_enemy_destroyed_by_ally",
+      "fr_volunteer_cross_streak",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_allDef_streak_2_tank",
+      "hidden_kill3_on_tank",
+      "hidden_kill3_streak",
+      "tank_kill_without_fail",
+      "fr_volunteer_cross_streak"
+    ],
+    "Лейтенант Ебонов": [
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_heavy_tank",
+      "hidden_kill_streak",
+      "global_destroy_enemy_marked_by_ally",
+      "multi_kill_air",
+      "hidden_allMulty_streak",
+      "hidden_win_streak"
+    ],
+    "autumn1196": [
+      "fr_volunteer_cross_streak",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill_streak",
+      "hidden_marks_1_aircraft",
+      "defender_tank",
+      "hidden_allDef_streak_2_tank",
+      "multi_kill_air",
+      "hidden_allMulty_streak",
+      "tank_die_hard",
+      "hidden_all_streak",
+      "hidden_kill1_on_fighter",
+      "hidden_kill3_streak",
+      "hidden_marks_3_fighters",
+      "fr_volunteer_cross_streak"
+    ],
+    "ZaddyLongStyle": [
+      "fr_volunteer_cross_streak",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "defender_tank",
+      "hidden_allDef_streak_2_tank",
+      "hidden_kill3_on_tank",
+      "hidden_kill3_streak",
+      "hidden_win_streak"
+    ],
+    "LarryErkniq": [
+      "tank_die_hard",
+      "hidden_all_streak",
+      "fr_volunteer_cross_streak",
+      "hidden_win_streak"
+    ],
+    "ACCTGU 145": [
+      "tank_die_hard",
+      "hidden_all_streak",
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "row_air_assist",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "heroic_wingman",
+      "hidden_allHeroic_streak",
+      "hidden_allHeroic_streak_air",
+      "hidden_allHeroic_streak_tank",
+      "hidden_allNearHeroic_streak",
+      "hidden_allNearHeroic_streak_air",
+      "hidden_allNearHeroic_streak_tank",
+      "hidden_win_streak"
+    ],
+    "Ranol": [
+      "hidden_base_capturer",
+      "tank_die_hard",
+      "hidden_all_streak",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_allDef_streak_2_tank",
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill3_streak",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "hidden_allMulty_streak",
+      "global_shadow_assassin",
+      "hidden_kill3_on_tank_destroyer",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "global_shadow_assassin",
+      "marks_5_tanks",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "hidden_all_streak_tank",
+      "global_base_capturer",
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "tank_kill_without_fail",
+      "fr_volunteer_cross_streak",
+      "defender_tank",
+      "tank_kill_without_fail",
+      "fr_volunteer_cross_streak",
+      "hidden_assist_streak",
+      "defender_tank",
+      "final_blow",
+      "hidden_all_streak_air",
+      "hidden_marks_1_aircraft"
+    ],
+    "StealthCookie": [
+      "global_destroy_enemy_marked_by_ally",
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_allDef_streak_2_tank",
+      "hidden_global_avenge_self_stage",
+      "hidden_kill3_on_tank_destroyer",
+      "hidden_kill3_streak",
+      "hidden_base_capturer",
+      "hidden_win_streak"
+    ],
+    "Wiggle#6": [
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "row_air_assist",
+      "squad_assist",
+      "squad_kill",
+      "hidden_squad_streaks_1_stage",
+      "hidden_squad_streaks_2_stage",
+      "hidden_allsquad_streak",
+      "fr_volunteer_cross_streak",
+      "hidden_assist_streak",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_allDef_streak_1_tank",
+      "hidden_global_avenge_self_stage",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "hidden_marks_1_aircraft"
+    ],
+    "ql toxic lp": [
+      "fr_volunteer_cross_streak",
+      "global_destroy_enemy_marked_by_ally",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank"
+    ],
+    "SCHNOOKUMSPRIME": [
+      "tank_help_with_repairing",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "hidden_base_capturer",
+      "hidden_kill1_on_fighter",
+      "fr_volunteer_cross_streak",
+      "hidden_win_streak",
+      "squad_best",
+      "hidden_allsquad_streak"
+    ],
+    "Jandamarra": [
+      "tank_help_with_repairing",
+      "hidden_base_capturer",
+      "global_base_capturer",
+      "hidden_win_streak"
+    ],
+    "channdro": [
+      "first_blood",
+      "hidden_all_streak",
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "fr_volunteer_cross_streak",
+      "tank_marked_enemy_destroyed_by_ally",
+      "tank_marked_enemy_destroyed_by_ally",
+      "hidden_kill1_on_fighter",
+      "defender_ground",
+      "global_avenge_friendly",
+      "global_destroy_enemy_marked_by_ally",
+      "global_shadow_assassin",
+      "hidden_kill3_on_fighter",
+      "hidden_kill3_streak",
+      "multi_kill_air",
+      "hidden_allMulty_streak",
+      "marks_5_tanks",
+      "multi_kill_air",
+      "hidden_all_streak_tank",
+      "fr_volunteer_cross_streak",
+      "hidden_base_capturer",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_heavy_tank",
+      "defender_tank",
+      "hidden_allDef_streak_2_tank",
+      "tank_die_hard",
+      "defender_tank",
+      "hidden_kill3_on_heavy_tank",
+      "multi_kill_air",
+      "fr_volunteer_cross_streak",
+      "defender_ground",
+      "global_base_defender",
+      "global_avenge_self",
+      "global_base_defender",
+      "hidden_global_avenge_self_stage",
+      "marks_10_tanks",
+      "multi_kill_air",
+      "hidden_win_streak"
+    ],
+    "Late Noon": [
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "global_destroy_enemy_marked_by_ally",
+      "hidden_kill3_on_tank",
+      "hidden_kill3_streak",
+      "tank_kill_without_fail",
+      "defender_tank",
+      "global_shadow_assassin",
+      "hidden_allDef_streak_2_tank",
+      "marks_killed_plane_10_ranks_higher",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "hidden_allMulty_streak",
+      "hidden_all_streak",
+      "defender_tank",
+      "global_kills_without_death",
+      "marks_5_tanks",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "hidden_all_streak_tank",
+      "squad_kill",
+      "hidden_squad_streaks_1_stage",
+      "hidden_allsquad_streak",
+      "tank_die_hard",
+      "defender_tank",
+      "defender_tank",
+      "defender_tank",
+      "squad_best"
+    ],
+    "ChasingRapture": [
+      "tank_die_hard",
+      "hidden_all_streak",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_heavy_tank",
+      "hidden_kill_streak",
+      "defender_tank",
+      "global_avenge_friendly",
+      "hidden_allDef_streak_2_tank",
+      "hidden_marks_1_aircraft",
+      "fr_volunteer_cross_streak",
+      "hidden_assist_streak",
+      "fr_volunteer_cross_streak",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_global_avenge_self_stage",
+      "hidden_kill1_on_tank",
+      "hidden_kill3_streak",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_multitasker_tank_1_kill"
+    ],
+    "USS_Liberty_K1K3": [
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "fr_volunteer_cross_streak",
+      "defender_tank",
+      "hidden_allDef_streak_1_tank",
+      "defender_tank",
+      "hidden_allDef_streak_2_tank",
+      "hidden_kill3_on_tank_destroyer",
+      "hidden_kill3_streak",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "hidden_allMulty_streak",
+      "fr_volunteer_cross_streak",
+      "fr_volunteer_cross_streak",
+      "row_air_assist",
+      "tank_die_hard",
+      "hidden_all_streak"
+    ],
+    "Laughing Hawk": [
+      "tank_die_hard",
+      "hidden_all_streak",
+      "fr_volunteer_cross_streak",
+      "defender_tank",
+      "global_avenge_friendly",
+      "global_destroy_enemy_marked_by_ally",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "multi_kill_air",
+      "hidden_allMulty_streak",
+      "fr_volunteer_cross_streak",
+      "hidden_assist_streak",
+      "defender_tank",
+      "hidden_allDef_streak_2_tank",
+      "hidden_kill3_streak",
+      "hidden_marks_1_aircraft",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_global_avenge_self_stage",
+      "squad_kill",
+      "hidden_squad_streaks_1_stage",
+      "hidden_allsquad_streak",
+      "squad_best",
+      "trophy_near_punisher",
+      "hidden_allNearHeroic_streak",
+      "hidden_allNearHeroic_streak_air",
+      "hidden_allNearHeroic_streak_tank"
+    ],
+    "Starka228": [
+      "tank_help_with_repairing"
+    ],
+    "ExtremistMagpie": [
+      "squad_kill",
+      "hidden_squad_streaks_1_stage",
+      "hidden_allsquad_streak",
+      "hidden_base_capturer",
+      "hidden_kill1_on_fighter",
+      "hidden_kill_streak",
+      "squad_kill",
+      "hidden_squad_streaks_2_stage",
+      "global_base_capturer",
+      "tank_die_hard",
+      "hidden_all_streak",
+      "fr_volunteer_cross_streak",
+      "hidden_win_streak",
+      "squad_best"
+    ],
+    "Bymemory": [
+      "tank_die_hard",
+      "hidden_all_streak",
+      "hidden_base_capturer",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_allDef_streak_1_tank",
+      "hidden_global_avenge_self_stage",
+      "multi_kill_air",
+      "hidden_allMulty_streak",
+      "global_shadow_assassin",
+      "hidden_kill3_on_tank",
+      "hidden_kill3_streak",
+      "defender_tank",
+      "hidden_allDef_streak_2_tank",
+      "multi_kill_air",
+      "global_kills_without_death",
+      "marks_5_tanks",
+      "hidden_all_streak_tank",
+      "defender_tank",
+      "global_kills_without_death",
+      "global_shadow_assassin",
+      "global_kills_without_death",
+      "global_shadow_assassin",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "global_kills_without_death",
+      "global_shadow_assassin",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "global_kills_without_death",
+      "global_shadow_assassin",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "global_kills_without_death",
+      "global_shadow_assassin",
+      "marks_10_tanks",
+      "multi_kill_air",
+      "hidden_kill1_on_fighter",
+      "defender_ground",
+      "fr_fighter_cross_streak",
+      "heroic_tankman",
+      "hidden_allHeroic_streak",
+      "hidden_allHeroic_streak_tank",
+      "hidden_allNearHeroic_streak",
+      "hidden_allNearHeroic_streak_tank",
+      "hidden_win_streak"
+    ],
+    "ooxxaa": [
+      "hidden_base_capturer",
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "global_destroy_enemy_marked_by_ally",
+      "global_shadow_assassin",
+      "hidden_kill3_on_tank_destroyer",
+      "hidden_kill3_streak",
+      "multi_kill_air",
+      "tank_kill_without_fail",
+      "hidden_allMulty_streak"
+    ],
+    "Undertaker1134": [
+      "tank_help_with_repairing",
+      "fr_volunteer_cross_streak",
+      "hidden_assist_streak"
+    ],
+    "DARKLORD574699": [
+      "hidden_win_streak"
+    ],
+    "i_Scorched": [
+      "defender_tank",
+      "global_avenge_friendly",
+      "global_avenge_self",
+      "hidden_allDef_streak_1_tank",
+      "hidden_global_avenge_self_stage",
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "marks_killed_plane_10_ranks_higher",
+      "hidden_all_streak"
+    ],
+    "C DESTROYER26": [
+      "hidden_kill1_on_tank_destroyer",
+      "hidden_kill_streak",
+      "tank_die_hard",
+      "hidden_all_streak",
+      "defender_tank",
+      "global_avenge_self",
+      "hidden_allDef_streak_1_tank",
+      "hidden_global_avenge_self_stage",
+      "hidden_kill1_on_tank",
+      "fr_volunteer_cross_streak",
+      "hidden_win_streak"
+    ],
+    "Darkcart 8430": [
+      "defender_tank",
+      "global_destroy_enemy_marked_by_ally",
+      "hidden_allDef_streak_1_tank",
+      "hidden_kill1_on_tank",
+      "hidden_kill_streak",
+      "global_base_defender",
+      "tank_die_hard",
+      "hidden_all_streak",
+      "hidden_win_streak"
+    ]
+  },
+  "exact_award_counts": []
+}
