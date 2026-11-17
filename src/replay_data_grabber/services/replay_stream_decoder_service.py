@@ -143,12 +143,17 @@ Parses the compressed binary rec_data stream embedded in .wrpl files to extract:
 """
 
 import bisect
+import io
 import logging
 import re
 import struct
 import zlib
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable, Optional
+
+import zstandard
+
+from .entity_ownership_decoder import EntityOwnership, decode_entity_ownership
 
 if TYPE_CHECKING:
     from src.common.services.vehicle_service import VehicleService
@@ -160,10 +165,14 @@ logger = logging.getLogger(__name__)
 # Constants
 # ---------------------------------------------------------------------------
 
-# Game-simulation tick frame delimiter.  Every structured event (kill, award,
-# late-spawn, physics) falls within a tick frame.  Each tick ≈ 100 ms at ~10 Hz.
+# Game-simulation tick frame delimiter. Every structured event (kill, award,
+# late-spawn, physics) falls within a tick frame. The preceding u32 stores
+# elapsed game time; observed frame intervals are usually around 80 ms.
 _TICK_MARKER = bytes([0x02, 0x58, 0x2D, 0xF0])
 _TICK_EVENT_SIZE: int = 22  # confirmed: 22 bytes fixed, start-to-start min gap
+_MAX_TICK_TIMESTAMP_STEP_MS: int = 2_000
+_TICK_TIMESTAMP_SEED_LENGTH: int = 3
+_TICK_TIMESTAMP_LOOKAHEAD: int = 16
 _KILL_MARKER = bytes([0x02, 0x58, 0x58, 0xF0])
 _AWARD_MARKER = bytes([0x02, 0x58, 0x78, 0xF0])
 _LATE_SPAWN_MARKER = bytes([0x02, 0x58, 0x56, 0xF0])
@@ -173,6 +182,8 @@ _AUX_AA_MARKER = bytes([0x02, 0x58, 0xAA, 0xF0])
 # Structure: [02 58 37 f0] [07 00 06] [eid_A u16 LE] [eid_B u16 LE] [6c ...]
 _INTERACTION_37_MARKER = bytes([0x02, 0x58, 0x37, 0xF0])
 _TANKMODELS_PREFIX = b"tankModels/"
+# Entity IDs below this boundary belong to aircraft; higher IDs are ground vehicles.
+_AIRCRAFT_EID_LIMIT: int = 512
 
 # Absolute maximum sane slot index (32-player lobbies have slots 0-31)
 _MAX_SLOT = 63
@@ -260,6 +271,7 @@ class _RawKillDetail:
     victim_slot: Optional[int]  # None if victim_entity_id could not be resolved
     victim_vehicle: Optional[str]  # None if victim_entity_id could not be resolved
     tick_idx: int = 0
+    victim_death_counted: bool = False
 
 
 @dataclass
@@ -278,7 +290,9 @@ class StreamDecodeResult:
     vehicle_kills: dict[int, dict[str, int]] = field(default_factory=dict)
     vehicle_deaths: dict[int, dict[str, int]] = field(default_factory=dict)
     awards: dict[int, list[str]] = field(default_factory=dict)
-    slot_vehicle_timeline: dict[int, list[tuple[int, str]]] = field(default_factory=dict)
+    slot_vehicle_timeline: dict[int, list[tuple[int, str]]] = field(
+        default_factory=dict
+    )
     kill_details: list[_RawKillDetail] = field(default_factory=list)
     # Per-tick game time in milliseconds from embedded stream timestamps.
     # Index matches tick_idx values in kill_details.  Empty when unavailable.
@@ -294,6 +308,8 @@ class _StreamParseState:
     state and append new events.  After ``_iterate_stream`` completes, the
     fully-populated state is handed to ``_build_result`` for final resolution.
     """
+
+    schema_strategy: _ReplaySchemaStrategy | None = None
 
     # Temporal skeleton — tick-frame offsets from ``_parse_tick_boundaries``
     tick_offsets: list[int] = field(default_factory=list)
@@ -322,6 +338,9 @@ class _StreamParseState:
     # gives every respawn EID the recorder used, including vehicles where
     # they never got a kill.  Stored as list[(offset, eid_a)].
     local_player_eid_sequence: list[tuple[int, int]] = field(default_factory=list)
+
+    # ECS UID -> time-ordered ownership records from entity construction packets.
+    ecs_uid_history: dict[int, list[EntityOwnership]] = field(default_factory=dict)
 
 
 class ReplayStreamDecoderService:
@@ -357,20 +376,21 @@ class ReplayStreamDecoderService:
         else:
             self._max_vehicle_path_len = self._DEFAULT_MAX_VEHICLE_PATH_LEN
 
-    # Maximum plausible game time in milliseconds (~21.7 minutes).
-    # Values outside (0, _MAX_VALID_GAME_TIME_MS) are treated as invalid
-    # and replaced by linear interpolation from neighbouring valid ticks.
-    _MAX_VALID_GAME_TIME_MS: int = 1_300_000
+    # Allow matches up to 30 minutes; longer values are treated as invalid.
+    # Values outside this range are treated as invalid; isolated timestamps
+    # that break the monotonic clock sequence are also interpolated.
+    _MAX_VALID_GAME_TIME_MS: int = 1_800_000
 
-    def _build_tick_game_times(self, stream_data: bytes, tick_offsets: list[int]) -> list[int]:
+    def _build_tick_game_times(
+        self, stream_data: bytes, tick_offsets: list[int]
+    ) -> list[int]:
         """
         Extract per-tick game timestamps (in ms) embedded before each tick marker.
 
         Each ``02 58 2D F0`` tick-frame marker is preceded by 4 bytes (u32 LE)
-        that encode the current game time in milliseconds.  Values outside the
-        range ``(0, _MAX_VALID_GAME_TIME_MS)`` are considered invalid and are
-        replaced by linear interpolation between the nearest valid neighbours
-        (or edge extrapolation for leading/trailing invalids).
+        that encode the current game time in milliseconds. Timestamp outliers
+        that break the monotonic sequence are interpolated between trusted
+        neighbours.
         """
         if not tick_offsets:
             return []
@@ -384,18 +404,62 @@ class ReplayStreamDecoderService:
             raw_times.append(val)
 
         valid = [0 < v < self._MAX_VALID_GAME_TIME_MS for v in raw_times]
+        seed_candidates: list[int] = []
+        for i, timestamp in enumerate(raw_times):
+            if not valid[i]:
+                continue
+
+            last_timestamp = timestamp
+            chain_length = 1
+            lookahead_end = min(len(raw_times), i + _TICK_TIMESTAMP_LOOKAHEAD + 1)
+            for next_timestamp in raw_times[i + 1 : lookahead_end]:
+                if (
+                    0 < next_timestamp < self._MAX_VALID_GAME_TIME_MS
+                    and 0
+                    < next_timestamp - last_timestamp
+                    <= _MAX_TICK_TIMESTAMP_STEP_MS
+                ):
+                    last_timestamp = next_timestamp
+                    chain_length += 1
+                    if chain_length >= _TICK_TIMESTAMP_SEED_LENGTH:
+                        seed_candidates.append(i)
+                        break
+
+        trusted = [False] * len(raw_times)
+        if seed_candidates:
+            seed_idx = min(seed_candidates, key=lambda i: raw_times[i])
+            last_timestamp: int | None = None
+            for i in range(seed_idx, len(raw_times)):
+                timestamp = raw_times[i]
+                if not valid[i]:
+                    continue
+                if (
+                    last_timestamp is None
+                    or 0 < timestamp - last_timestamp <= _MAX_TICK_TIMESTAMP_STEP_MS
+                ):
+                    trusted[i] = True
+                    last_timestamp = timestamp
+        else:
+            logger.debug(
+                "No coherent tick timestamp sequence found; interpolating from range-valid values"
+            )
+            trusted = valid
+
         result_times = list(raw_times)
         n = len(raw_times)
 
         for i in range(n):
-            if valid[i]:
+            if trusted[i]:
                 continue
-            # Find nearest valid neighbours
-            prev_idx = next((j for j in range(i - 1, -1, -1) if valid[j]), None)
-            next_idx = next((j for j in range(i + 1, n) if valid[j]), None)
+            # Find nearest trusted neighbours
+            prev_idx = next((j for j in range(i - 1, -1, -1) if trusted[j]), None)
+            next_idx = next((j for j in range(i + 1, n) if trusted[j]), None)
             if prev_idx is not None and next_idx is not None:
                 frac = (i - prev_idx) / (next_idx - prev_idx)
-                result_times[i] = int(raw_times[prev_idx] + frac * (raw_times[next_idx] - raw_times[prev_idx]))
+                result_times[i] = int(
+                    raw_times[prev_idx]
+                    + frac * (raw_times[next_idx] - raw_times[prev_idx])
+                )
             elif prev_idx is not None:
                 result_times[i] = raw_times[prev_idx]
             elif next_idx is not None:
@@ -411,6 +475,8 @@ class ReplayStreamDecoderService:
         *,
         slot_deaths: dict[int, int] | None = None,
         slot_vehicle_death_caps: dict[int, dict[str, int]] | None = None,
+        slot_air_kill_caps: dict[int, int] | None = None,
+        slot_kill_caps: dict[int, int] | None = None,
         slot_teams: dict[int, int] | None = None,
         slot_initial_vehicles: dict[int, str] | None = None,
     ) -> StreamDecodeResult:
@@ -423,6 +489,11 @@ class ReplayStreamDecoderService:
                          from the parsed BLK JSON.  When provided, EID death
                          attribution is capped per slot and timeline inference fills
                          any remaining gap.
+            slot_air_kill_caps: Optional mapping of slot index -> authoritative
+                         air-kill count from the parsed BLK JSON. Extra aircraft
+                         events are ignored when they exceed that count.
+            slot_kill_caps: Optional mapping of slot index -> authoritative total
+                         kill count, including team and AI kills.
             slot_teams:  Optional mapping of slot index -> team number (1 or 2)
                          from the parsed BLK JSON.  When provided, cross-team
                          checks in victim EID inference use authoritative team
@@ -436,15 +507,24 @@ class ReplayStreamDecoderService:
             StreamDecodeResult with vehicle_kills, vehicle_deaths, awards.
         """
         try:
-            stream_data = self._decompress_stream(raw)
+            stream_data, codec_strategy = self._decompress_stream_with_schema(raw)
         except Exception as exc:
             logger.warning(f"Failed to decompress rec_data stream: {exc}")
             return StreamDecodeResult()
 
+        event_layout = _detect_replay_schema_from_stream(stream_data)
+        logger.debug(
+            "Selected %s kill-event layout for %s codec replay",
+            event_layout.name,
+            codec_strategy.name.split("/", 1)[0],
+        )
         return self.decode_stream(
             stream_data,
+            schema_strategy=event_layout,
             slot_deaths=slot_deaths,
             slot_vehicle_death_caps=slot_vehicle_death_caps,
+            slot_air_kill_caps=slot_air_kill_caps,
+            slot_kill_caps=slot_kill_caps,
             slot_teams=slot_teams,
             slot_initial_vehicles=slot_initial_vehicles,
         )
@@ -455,8 +535,11 @@ class ReplayStreamDecoderService:
         *,
         slot_deaths: dict[int, int] | None = None,
         slot_vehicle_death_caps: dict[int, dict[str, int]] | None = None,
+        slot_air_kill_caps: dict[int, int] | None = None,
+        slot_kill_caps: dict[int, int] | None = None,
         slot_teams: dict[int, int] | None = None,
         slot_initial_vehicles: dict[int, str] | None = None,
+        schema_strategy: _ReplaySchemaStrategy | None = None,
     ) -> StreamDecodeResult:
         """
         Decode events directly from already-decompressed stream bytes.
@@ -471,9 +554,9 @@ class ReplayStreamDecoderService:
              dispatches each 02 58 XX f0 event to a typed handler that appends to
              a shared ``_StreamParseState``.  Adding support for a new event type
              is a matter of registering one handler in ``_EVENT_HANDLERS``.
-          4. EID resolution & build — builds ``eid_history`` from accumulated
-             kill / late-spawn events, runs physics-gap spawn inference, then
-             constructs the final ``StreamDecodeResult``.
+          4. EID resolution & build — reads ECS ownership records, builds
+             ``eid_history`` from accumulated kill / late-spawn events, runs
+             physics-gap spawn inference, then constructs the final result.
 
         Args:
             stream_data: Decompressed rec_data stream bytes.
@@ -481,6 +564,11 @@ class ReplayStreamDecoderService:
                          from the parsed BLK JSON.  When provided, EID death
                          attribution is capped per slot and timeline inference fills
                          any remaining gap.
+            slot_air_kill_caps: Optional mapping of slot index -> authoritative
+                         air-kill count from the parsed BLK JSON. Extra aircraft
+                         events are ignored when they exceed that count.
+            slot_kill_caps: Optional mapping of slot index -> authoritative total
+                         kill count, including team and AI kills.
             slot_teams:  Optional mapping of slot index -> team number (1 or 2)
                          from the parsed BLK JSON.  When provided, cross-team
                          checks in victim EID inference use authoritative team
@@ -489,6 +577,9 @@ class ReplayStreamDecoderService:
         Returns:
             StreamDecodeResult with vehicle_kills, vehicle_deaths, awards.
         """
+        if schema_strategy is None:
+            schema_strategy = _detect_replay_schema_from_stream(stream_data)
+
         # Phase 1: tick boundaries (stream's temporal skeleton)
         tick_offsets = self._parse_tick_boundaries(stream_data)
 
@@ -499,7 +590,9 @@ class ReplayStreamDecoderService:
         # explicit player tags (t1_playerNN_0 / t2_playerNN_0). These are used
         # only as additive evidence and are ignored when they duplicate nearby
         # tankModels activations for the same slot/vehicle.
-        aa_vehicle_events = self._parse_aa_player_tag_vehicle_events(stream_data, tick_offsets)
+        aa_vehicle_events = self._parse_aa_player_tag_vehicle_events(
+            stream_data, tick_offsets
+        )
         if aa_vehicle_events:
             by_slot: dict[int, list[_TankModelsEvent]] = {}
             for tm in vehicle_activation_events:
@@ -526,10 +619,15 @@ class ReplayStreamDecoderService:
             vehicle_activation_events.sort(key=lambda e: e.offset)
 
         # Phase 3: single-pass tick iteration
-        state = _StreamParseState(tick_offsets=tick_offsets, vehicle_activation_events=vehicle_activation_events)
+        state = _StreamParseState(
+            schema_strategy=schema_strategy,
+            tick_offsets=tick_offsets,
+            vehicle_activation_events=vehicle_activation_events,
+        )
         self._iterate_stream(stream_data, state)
         # Use full-stream physics scan (covers events before the first tick marker)
         state.physics_eid_offsets = self._index_physics_eid_offsets(stream_data)
+        state.ecs_uid_history = decode_entity_ownership(stream_data)
 
         logger.debug(
             "Stream parse: %d kills, %d awards, %d late-spawn events, %d timeline events, %d unique physics EIDs",
@@ -545,10 +643,14 @@ class ReplayStreamDecoderService:
             state,
             slot_deaths=slot_deaths,
             slot_vehicle_death_caps=slot_vehicle_death_caps,
+            slot_air_kill_caps=slot_air_kill_caps,
+            slot_kill_caps=slot_kill_caps,
             slot_teams=slot_teams,
             slot_initial_vehicles=slot_initial_vehicles,
         )
-        result.tick_game_times = self._build_tick_game_times(stream_data, state.tick_offsets)
+        result.tick_game_times = self._build_tick_game_times(
+            stream_data, state.tick_offsets
+        )
         return result
 
     # ------------------------------------------------------------------
@@ -586,7 +688,8 @@ class ReplayStreamDecoderService:
 
         # Resolve handler names to bound methods once before the loop
         handlers: dict[int, Callable[[bytes, int, int, _StreamParseState], None]] = {
-            type_byte: getattr(self, method_name) for type_byte, method_name in self._EVENT_HANDLERS.items()
+            type_byte: getattr(self, method_name)
+            for type_byte, method_name in self._EVENT_HANDLERS.items()
         }
 
         for tick_idx in range(num_ticks):
@@ -595,7 +698,11 @@ class ReplayStreamDecoderService:
 
             pos = tick_start + _TICK_EVENT_SIZE  # skip the 22-byte tick marker itself
             while pos < tick_end - 3:
-                if stream_data[pos] == 0x02 and stream_data[pos + 1] == 0x58 and stream_data[pos + 3] == 0xF0:
+                if (
+                    stream_data[pos] == 0x02
+                    and stream_data[pos + 1] == 0x58
+                    and stream_data[pos + 3] == 0xF0
+                ):
                     handler = handlers.get(stream_data[pos + 2])
                     if handler is not None:
                         handler(stream_data, pos, tick_idx, state)
@@ -603,29 +710,53 @@ class ReplayStreamDecoderService:
                 else:
                     pos += 1
 
-    def _handle_kill_event(self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState) -> None:
+    def _handle_kill_event(
+        self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState
+    ) -> None:
         """Parse and accumulate a kill event (02 58 58 f0)."""
         N = len(stream_data)
-        if offset + 13 > N:
+        schema_strategy = state.schema_strategy
+        if schema_strategy is None:
             return
-        if stream_data[offset + 5] != 0x00 or stream_data[offset + 6] != 0xFE or stream_data[offset + 7] != 0x3F:
+
+        prefix_start = offset + 5
+        if (
+            prefix_start + len(schema_strategy.kill_event_prefix) > N
+            or stream_data[
+                prefix_start : prefix_start + len(schema_strategy.kill_event_prefix)
+            ]
+            != schema_strategy.kill_event_prefix
+        ):
             return
-        player_slot = struct.unpack("<I", stream_data[offset + 8 : offset + 12])[0]
+
+        slot_start = prefix_start + len(schema_strategy.kill_event_prefix)
+        if slot_start + 5 > N:
+            return
+        player_slot = struct.unpack_from("<I", stream_data, slot_start)[0]
         if player_slot > _MAX_SLOT:
             return
-        vehicle_name_length = stream_data[offset + 12]
+        vehicle_length_offset = slot_start + 4
+        vehicle_name_length = stream_data[vehicle_length_offset]
         if vehicle_name_length < 1 or vehicle_name_length > 64:
             return
-        vehicle_name_end = offset + 13 + vehicle_name_length
+        vehicle_name_start = vehicle_length_offset + 1
+        vehicle_name_end = vehicle_name_start + vehicle_name_length
         if vehicle_name_end + 8 > N:
             return
-        vehicle_name_bytes = stream_data[offset + 13 : vehicle_name_end]
+        vehicle_name_bytes = stream_data[vehicle_name_start:vehicle_name_end]
         if not all(32 <= b < 127 for b in vehicle_name_bytes):
             return
         vehicle_name = vehicle_name_bytes.decode("ascii")
-        victim_entity_id = struct.unpack("<H", stream_data[vehicle_name_end : vehicle_name_end + 2])[0]
-        killer_entity_id = struct.unpack("<H", stream_data[vehicle_name_end + 2 : vehicle_name_end + 4])[0]
-        if stream_data[vehicle_name_end + 4 : vehicle_name_end + 8] != b"\xff\xff\xff\xff":
+        victim_entity_id = struct.unpack(
+            "<H", stream_data[vehicle_name_end : vehicle_name_end + 2]
+        )[0]
+        killer_entity_id = struct.unpack(
+            "<H", stream_data[vehicle_name_end + 2 : vehicle_name_end + 4]
+        )[0]
+        if (
+            stream_data[vehicle_name_end + 4 : vehicle_name_end + 8]
+            != b"\xff\xff\xff\xff"
+        ):
             return
         state.kill_events.append(
             _KillEvent(
@@ -638,7 +769,9 @@ class ReplayStreamDecoderService:
             )
         )
 
-    def _handle_award_event(self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState) -> None:
+    def _handle_award_event(
+        self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState
+    ) -> None:
         """Parse and accumulate an award event (02 58 78 f0)."""
         N = len(stream_data)
         if offset + 12 > N:
@@ -660,7 +793,11 @@ class ReplayStreamDecoderService:
         name_bytes = stream_data[offset + 12 : name_bytes_end]
         if not all(32 <= b < 127 for b in name_bytes):
             return
-        state.award_events.append(_AwardEvent(offset=offset, slot=player_slot, award_name=name_bytes.decode("ascii")))
+        state.award_events.append(
+            _AwardEvent(
+                offset=offset, slot=player_slot, award_name=name_bytes.decode("ascii")
+            )
+        )
 
     def _handle_late_spawn_event(
         self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState
@@ -693,7 +830,9 @@ class ReplayStreamDecoderService:
             )
         )
 
-    def _handle_physics73_event(self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState) -> None:
+    def _handle_physics73_event(
+        self, stream_data: bytes, offset: int, tick_idx: int, state: _StreamParseState
+    ) -> None:
         """Index a physics73 event (02 58 73 f0) by EID for spawn inference."""
         if offset + 6 <= len(stream_data):
             eid = struct.unpack_from("<H", stream_data, offset + 4)[0]
@@ -722,7 +861,10 @@ class ReplayStreamDecoderService:
             state.interaction_eid_offsets.setdefault(eid_b, []).append(offset)
 
         # Track local-player EID changes (eid_a is the recorder's entity)
-        if not state.local_player_eid_sequence or state.local_player_eid_sequence[-1][1] != eid_a:
+        if (
+            not state.local_player_eid_sequence
+            or state.local_player_eid_sequence[-1][1] != eid_a
+        ):
             state.local_player_eid_sequence.append((offset, eid_a))
 
     # ------------------------------------------------------------------
@@ -735,6 +877,8 @@ class ReplayStreamDecoderService:
         *,
         slot_deaths: dict[int, int] | None = None,
         slot_vehicle_death_caps: dict[int, dict[str, int]] | None = None,
+        slot_air_kill_caps: dict[int, int] | None = None,
+        slot_kill_caps: dict[int, int] | None = None,
         slot_teams: dict[int, int] | None = None,
         slot_initial_vehicles: dict[int, str] | None = None,
     ) -> StreamDecodeResult:
@@ -755,6 +899,58 @@ class ReplayStreamDecoderService:
         """
         result = StreamDecodeResult()
 
+        if slot_air_kill_caps is not None or slot_kill_caps is not None:
+            accepted_events: list[_KillEvent] = []
+            accepted_air_counts: dict[int, int] = {}
+            accepted_kill_counts: dict[int, int] = {}
+            dropped_air_counts: dict[int, int] = {}
+            dropped_kill_counts: dict[int, int] = {}
+            for event in state.kill_events:
+                air_cap = (
+                    slot_air_kill_caps.get(event.slot)
+                    if slot_air_kill_caps is not None
+                    else None
+                )
+                accepted = accepted_air_counts.get(event.slot, 0)
+                is_aircraft = event.victim_entity_id < 512
+                if is_aircraft and air_cap is not None and accepted >= air_cap:
+                    dropped_air_counts[event.slot] = (
+                        dropped_air_counts.get(event.slot, 0) + 1
+                    )
+                    continue
+
+                kill_cap = (
+                    slot_kill_caps.get(event.slot)
+                    if slot_kill_caps is not None
+                    else None
+                )
+                accepted_kills = accepted_kill_counts.get(event.slot, 0)
+                if kill_cap is not None and accepted_kills >= kill_cap:
+                    dropped_kill_counts[event.slot] = (
+                        dropped_kill_counts.get(event.slot, 0) + 1
+                    )
+                    continue
+                accepted_events.append(event)
+                accepted_kill_counts[event.slot] = accepted_kills + 1
+                if is_aircraft and air_cap is not None:
+                    accepted_air_counts[event.slot] = accepted + 1
+
+            for slot, dropped in dropped_air_counts.items():
+                logger.warning(
+                    "Ignoring %d aircraft kill event(s) for slot %d beyond authoritative BLK air-kill total %d",
+                    dropped,
+                    slot,
+                    slot_air_kill_caps[slot],
+                )
+            for slot, dropped in dropped_kill_counts.items():
+                logger.warning(
+                    "Ignoring %d kill event(s) for slot %d beyond authoritative BLK total kill count %d",
+                    dropped,
+                    slot,
+                    slot_kill_caps[slot],
+                )
+            state.kill_events = accepted_events
+
         # --- Vehicle kills ---
         for event in state.kill_events:
             slot_dict = result.vehicle_kills.setdefault(event.slot, {})
@@ -766,7 +962,9 @@ class ReplayStreamDecoderService:
 
         # --- Vehicle timeline (from tankModels events) ---
         for event in state.vehicle_activation_events:
-            result.slot_vehicle_timeline.setdefault(event.slot, []).append((event.offset, event.vehicle_name))
+            result.slot_vehicle_timeline.setdefault(event.slot, []).append(
+                (event.offset, event.vehicle_name)
+            )
         for slot in result.slot_vehicle_timeline:
             result.slot_vehicle_timeline[slot].sort(key=lambda x: x[0])
 
@@ -778,11 +976,15 @@ class ReplayStreamDecoderService:
         # Only applies to slots that have deaths and zero tankModels entries.
         if slot_deaths:
             slots_needing_supplement = {
-                s for s in slot_deaths if s not in result.slot_vehicle_timeline and slot_deaths[s] > 0
+                s
+                for s in slot_deaths
+                if s not in result.slot_vehicle_timeline and slot_deaths[s] > 0
             }
             for event in state.kill_events:
                 if event.slot in slots_needing_supplement:
-                    result.slot_vehicle_timeline.setdefault(event.slot, []).append((event.offset, event.vehicle_name))
+                    result.slot_vehicle_timeline.setdefault(event.slot, []).append(
+                        (event.offset, event.vehicle_name)
+                    )
             for slot in slots_needing_supplement:
                 if slot in result.slot_vehicle_timeline:
                     result.slot_vehicle_timeline[slot].sort(key=lambda x: x[0])
@@ -795,12 +997,48 @@ class ReplayStreamDecoderService:
         late_spawn_offsets_by_eid: dict[int, set[int]] = {}
 
         for event in state.kill_events:
-            eid_history.setdefault(event.killer_entity_id, []).append((event.offset, event.slot, event.vehicle_name))
+            eid_history.setdefault(event.killer_entity_id, []).append(
+                (event.offset, event.slot, event.vehicle_name)
+            )
+        from src.common.enums.vehicle_type import VehicleType
+
+        air_vehicle_types = {
+            VehicleType.FIGHTER,
+            VehicleType.BOMBER,
+            VehicleType.STRIKE_AIRCRAFT,
+            VehicleType.ATTACK_HELICOPTER,
+            VehicleType.UTILITY_HELICOPTER,
+        }
+
+        def _matches_eid_vehicle_type(entity_id: int, vehicle_name: str) -> bool:
+            if self._vehicle_service is None:
+                return True
+            vehicle = self._vehicle_service.get_vehicles_by_internal_name(vehicle_name)
+            if vehicle is None:
+                return True
+            is_air = vehicle.vehicle_type in air_vehicle_types
+            return (entity_id < _AIRCRAFT_EID_LIMIT) == is_air
+
+        valid_late_spawns = []
         for spawn_event in state.late_spawn_events:
+            if not _matches_eid_vehicle_type(
+                spawn_event.entity_id, spawn_event.vehicle_name
+            ):
+                logger.warning(
+                    "Ignoring late-spawn attribution with mismatched entity type: EID %d, slot %d, vehicle %s",
+                    spawn_event.entity_id,
+                    spawn_event.slot,
+                    spawn_event.vehicle_name,
+                )
+                continue
+            valid_late_spawns.append(spawn_event)
             eid_history.setdefault(spawn_event.entity_id, []).append(
                 (spawn_event.offset, spawn_event.slot, spawn_event.vehicle_name)
             )
-            late_spawn_offsets_by_eid.setdefault(spawn_event.entity_id, set()).add(spawn_event.offset)
+            late_spawn_offsets_by_eid.setdefault(spawn_event.entity_id, set()).add(
+                spawn_event.offset
+            )
+        state.late_spawn_events = valid_late_spawns
         for entries in eid_history.values():
             entries.sort(key=lambda x: x[0])
 
@@ -813,7 +1051,10 @@ class ReplayStreamDecoderService:
             state.tick_offsets,
         )
         if new_inferences:
-            logger.debug("Physics-inferred spawn attributions: %d new EID mappings", new_inferences)
+            logger.debug(
+                "Physics-inferred spawn attributions: %d new EID mappings",
+                new_inferences,
+            )
             for entries in eid_history.values():
                 if len(entries) > 1:
                     entries.sort(key=lambda x: x[0])
@@ -830,7 +1071,9 @@ class ReplayStreamDecoderService:
             first_tick_offset=state.tick_offsets[0] if state.tick_offsets else 0,
         )
         if new_initial:
-            logger.debug("Initial-spawn EID inferences: %d new EID mappings", new_initial)
+            logger.debug(
+                "Initial-spawn EID inferences: %d new EID mappings", new_initial
+            )
 
         # --- Local-player respawn EID inference (Method 6b) ---
         # The 025837f0 interaction events encode the recorder's current EID as
@@ -845,7 +1088,9 @@ class ReplayStreamDecoderService:
             state.kill_events,
         )
         if new_local:
-            logger.debug("Local-player respawn EID inferences: %d new EID mappings", new_local)
+            logger.debug(
+                "Local-player respawn EID inferences: %d new EID mappings", new_local
+            )
 
         # --- Dead-window TM activation inference (Method 7, multi-pass) ---
         # For victim EIDs with physics73 events, the entity was spawned (TM
@@ -875,7 +1120,10 @@ class ReplayStreamDecoderService:
         # Remove EIDs that were eventually resolved in later passes
         m7_ambiguous_eids -= set(eid_history.keys())
         if total_deadwindow:
-            logger.debug("Dead-window TM inferences: %d new EID mappings (multi-pass)", total_deadwindow)
+            logger.debug(
+                "Dead-window TM inferences: %d new EID mappings (multi-pass)",
+                total_deadwindow,
+            )
 
         # --- TM-transition death matching (Method 8) ---
         # For each slot where BLK deaths > EID-resolved deaths, walk the TM
@@ -903,10 +1151,21 @@ class ReplayStreamDecoderService:
             late_spawn_events=state.late_spawn_events,
         )
         if new_tm_death:
-            logger.debug("TM-transition death inferences: %d new EID mappings", new_tm_death)
+            logger.debug(
+                "TM-transition death inferences: %d new EID mappings", new_tm_death
+            )
 
-        def _lookup_eid(eid: int, at_offset: int) -> "tuple[int, str] | None":
+        def _lookup_eid(eid: int, at_offset: int) -> "tuple[int, str | None] | None":
             """Return (slot, vehicle_name) for the EID as of *at_offset*, or None."""
+            ecs_entries = state.ecs_uid_history.get(eid & 0x7FF)
+            if ecs_entries:
+                for entry in reversed(ecs_entries):
+                    if entry.offset <= at_offset:
+                        vehicle_name = entry.vehicle_name or _active_vehicle_for_slot(
+                            entry.player_id, at_offset
+                        )
+                        return entry.player_id, vehicle_name
+
             entries = eid_history.get(eid)
             if not entries:
                 return None
@@ -1009,7 +1268,9 @@ class ReplayStreamDecoderService:
             for slot, _timeline in result.slot_vehicle_timeline.items():
                 if slot == event.slot:
                     continue
-                if slot_teams is not None and slot_teams.get(slot) == slot_teams.get(event.slot):
+                if slot_teams is not None and slot_teams.get(slot) == slot_teams.get(
+                    event.slot
+                ):
                     continue
 
                 active_vehicle = _active_vehicle_for_slot(slot, event.offset)
@@ -1062,14 +1323,19 @@ class ReplayStreamDecoderService:
                         continue
                 slot_dict = result.vehicle_deaths.setdefault(victim_slot, {})
                 slot_dict[victim_vehicle] = slot_dict.get(victim_vehicle, 0) + 1
-                slot_death_counts[victim_slot] = slot_death_counts.get(victim_slot, 0) + 1
+                slot_death_counts[victim_slot] = (
+                    slot_death_counts.get(victim_slot, 0) + 1
+                )
                 resolved_count += 1
 
                 kd = result.kill_details[idx]
                 kd.victim_slot = victim_slot
                 kd.victim_vehicle = victim_vehicle
+                kd.victim_death_counted = True
             else:
-                fallback_slot, fallback_vehicle = _fallback_interaction_only_victim(event, slot_death_counts)
+                fallback_slot, fallback_vehicle = _fallback_interaction_only_victim(
+                    event, slot_death_counts
+                )
                 if fallback_slot is None or fallback_vehicle is None:
                     unresolved_count += 1
                     continue
@@ -1082,15 +1348,22 @@ class ReplayStreamDecoderService:
 
                 slot_dict = result.vehicle_deaths.setdefault(fallback_slot, {})
                 slot_dict[fallback_vehicle] = slot_dict.get(fallback_vehicle, 0) + 1
-                slot_death_counts[fallback_slot] = slot_death_counts.get(fallback_slot, 0) + 1
+                slot_death_counts[fallback_slot] = (
+                    slot_death_counts.get(fallback_slot, 0) + 1
+                )
                 resolved_count += 1
 
                 # Backfill per-event kill detail for this fallback attribution.
                 kd = result.kill_details[idx]
                 kd.victim_slot = fallback_slot
                 kd.victim_vehicle = fallback_vehicle
+                kd.victim_death_counted = True
 
-        logger.debug("Death attribution: %d resolved, %d unresolvable/filtered", resolved_count, unresolved_count)
+        logger.debug(
+            "Death attribution: %d resolved, %d unresolvable/filtered",
+            resolved_count,
+            unresolved_count,
+        )
 
         # --- Timeline-based death inference ---
         # For slots where EID attribution didn't cover all BLK deaths, use the
@@ -1123,7 +1396,9 @@ class ReplayStreamDecoderService:
                 if len(ordered_vehicles) == 1:
                     vehicle_name = ordered_vehicles[0]
                     slot_dict = result.vehicle_deaths.setdefault(slot, {})
-                    slot_dict[vehicle_name] = slot_dict.get(vehicle_name, 0) + remaining_deaths
+                    slot_dict[vehicle_name] = (
+                        slot_dict.get(vehicle_name, 0) + remaining_deaths
+                    )
                     continue
 
                 for i in range(len(ordered_vehicles) - 1):
@@ -1131,7 +1406,9 @@ class ReplayStreamDecoderService:
                         break
                     vehicle_name = ordered_vehicles[i]
                     if eid_credits.get(vehicle_name, 0) > 0:
-                        eid_credits[vehicle_name] -= 1  # consume EID credit; death already counted
+                        eid_credits[
+                            vehicle_name
+                        ] -= 1  # consume EID credit; death already counted
                     else:
                         slot_dict = result.vehicle_deaths.setdefault(slot, {})
                         slot_dict[vehicle_name] = slot_dict.get(vehicle_name, 0) + 1
@@ -1140,7 +1417,9 @@ class ReplayStreamDecoderService:
                 if remaining_deaths > 0:
                     final_vehicle = ordered_vehicles[-1]
                     slot_dict = result.vehicle_deaths.setdefault(slot, {})
-                    slot_dict[final_vehicle] = slot_dict.get(final_vehicle, 0) + remaining_deaths
+                    slot_dict[final_vehicle] = (
+                        slot_dict.get(final_vehicle, 0) + remaining_deaths
+                    )
 
         return result
 
@@ -1150,27 +1429,50 @@ class ReplayStreamDecoderService:
 
     @staticmethod
     def _decompress_stream(raw: bytes) -> bytes:
-        """
-        Extract and decompress the rec_data stream from raw .wrpl bytes.
+        """Extract and decompress rec_data using its detected replay schema."""
+        stream_data, _ = ReplayStreamDecoderService._decompress_stream_with_schema(raw)
+        return stream_data
 
-        Offsets determined empirically:
-          684-688  results_offset     (u32 LE) — start of the results BLK section
-          748-752  stream_header_size (u32 LE) — size of the stream header block
-          1224+stream_header_size  start of zlib-compressed data (skip first 2 bytes = zlib header)
+    @staticmethod
+    def _decompress_stream_with_schema(
+        raw: bytes,
+    ) -> tuple[bytes, _ReplaySchemaStrategy]:
+        """
+        Detect the rec_data codec from its frame signature and return its schema.
         """
         if len(raw) < 752:
             raise ValueError("Replay too short to contain stream offsets")
         stream_header_size = struct.unpack("<I", raw[748:752])[0]
         results_offset = struct.unpack("<I", raw[684:688])[0]
+        if results_offset <= 0 or results_offset > len(raw):
+            raise ValueError(f"Invalid replay results offset: {results_offset}")
         compressed_start = 1224 + stream_header_size
-        compressed_start = ReplayStreamDecoderService._find_compressed_stream_start(
-            raw, compressed_start, results_offset
-        )
-        compressed_data = raw[compressed_start:results_offset]
-        return zlib.decompress(compressed_data)
+        errors: list[Exception] = []
+        for schema_strategy in _REPLAY_SCHEMA_STRATEGIES:
+            try:
+                compressed_start = schema_strategy.find_stream_start(
+                    raw, compressed_start, results_offset
+                )
+                stream_data = schema_strategy.decompress(
+                    raw[compressed_start:results_offset]
+                )
+                logger.debug(
+                    "Decoded replay rec_data with %s codec",
+                    schema_strategy.name.split("/", 1)[0],
+                )
+                return stream_data, schema_strategy
+            except (ValueError, zlib.error, zstandard.ZstdError) as exc:
+                errors.append(exc)
+
+        version = struct.unpack_from("<I", raw, 4)[0]
+        raise ValueError(
+            f"No supported rec_data schema found for replay version {version}"
+        ) from errors[-1]
 
     @staticmethod
-    def _find_compressed_stream_start(raw: bytes, start_offset: int, results_offset: int) -> int:
+    def _find_compressed_stream_start(
+        raw: bytes, start_offset: int, results_offset: int
+    ) -> int:
         """
         Locate the zlib-compressed rec_data stream start within the replay data.
 
@@ -1194,19 +1496,33 @@ class ReplayStreamDecoderService:
 
         raise ValueError("Could not locate zlib compressed stream in replay data")
 
+    @staticmethod
+    def _find_zstandard_stream_start(
+        raw: bytes, start_offset: int, results_offset: int
+    ) -> int:
+        """Locate the zstd-compressed rec_data stream after its versioned header."""
+        if start_offset >= results_offset:
+            raise ValueError("Replay stream header offset is invalid")
+
+        frame_magic = b"\x28\xb5\x2f\xfd"
+        max_scan = min(results_offset, start_offset + 128)
+        offset = raw.find(frame_magic, start_offset, max_scan)
+        if offset < 0:
+            raise ValueError(
+                "Could not locate Zstandard compressed stream in replay data"
+            )
+        return offset
+
     # ------------------------------------------------------------------
     # Event parsers
     # ------------------------------------------------------------------
 
     def _parse_tick_boundaries(self, stream_data: bytes) -> list[int]:
         """
-        Return the sorted stream offsets of all 02582df0 tick-frame markers.
+        Return offsets of all 02582df0 marker candidates.
 
-        The stream is organised as a sequence of ~10 Hz simulation tick frames,
-        each delimited by a 22-byte ``02582df0`` event.  Every structured event
-        (kill, award, late-spawn, physics update) falls inside a tick frame.
-        Using tick indices instead of raw byte offsets gives semantically
-        meaningful proximity measurements for spawn correlation.
+        Marker collisions are retained because event parsing uses byte offsets;
+        timestamp outliers are handled separately by ``_build_tick_game_times``.
         """
         offsets: list[int] = []
         pos = 0
@@ -1270,7 +1586,9 @@ class ReplayStreamDecoderService:
             return 0
 
         tm_sorted_offsets = [tm.offset for tm in vehicle_activation_events]
-        tm_by_offset: dict[int, _TankModelsEvent] = {tm.offset: tm for tm in vehicle_activation_events}
+        tm_by_offset: dict[int, _TankModelsEvent] = {
+            tm.offset: tm for tm in vehicle_activation_events
+        }
 
         def tick_of(offset: int) -> int:
             return bisect.bisect_right(tick_offsets, offset) - 1
@@ -1297,7 +1615,10 @@ class ReplayStreamDecoderService:
             # Find the LAST gap > _PHYSICS_INCARNATION_TICKS (strictly greater)
             last_boundary: int | None = None
             for i in range(len(before_kill) - 1, 0, -1):
-                if tick_of(before_kill[i]) - tick_of(before_kill[i - 1]) > _PHYSICS_INCARNATION_TICKS:
+                if (
+                    tick_of(before_kill[i]) - tick_of(before_kill[i - 1])
+                    > _PHYSICS_INCARNATION_TICKS
+                ):
                     last_boundary = before_kill[i]
                     break
             if last_boundary is None:
@@ -1332,7 +1653,9 @@ class ReplayStreamDecoderService:
             if nearest_tm.slot == kill_event.slot:
                 continue
 
-            eid_history[victim_eid] = [(spawn_offset, nearest_tm.slot, nearest_tm.vehicle_name)]
+            eid_history[victim_eid] = [
+                (spawn_offset, nearest_tm.slot, nearest_tm.vehicle_name)
+            ]
             added += 1
             logger.debug(
                 "Physics-inferred attribution: EID %d → slot %d %r (spawn tick=%d)",
@@ -1384,11 +1707,8 @@ class ReplayStreamDecoderService:
               used; otherwise falls back to a heuristic (slots 0-15 = team 1,
               16-31 = team 2).  Players do not kill teammates in RB.
 
-        Additionally, if VehicleService is available and the killer vehicle type
-        can be determined:
-          (g) If the killer is a ground non-AA vehicle (Tank Destroyer, etc.),
-              aircraft candidates are excluded (they would not appear as ground
-              kill targets).
+        When vehicle metadata is available, candidate type must match the
+        victim EID range (EIDs below 512 identify aircraft).
 
         Attribution is only made when exactly one candidate slot satisfies all
         constraints — ties are left unresolved to avoid false positives.
@@ -1402,12 +1722,16 @@ class ReplayStreamDecoderService:
         could not disambiguate).
         """
         if not vehicle_activation_events:
-            return 0
+            return 0, set()
 
         from src.common.enums.vehicle_type import VehicleType
 
-        _AIR_TYPES = frozenset({VehicleType.FIGHTER, VehicleType.BOMBER, VehicleType.STRIKE_AIRCRAFT})
-        _HELI_TYPES = frozenset({VehicleType.ATTACK_HELICOPTER, VehicleType.UTILITY_HELICOPTER})
+        _AIR_TYPES = frozenset(
+            {VehicleType.FIGHTER, VehicleType.BOMBER, VehicleType.STRIKE_AIRCRAFT}
+        )
+        _HELI_TYPES = frozenset(
+            {VehicleType.ATTACK_HELICOPTER, VehicleType.UTILITY_HELICOPTER}
+        )
 
         def tick_of(offset: int) -> int:
             return bisect.bisect_right(tick_offsets, offset) - 1
@@ -1461,7 +1785,10 @@ class ReplayStreamDecoderService:
                 ia_offsets = interaction_eid_offsets.get(victim_eid, [])
                 for ia_off in ia_offsets:
                     ia_tick = tick_of(ia_off)
-                    if last_phys_tick < ia_tick < kill_tick and ia_tick > last_activity_tick:
+                    if (
+                        last_phys_tick < ia_tick < kill_tick
+                        and ia_tick > last_activity_tick
+                    ):
                         last_activity_tick = ia_tick
 
             # Skip EIDs already attributed in a prior pass of Method 7:
@@ -1554,7 +1881,9 @@ class ReplayStreamDecoderService:
                     continue
 
                 # Find TMs for this slot strictly inside the dead window
-                window_tms = [tm for tm in tms if last_phys_tick < tick_of(tm.offset) < kill_tick]
+                window_tms = [
+                    tm for tm in tms if last_phys_tick < tick_of(tm.offset) < kill_tick
+                ]
                 if not window_tms:
                     continue  # (a) no TM in dead window
 
@@ -1567,11 +1896,18 @@ class ReplayStreamDecoderService:
                 # spawning TM must have fired BEFORE that activity.  A TM that
                 # fires after the entity was already observed active cannot be
                 # the spawn that produced this entity.
-                if last_activity_tick > last_phys_tick and latest_window_tick > last_activity_tick:
+                if (
+                    last_activity_tick > last_phys_tick
+                    and latest_window_tick > last_activity_tick
+                ):
                     continue
 
                 # (b) no TM for this slot between latest_window_tm and kill_tick
-                subsequent = [tm for tm in tms if latest_window_tick < tick_of(tm.offset) < kill_tick]
+                subsequent = [
+                    tm
+                    for tm in tms
+                    if latest_window_tick < tick_of(tm.offset) < kill_tick
+                ]
                 if subsequent:
                     continue  # vehicle changed before kill — not this spawn
 
@@ -1590,14 +1926,14 @@ class ReplayStreamDecoderService:
                 if death_tick_per_slot.get(slot, -1) <= last_phys_tick:
                     continue
 
-                # (h/k) The victim EID has physics73 events — physics73 tracks
-                # ground entities while aircraft use physics74.  Exclude
-                # aircraft/helicopter candidates since a ground entity cannot
-                # belong to an airborne spawn.  (Subsumes the former
-                # killer-based ground-non-AA filter which was a weaker check.)
+                # Match the victim EID range to the active vehicle class.
                 cand_vtype = _get_vtype(vname)
-                if cand_vtype in _AIR_TYPES or cand_vtype in _HELI_TYPES:
-                    continue
+                if cand_vtype is not None:
+                    candidate_is_air = (
+                        cand_vtype in _AIR_TYPES or cand_vtype in _HELI_TYPES
+                    )
+                    if (victim_eid < _AIRCRAFT_EID_LIMIT) != candidate_is_air:
+                        continue
 
                 # (i) TM-after-death: the TM event must come AFTER the slot's last
                 # confirmed death (proving it's a respawn, not an ongoing life).
@@ -1628,7 +1964,9 @@ class ReplayStreamDecoderService:
                 with_respawn: list[tuple[int, str, int]] = []
                 for s, v, o in cands:
                     tms_for_s = slot_tms.get(s, [])
-                    next_tms = [tm for tm in tms_for_s if tick_of(tm.offset) > kill_tick]
+                    next_tms = [
+                        tm for tm in tms_for_s if tick_of(tm.offset) > kill_tick
+                    ]
                     if next_tms:
                         first_next_tick = tick_of(next_tms[0].offset)
                         if first_next_tick - kill_tick <= _RESPAWN_MAX_TICKS:
@@ -1655,7 +1993,8 @@ class ReplayStreamDecoderService:
                 existing.sort(key=lambda x: x[0])
             added += 1
             logger.debug(
-                "Dead-window EID inferred: EID %d \u2192 slot %d %r " "(dead_window ticks %d\u2013%d)",
+                "Dead-window EID inferred: EID %d \u2192 slot %d %r "
+                "(dead_window ticks %d\u2013%d)",
                 victim_eid,
                 inferred_slot,
                 inferred_vehicle,
@@ -1705,8 +2044,12 @@ class ReplayStreamDecoderService:
 
         from src.common.enums.vehicle_type import VehicleType
 
-        _AIR_TYPES = frozenset({VehicleType.FIGHTER, VehicleType.BOMBER, VehicleType.STRIKE_AIRCRAFT})
-        _HELI_TYPES = frozenset({VehicleType.ATTACK_HELICOPTER, VehicleType.UTILITY_HELICOPTER})
+        _AIR_TYPES = frozenset(
+            {VehicleType.FIGHTER, VehicleType.BOMBER, VehicleType.STRIKE_AIRCRAFT}
+        )
+        _HELI_TYPES = frozenset(
+            {VehicleType.ATTACK_HELICOPTER, VehicleType.UTILITY_HELICOPTER}
+        )
         _GROUND_NON_AA = frozenset(
             {
                 VehicleType.LIGHT_TANK,
@@ -1724,9 +2067,12 @@ class ReplayStreamDecoderService:
                 return None
             return v.vehicle_type
 
-        def _is_air(vehicle_name: str) -> bool:
-            vt = _get_vtype(vehicle_name)
-            return vt in _AIR_TYPES or vt in _HELI_TYPES
+        def _matches_victim_eid_type(event: _KillEvent, vehicle_name: str) -> bool:
+            vehicle_type = _get_vtype(vehicle_name)
+            if vehicle_type is None:
+                return True
+            vehicle_is_air = vehicle_type in _AIR_TYPES or vehicle_type in _HELI_TYPES
+            return (event.victim_entity_id < _AIRCRAFT_EID_LIMIT) == vehicle_is_air
 
         def _is_ground_non_aa(vehicle_name: str) -> bool:
             return _get_vtype(vehicle_name) in _GROUND_NON_AA
@@ -1762,7 +2108,9 @@ class ReplayStreamDecoderService:
             victim_slot, victim_vehicle = best_entry
             if victim_slot == _INVALID_SLOT or victim_slot == ev.slot:
                 continue
-            resolved_deaths_by_slot.setdefault(victim_slot, []).append((victim_vehicle, ev.tick_idx))
+            resolved_deaths_by_slot.setdefault(victim_slot, []).append(
+                (victim_vehicle, ev.tick_idx)
+            )
 
         slot_resolved_counts: dict[int, int] = {}
         for slot, deaths in resolved_deaths_by_slot.items():
@@ -1793,10 +2141,26 @@ class ReplayStreamDecoderService:
         # are NOT filtered here — they participate in the greedy assignment
         # to preserve the correct cascade order.  Instead, M8's claims for
         # M7-ambiguous EIDs are stripped out AFTER the greedy pass.
+        def _eid_resolves_before_offset(ev: _KillEvent) -> "tuple[int, str] | None":
+            entries = eid_history.get(ev.victim_entity_id)
+            if not entries:
+                return None
+            result_entry: "tuple[int, str] | None" = None
+            for offset, slot, vehicle in entries:
+                if offset < ev.offset:
+                    result_entry = (slot, vehicle)
+                else:
+                    break
+            return result_entry
+
         _m7_skip = m7_ambiguous_eids or set()
         unresolved_kills: list[_KillEvent] = []
         for ev in kill_events:
             if ev.victim_entity_id not in eid_history:
+                unresolved_kills.append(ev)
+                continue
+            resolved = _eid_resolves_before_offset(ev)
+            if resolved is None or resolved[0] == ev.slot:
                 unresolved_kills.append(ev)
         unresolved_kills.sort(key=lambda e: e.tick_idx)
 
@@ -1842,7 +2206,9 @@ class ReplayStreamDecoderService:
         # slot/vehicle are marked consumed.  They are still allowed to propose,
         # but can be de-prioritized when competing for the same EID.
         _CONSUMED_WINDOW_MIN_SPAN: int = 1000
-        consumed_transition_windows: set[tuple[int, int]] = set()  # (slot, tm_offset_curr)
+        consumed_transition_windows: set[tuple[int, int]] = (
+            set()
+        )  # (slot, tm_offset_curr)
         for slot_cw, timeline_cw in slot_vehicle_timeline.items():
             if slot_cw not in slot_budget or len(timeline_cw) < 2:
                 continue
@@ -1857,7 +2223,8 @@ class ReplayStreamDecoderService:
                 if tick_next_cw - tick_curr_cw < _CONSUMED_WINDOW_MIN_SPAN:
                     continue
                 if any(
-                    veh_res == vehicle_curr_cw and tick_curr_cw < tick_res <= tick_next_cw
+                    veh_res == vehicle_curr_cw
+                    and tick_curr_cw < tick_res <= tick_next_cw
                     for veh_res, tick_res in resolved_cw
                 ):
                     consumed_transition_windows.add((slot_cw, tm_offset_curr_cw))
@@ -1871,7 +2238,9 @@ class ReplayStreamDecoderService:
         late_spawn_by_slot_veh: dict[tuple[int, str], list[int]] = {}
         if late_spawn_events:
             for ls in late_spawn_events:
-                late_spawn_by_slot_veh.setdefault((ls.slot, ls.vehicle_name), []).append(tick_of(ls.offset))
+                late_spawn_by_slot_veh.setdefault(
+                    (ls.slot, ls.vehicle_name), []
+                ).append(tick_of(ls.offset))
 
         # === Pass 1: Transition-window proposals ===
         # _TransProposal: (window_span, dist_to_end, eid, slot, vehicle, tm_offset, is_loop2)
@@ -1897,7 +2266,9 @@ class ReplayStreamDecoderService:
                 tick_curr = tick_of(tm_offset_curr)
                 tick_next = tick_of(tm_offset_next)
                 window_span = tick_next - tick_curr
-                is_consumed_window = 1 if (slot, tm_offset_curr) in consumed_transition_windows else 0
+                is_consumed_window = (
+                    1 if (slot, tm_offset_curr) in consumed_transition_windows else 0
+                )
 
                 # Find the best candidate for this window: closest to end.
                 best_ev: _KillEvent | None = None
@@ -1911,7 +2282,7 @@ class ReplayStreamDecoderService:
                         continue
                     if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot):
                         continue
-                    if _is_air(vehicle_curr) and _is_ground_non_aa(ev.vehicle_name):
+                    if not _matches_victim_eid_type(ev, vehicle_curr):
                         continue
                     # Skip if a late-spawn for (slot, vehicle_curr) occurs within
                     # the window AFTER this candidate's kill tick.  That means the
@@ -1919,7 +2290,8 @@ class ReplayStreamDecoderService:
                     # so the candidate is a different entity — not this slot's death.
                     ls_ticks = late_spawn_by_slot_veh.get((slot, vehicle_curr))
                     if ls_ticks and any(
-                        tick_curr < ls_tick <= tick_next and ls_tick > ev.tick_idx for ls_tick in ls_ticks
+                        tick_curr < ls_tick <= tick_next and ls_tick > ev.tick_idx
+                        for ls_tick in ls_ticks
                     ):
                         continue
                     dist = tick_next - ev.tick_idx
@@ -1946,13 +2318,32 @@ class ReplayStreamDecoderService:
         # Apply consumed-window penalty only for EIDs that have at least one
         # competing non-consumed Loop 1 proposal. This fixes near-tie steals
         # (e.g., 2070 vs 2071 span) without perturbing unrelated assignments.
-        eid_has_non_consumed: set[int] = {p[2] for p in loop1_raw_proposals if p[7] == 0}
-        for window_span, best_dist, eid, slot, vehicle, tm_offset, is_loop2, is_consumed in loop1_raw_proposals:
-            span_adjusted = window_span + 2 if (is_consumed and eid in eid_has_non_consumed) else window_span
-            trans_proposals.append((span_adjusted, best_dist, eid, slot, vehicle, tm_offset, is_loop2))
+        eid_has_non_consumed: set[int] = {
+            p[2] for p in loop1_raw_proposals if p[7] == 0
+        }
+        for (
+            window_span,
+            best_dist,
+            eid,
+            slot,
+            vehicle,
+            tm_offset,
+            is_loop2,
+            is_consumed,
+        ) in loop1_raw_proposals:
+            span_adjusted = (
+                window_span + 2
+                if (is_consumed and eid in eid_has_non_consumed)
+                else window_span
+            )
+            trans_proposals.append(
+                (span_adjusted, best_dist, eid, slot, vehicle, tm_offset, is_loop2)
+            )
 
         # EIDs with at least one non-AA transition-window proposal.
-        loop1_non_aa_eids: set[int] = {p[2] for p in trans_proposals if p[6] == 0 and _is_ground_non_aa(p[4])}
+        loop1_non_aa_eids: set[int] = {
+            p[2] for p in trans_proposals if p[6] == 0 and _is_ground_non_aa(p[4])
+        }
 
         # Threshold (ticks) below which a final-vehicle window entry is considered
         # a pre-queued respawn appearance: in War Thunder the model for the player's
@@ -2005,7 +2396,7 @@ class ReplayStreamDecoderService:
                     continue
                 if slot_teams and slot_teams.get(ev_pc.slot) == slot_teams.get(slot_pc):
                     continue
-                if _is_air(vehicle_last_pc) and _is_ground_non_aa(ev_pc.vehicle_name):
+                if not _matches_victim_eid_type(ev_pc, vehicle_last_pc):
                     continue
                 pre_consumed_windows.add((slot_pc, prev_tm_offset_pc))
                 break
@@ -2015,7 +2406,9 @@ class ReplayStreamDecoderService:
         # kept so Pass 2 can still use it; an EID proposed exclusively by consumed
         # windows is excluded from Loop 2's scope (preventing non-halftrack final
         # windows from stealing it — they could only see it via transition_proposed_eids).
-        transition_proposed_eids: set[int] = {p[2] for p in trans_proposals if (p[3], p[5]) not in pre_consumed_windows}
+        transition_proposed_eids: set[int] = {
+            p[2] for p in trans_proposals if (p[3], p[5]) not in pre_consumed_windows
+        }
 
         # Final-vehicle window proposals (Loop 2).
         # All final-vehicle slots may compete here (no dist restriction); the span
@@ -2041,7 +2434,7 @@ class ReplayStreamDecoderService:
                     continue
                 if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot):
                     continue
-                if _is_air(vehicle_last) and _is_ground_non_aa(ev.vehicle_name):
+                if not _matches_victim_eid_type(ev, vehicle_last):
                     continue
                 dist = ev.tick_idx - tick_last  # smallest = soonest after last spawn
                 if dist < best_dist_f:
@@ -2058,7 +2451,11 @@ class ReplayStreamDecoderService:
             # vehicle for attribution.
             prop_vehicle_f = vehicle_last
             prop_tm_offset_f = tm_offset_last
-            if "halftrack" in vehicle_last and len(timeline) > 1 and best_dist_f < _CREW_ENTRY_TICKS:
+            if (
+                "halftrack" in vehicle_last
+                and len(timeline) > 1
+                and best_dist_f < _CREW_ENTRY_TICKS
+            ):
                 prev_tm_offset_f, prev_vehicle_f = timeline[-2]
                 prev_tick_f = tick_of(prev_tm_offset_f)
                 if tick_last - prev_tick_f > _CREW_ENTRY_TICKS:
@@ -2092,7 +2489,15 @@ class ReplayStreamDecoderService:
         # Each entry: (window_span, slot, vehicle, tm_offset, tick_curr, tick_next)
         skipped_windows: list[tuple[int, int, str, int, int, int]] = []
 
-        for window_span, dist_to_end, eid, slot, vehicle, tm_offset, is_loop2 in trans_proposals:
+        for (
+            window_span,
+            dist_to_end,
+            eid,
+            slot,
+            vehicle,
+            tm_offset,
+            is_loop2,
+        ) in trans_proposals:
             # Skip Loop 1 proposals from halftrack-consumed windows — their kill was
             # already claimed by the Loop 2 halftrack heuristic for the same slot.
             if not is_loop2 and (slot, tm_offset) in pre_consumed_windows:
@@ -2108,7 +2513,16 @@ class ReplayStreamDecoderService:
                             if j_sk + 1 < len(tl_sk):
                                 tick_next_sk = tick_of(tl_sk[j_sk + 1][0])
                             break
-                    skipped_windows.append((window_span, slot, vehicle, tm_offset, tick_curr_sk, tick_next_sk))
+                    skipped_windows.append(
+                        (
+                            window_span,
+                            slot,
+                            vehicle,
+                            tm_offset,
+                            tick_curr_sk,
+                            tick_next_sk,
+                        )
+                    )
                 continue
             budget = slot_budget.get(slot, 0)
             if budget <= 0:
@@ -2145,7 +2559,14 @@ class ReplayStreamDecoderService:
         if skipped_windows:
             _FallbackProposal = tuple[int, int, int, int, str, int]
             fallback_proposals: list[_FallbackProposal] = []
-            for window_span_fb, slot_fb, vehicle_fb, tm_offset_fb, tick_curr_fb, tick_next_fb in skipped_windows:
+            for (
+                window_span_fb,
+                slot_fb,
+                vehicle_fb,
+                tm_offset_fb,
+                tick_curr_fb,
+                tick_next_fb,
+            ) in skipped_windows:
                 if slot_budget.get(slot_fb, 0) <= 0:
                     continue
                 best_ev_b: _KillEvent | None = None
@@ -2159,17 +2580,23 @@ class ReplayStreamDecoderService:
                         break
                     if ev.slot == slot_fb:
                         continue
-                    if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot_fb):
+                    if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(
+                        slot_fb
+                    ):
                         continue
-                    if _is_air(vehicle_fb) and _is_ground_non_aa(ev.vehicle_name):
+                    if not _matches_victim_eid_type(ev, vehicle_fb):
                         continue
                     # For final-window fallbacks, keep the same restriction: only
                     # consider EIDs contested by transition windows.
-                    if tick_next_fb == game_end_tick and ev.victim_entity_id not in transition_proposed_eids:
+                    if (
+                        tick_next_fb == game_end_tick
+                        and ev.victim_entity_id not in transition_proposed_eids
+                    ):
                         continue
                     ls_ticks_fb = late_spawn_by_slot_veh.get((slot_fb, vehicle_fb))
                     if ls_ticks_fb and any(
-                        tick_curr_fb < ls_tick <= tick_next_fb and ls_tick > ev.tick_idx for ls_tick in ls_ticks_fb
+                        tick_curr_fb < ls_tick <= tick_next_fb and ls_tick > ev.tick_idx
+                        for ls_tick in ls_ticks_fb
                     ):
                         continue
                     dist = tick_next_fb - ev.tick_idx
@@ -2189,7 +2616,14 @@ class ReplayStreamDecoderService:
                     )
 
             fallback_proposals.sort()
-            for window_span, dist_to_end, eid, slot, vehicle, tm_offset in fallback_proposals:
+            for (
+                window_span,
+                dist_to_end,
+                eid,
+                slot,
+                vehicle,
+                tm_offset,
+            ) in fallback_proposals:
                 if eid in claimed_eids:
                     continue
                 budget = slot_budget.get(slot, 0)
@@ -2208,11 +2642,13 @@ class ReplayStreamDecoderService:
                 claimed_eids.add(eid)
                 slot_budget[slot] = budget - 1
                 slot_vehicle_resolved_counts.setdefault(slot, {})[vehicle] = (
-                    slot_vehicle_resolved_counts.setdefault(slot, {}).get(vehicle, 0) + 1
+                    slot_vehicle_resolved_counts.setdefault(slot, {}).get(vehicle, 0)
+                    + 1
                 )
                 added += 1
                 logger.debug(
-                    "TM-transition death (fallback): EID %d -> slot %d %r " "(window_span %d, dist_to_end %d)",
+                    "TM-transition death (fallback): EID %d -> slot %d %r "
+                    "(window_span %d, dist_to_end %d)",
                     eid,
                     slot,
                     vehicle,
@@ -2225,9 +2661,13 @@ class ReplayStreamDecoderService:
         # so that more-constrained slots (lower remaining budget) are
         # processed first — they have fewer options, so their assignments
         # are more likely to be correct.
-        remaining_kills: list[_KillEvent] = [ev for ev in unresolved_kills if ev.victim_entity_id not in claimed_eids]
+        remaining_kills: list[_KillEvent] = [
+            ev for ev in unresolved_kills if ev.victim_entity_id not in claimed_eids
+        ]
 
-        _FinalProp = tuple[int, int, int, str, int]  # (budget, eid, slot, vehicle, tm_offset)
+        _FinalProp = tuple[
+            int, int, int, str, int
+        ]  # (budget, eid, slot, vehicle, tm_offset)
         final_proposals: list[_FinalProp] = []
 
         for slot, timeline in slot_vehicle_timeline.items():
@@ -2245,14 +2685,18 @@ class ReplayStreamDecoderService:
                     continue
                 if slot_teams and slot_teams.get(ev.slot) == slot_teams.get(slot):
                     continue
-                if _is_air(last_vehicle) and _is_ground_non_aa(ev.vehicle_name):
+                if not _matches_victim_eid_type(ev, last_vehicle):
                     continue
                 # Apply halftrack pre-spawn heuristic: a halftrack TM can appear
                 # in the stream before the kill event for the player's current
                 # vehicle.  Use the previous vehicle for attribution in that case.
                 prop_tm_offset = last_tm_offset
                 prop_vehicle = last_vehicle
-                if "halftrack" in last_vehicle and len(timeline) > 1 and ev.tick_idx - last_tick < _CREW_ENTRY_TICKS:
+                if (
+                    "halftrack" in last_vehicle
+                    and len(timeline) > 1
+                    and ev.tick_idx - last_tick < _CREW_ENTRY_TICKS
+                ):
                     prev_tm_offset, prev_vehicle = timeline[-2]
                     prev_tick = tick_of(prev_tm_offset)
                     if last_tick - prev_tick > _CREW_ENTRY_TICKS:
@@ -2260,7 +2704,9 @@ class ReplayStreamDecoderService:
                         prop_vehicle = prev_vehicle
                 if not _vehicle_budget_ok(slot, prop_vehicle):
                     continue
-                final_proposals.append((budget, ev.victim_entity_id, slot, prop_vehicle, prop_tm_offset))
+                final_proposals.append(
+                    (budget, ev.victim_entity_id, slot, prop_vehicle, prop_tm_offset)
+                )
 
         # Sort by budget ASC (most-constrained slots first), then by
         # EID (deterministic for same-budget).
@@ -2399,7 +2845,8 @@ class ReplayStreamDecoderService:
                         eid_history[predicted_eid] = [(first_tick_offset, slot, iv)]
                         added += 1
                         logger.debug(
-                            "Initial-spawn EID inferred (physics-predate fallback): " "EID %d → slot %d %r",
+                            "Initial-spawn EID inferred (physics-predate fallback): "
+                            "EID %d → slot %d %r",
                             predicted_eid,
                             slot,
                             iv,
@@ -2537,7 +2984,9 @@ class ReplayStreamDecoderService:
             existing_entries = eid_history.get(eid_a)
             if existing_entries:
                 # Keep existing mappings when they already point to local slot.
-                if any(entry_slot == local_slot for _, entry_slot, _ in existing_entries):
+                if any(
+                    entry_slot == local_slot for _, entry_slot, _ in existing_entries
+                ):
                     continue
 
                 # Conflict: interaction37 says this EID belongs to the local slot.
@@ -2592,7 +3041,10 @@ class ReplayStreamDecoderService:
                     # the earliest existing entry.
                     tm_offset_found: int | None = None
                     for tm in reversed(slot_tms):
-                        if tm.offset < existing_offset and tm.vehicle_name == existing_vehicle:
+                        if (
+                            tm.offset < existing_offset
+                            and tm.vehicle_name == existing_vehicle
+                        ):
                             tm_offset_found = tm.offset
                             break
                     if tm_offset_found is None:
@@ -2656,7 +3108,11 @@ class ReplayStreamDecoderService:
                 continue
 
             # Fixed bytes check: 00 fe 3f
-            if stream_data[offset + 5] != 0x00 or stream_data[offset + 6] != 0xFE or stream_data[offset + 7] != 0x3F:
+            if (
+                stream_data[offset + 5] != 0x00
+                or stream_data[offset + 6] != 0xFE
+                or stream_data[offset + 7] != 0x3F
+            ):
                 continue
 
             player_slot = struct.unpack("<I", stream_data[offset + 8 : offset + 12])[0]
@@ -2677,11 +3133,18 @@ class ReplayStreamDecoderService:
 
             vehicle_name = vehicle_name_bytes.decode("ascii")
 
-            victim_entity_id = struct.unpack("<H", stream_data[vehicle_name_end : vehicle_name_end + 2])[0]
-            killer_entity_id = struct.unpack("<H", stream_data[vehicle_name_end + 2 : vehicle_name_end + 4])[0]
+            victim_entity_id = struct.unpack(
+                "<H", stream_data[vehicle_name_end : vehicle_name_end + 2]
+            )[0]
+            killer_entity_id = struct.unpack(
+                "<H", stream_data[vehicle_name_end + 2 : vehicle_name_end + 4]
+            )[0]
 
             # Sanity: FF FF FF FF should follow immediately
-            if stream_data[vehicle_name_end + 4 : vehicle_name_end + 8] != b"\xff\xff\xff\xff":
+            if (
+                stream_data[vehicle_name_end + 4 : vehicle_name_end + 8]
+                != b"\xff\xff\xff\xff"
+            ):
                 continue
 
             events.append(
@@ -2747,7 +3210,9 @@ class ReplayStreamDecoderService:
                 continue
 
             award_name = name_bytes.decode("ascii")
-            events.append(_AwardEvent(offset=offset, slot=player_slot, award_name=award_name))
+            events.append(
+                _AwardEvent(offset=offset, slot=player_slot, award_name=award_name)
+            )
 
         logger.debug(f"Parsed {len(events)} award events")
         return events
@@ -2804,13 +3269,20 @@ class ReplayStreamDecoderService:
 
             vehicle_name = name_bytes.decode("ascii")
             events.append(
-                _LateSpawnEvent(offset=offset, entity_id=entity_id, slot=player_slot, vehicle_name=vehicle_name)
+                _LateSpawnEvent(
+                    offset=offset,
+                    entity_id=entity_id,
+                    slot=player_slot,
+                    vehicle_name=vehicle_name,
+                )
             )
 
         logger.debug(f"Parsed {len(events)} late-spawn events")
         return events
 
-    def _parse_vehicle_activation_events(self, stream_data: bytes) -> list[_TankModelsEvent]:
+    def _parse_vehicle_activation_events(
+        self, stream_data: bytes
+    ) -> list[_TankModelsEvent]:
         """
         Parse vehicle activation events from the stream.
 
@@ -2848,18 +3320,25 @@ class ReplayStreamDecoderService:
                 ent_end = ent_start
                 while ent_end < len(stream_data) and ent_end - ent_start < 32:
                     b = stream_data[ent_end]
-                    if b"a"[0] <= b <= b"z"[0] or b"A"[0] <= b <= b"Z"[0] or b"0"[0] <= b <= b"9"[0] or b == b"_"[0]:
+                    if (
+                        b"a"[0] <= b <= b"z"[0]
+                        or b"A"[0] <= b <= b"Z"[0]
+                        or b"0"[0] <= b <= b"9"[0]
+                        or b == b"_"[0]
+                    ):
                         ent_end += 1
                     else:
                         break
-                entity_name = stream_data[ent_start:ent_end].decode("ascii", errors="ignore")
+                entity_name = stream_data[ent_start:ent_end].decode(
+                    "ascii", errors="ignore"
+                )
 
                 player_slot = self._entity_name_to_slot(entity_name)
                 if player_slot is None:
                     continue
 
                 # Scan backward from sep_offset for a contiguous vehicle-name character run.
-                # Valid vehicle-name characters: a-z A-Z 0-9 _ / .
+                # Valid vehicle-name characters: a-z A-Z 0-9 _ / . -
                 # Using this restricted set (instead of broad printable-ASCII) ensures that
                 # length bytes whose value falls in the printable range (e.g. 0x21='!' for
                 # a 33-char path like "tankModels/uk_a_12_mk_2_matilda_2") are NOT consumed
@@ -2872,7 +3351,7 @@ class ReplayStreamDecoderService:
                         0x61 <= stream_data[scan] <= 0x7A  # a-z
                         or 0x41 <= stream_data[scan] <= 0x5A  # A-Z
                         or 0x30 <= stream_data[scan] <= 0x39  # 0-9
-                        or stream_data[scan] in (0x5F, 0x2F, 0x2E)  # _ / .
+                        or stream_data[scan] in (0x5F, 0x2F, 0x2E, 0x2D)  # _ / . -
                     )
                 ):
                     scan -= 1
@@ -2887,11 +3366,19 @@ class ReplayStreamDecoderService:
                 raw_name = stream_data[scan + 1 : sep_offset].decode("ascii")
 
                 # Strip 'tankModels/' prefix present on ground-vehicle paths
-                vehicle_name = raw_name[_PREFIX_LEN:] if raw_name.startswith("tankModels/") else raw_name
+                vehicle_name = (
+                    raw_name[_PREFIX_LEN:]
+                    if raw_name.startswith("tankModels/")
+                    else raw_name
+                )
                 if not vehicle_name:
                     continue
 
-                events.append(_TankModelsEvent(offset=scan + 1, slot=player_slot, vehicle_name=vehicle_name))
+                events.append(
+                    _TankModelsEvent(
+                        offset=scan + 1, slot=player_slot, vehicle_name=vehicle_name
+                    )
+                )
 
         events.sort(key=lambda e: e.offset)
         logger.debug("Parsed %d vehicle activation events", len(events))
@@ -2915,12 +3402,18 @@ class ReplayStreamDecoderService:
         n = len(stream_data)
 
         for tick_idx, tick_start in enumerate(tick_offsets):
-            tick_end = tick_offsets[tick_idx + 1] if tick_idx + 1 < len(tick_offsets) else n
+            tick_end = (
+                tick_offsets[tick_idx + 1] if tick_idx + 1 < len(tick_offsets) else n
+            )
 
             aa_offsets: list[int] = []
             pos = tick_start + _TICK_EVENT_SIZE
             while pos < tick_end - 3:
-                if stream_data[pos] == 0x02 and stream_data[pos + 1] == 0x58 and stream_data[pos + 3] == 0xF0:
+                if (
+                    stream_data[pos] == 0x02
+                    and stream_data[pos + 1] == 0x58
+                    and stream_data[pos + 3] == 0xF0
+                ):
                     if stream_data[pos + 2] == 0xAA:
                         aa_offsets.append(pos)
                     pos += 4
@@ -2930,11 +3423,21 @@ class ReplayStreamDecoderService:
             for i, aa_off in enumerate(aa_offsets):
                 next_off = aa_offsets[i + 1] if i + 1 < len(aa_offsets) else tick_end
                 payload = stream_data[aa_off : min(next_off, aa_off + 260)]
-                tokens = [m.group(0).decode("ascii", errors="ignore") for m in _AA_TOKEN_RE.finditer(payload)]
+                tokens = [
+                    m.group(0).decode("ascii", errors="ignore")
+                    for m in _AA_TOKEN_RE.finditer(payload)
+                ]
                 if not tokens:
                     continue
 
-                entity_token = next((t for t in tokens if "_player" in t and t.startswith(("t1_", "t2_"))), None)
+                entity_token = next(
+                    (
+                        t
+                        for t in tokens
+                        if "_player" in t and t.startswith(("t1_", "t2_"))
+                    ),
+                    None,
+                )
                 if entity_token is None:
                     continue
                 slot = self._entity_token_to_slot(entity_token)
@@ -2955,10 +3458,19 @@ class ReplayStreamDecoderService:
 
                 # When vehicle metadata is available, only keep known vehicles.
                 if self._vehicle_service is not None:
-                    if self._vehicle_service.get_vehicles_by_internal_name(vehicle_name) is None:
+                    if (
+                        self._vehicle_service.get_vehicles_by_internal_name(
+                            vehicle_name
+                        )
+                        is None
+                    ):
                         continue
 
-                events.append(_TankModelsEvent(offset=aa_off, slot=slot, vehicle_name=vehicle_name))
+                events.append(
+                    _TankModelsEvent(
+                        offset=aa_off, slot=slot, vehicle_name=vehicle_name
+                    )
+                )
 
         events.sort(key=lambda e: e.offset)
         logger.debug("Parsed %d 0xaa player-tag timeline events", len(events))
@@ -3008,3 +3520,54 @@ class ReplayStreamDecoderService:
         if not 1 <= nn <= 16:
             return None
         return (nn - 1) if team == 1 else (nn - 1 + 16)
+
+
+@dataclass(frozen=True)
+class _ReplaySchemaStrategy:
+    """Codec and event-layout behavior for one observed replay schema."""
+
+    name: str
+    kill_event_prefix: bytes
+    find_stream_start: Callable[[bytes, int, int], int]
+    decompress: Callable[[bytes], bytes]
+
+
+def _decompress_zstandard(data: bytes) -> bytes:
+    with zstandard.ZstdDecompressor().stream_reader(
+        io.BytesIO(data), read_across_frames=True
+    ) as reader:
+        return reader.read()
+
+
+_ZLIB_REPLAY_SCHEMA = _ReplaySchemaStrategy(
+    name="zlib/legacy-kill-header",
+    kill_event_prefix=b"\x00\xfe\x3f",
+    find_stream_start=ReplayStreamDecoderService._find_compressed_stream_start,
+    decompress=zlib.decompress,
+)
+_ZSTANDARD_REPLAY_SCHEMA = _ReplaySchemaStrategy(
+    name="zstandard/extended-kill-header",
+    kill_event_prefix=b"\x00\xfe\xff\x07",
+    find_stream_start=ReplayStreamDecoderService._find_zstandard_stream_start,
+    decompress=_decompress_zstandard,
+)
+_REPLAY_SCHEMA_STRATEGIES = (
+    _ZSTANDARD_REPLAY_SCHEMA,
+    _ZLIB_REPLAY_SCHEMA,
+)
+
+
+def _detect_replay_schema_from_stream(stream_data: bytes) -> _ReplaySchemaStrategy:
+    """Select the event-layout strategy for an already-decompressed stream."""
+    offset = stream_data.find(_KILL_MARKER)
+    while offset >= 0:
+        prefix_start = offset + len(_KILL_MARKER) + 1
+        for schema_strategy in _REPLAY_SCHEMA_STRATEGIES:
+            prefix_end = prefix_start + len(schema_strategy.kill_event_prefix)
+            if (
+                stream_data[prefix_start:prefix_end]
+                == schema_strategy.kill_event_prefix
+            ):
+                return schema_strategy
+        offset = stream_data.find(_KILL_MARKER, offset + len(_KILL_MARKER))
+    return _ZLIB_REPLAY_SCHEMA

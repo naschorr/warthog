@@ -1,4 +1,4 @@
-pydantic==2.11.7
+pydantic>=2.12
 black>=25.1.0
 GitPython==3.1.45
 numpy==2.3.1
@@ -9,3 +9,4 @@ jupyter>=1.0.0
 ipykernel>=6.0.0
 nbconvert>=7.16.6
 confiddle>=0.1.0
+zstandard>=0.23.0

@@ -13,8 +13,12 @@ from src.replay_data_grabber.models import Replay, Player
 from src.replay_data_grabber.models.deaths import Deaths
 from src.replay_data_grabber.models.death_detail import DeathDetail
 from src.replay_data_grabber.models.kill_detail import KillDetail
-from src.replay_data_grabber.services.replay_stream_decoder_service import ReplayStreamDecoderService
-from src.replay_data_grabber.services.wt_ext_cli_client_service import WtExtCliClientService
+from src.replay_data_grabber.services.replay_stream_decoder_service import (
+    ReplayStreamDecoderService,
+)
+from src.replay_data_grabber.services.wt_ext_cli_client_service import (
+    WtExtCliClientService,
+)
 
 
 class ReplayParserService:
@@ -29,7 +33,12 @@ class ReplayParserService:
     HEADER_SIZE = 912
     HEADER_OFFSET = 740
 
-    def __init__(self, *, vehicle_service: VehicleService, wt_ext_cli_client_service: WtExtCliClientService):
+    def __init__(
+        self,
+        *,
+        vehicle_service: VehicleService,
+        wt_ext_cli_client_service: WtExtCliClientService,
+    ):
         """
         Initialize the replay parser service.
         """
@@ -39,7 +48,9 @@ class ReplayParserService:
 
     ## Methods
 
-    def load_replay(self, file_path: Path, bytes_to_read: Optional[int] = None) -> bytes:
+    def load_replay(
+        self, file_path: Path, bytes_to_read: Optional[int] = None
+    ) -> bytes:
         """Load replay bytes from disk and validate the replay header."""
         if not file_path.exists():
             raise FileNotFoundError(f"Replay file not found: {file_path}")
@@ -49,10 +60,14 @@ class ReplayParserService:
 
         required_size = self.HEADER_SIZE if bytes_to_read is None else bytes_to_read
         if len(data) < required_size:
-            raise ValueError(f"Replay file is too small to contain the requested replay data: {file_path}")
+            raise ValueError(
+                f"Replay file is too small to contain the requested replay data: {file_path}"
+            )
 
         if data[:4] != self.MAGIC:
-            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+            raise ValueError(
+                "Invalid magic number, not a valid War Thunder replay file"
+            )
 
         return data
 
@@ -62,7 +77,9 @@ class ReplayParserService:
             raise ValueError("Replay data is too small to contain a valid header")
 
         if replay_data[:4] != self.MAGIC:
-            raise ValueError("Invalid magic number, not a valid War Thunder replay file")
+            raise ValueError(
+                "Invalid magic number, not a valid War Thunder replay file"
+            )
 
         offset = 4
         version = struct.unpack_from("<I", replay_data, offset)[0]
@@ -117,13 +134,23 @@ class ReplayParserService:
 
         start_time = None
         if len(replay_data) >= offset + 4:
-            start_time = datetime.fromtimestamp(struct.unpack_from("<I", replay_data, offset)[0])
+            start_time = datetime.fromtimestamp(
+                struct.unpack_from("<I", replay_data, offset)[0]
+            )
         offset += 4
 
-        time_limit_minutes = struct.unpack_from("<I", replay_data, offset)[0] if len(replay_data) >= offset + 4 else 0
+        time_limit_minutes = (
+            struct.unpack_from("<I", replay_data, offset)[0]
+            if len(replay_data) >= offset + 4
+            else 0
+        )
         offset += 4
 
-        score_limit = struct.unpack_from("<I", replay_data, offset)[0] if len(replay_data) >= offset + 4 else 0
+        score_limit = (
+            struct.unpack_from("<I", replay_data, offset)[0]
+            if len(replay_data) >= offset + 4
+            else 0
+        )
         offset += 4
 
         battle_class_raw = self._read_string(replay_data, offset, 128).lower()
@@ -191,13 +218,17 @@ class ReplayParserService:
 
         results_offset = header["results_offset"]
 
-        logger.info(f"Parsed replay header: {replay.session_id} - {replay.level} ({replay.battle_type})")
+        logger.info(
+            f"Parsed replay header: {replay.session_id} - {replay.level} ({replay.battle_type})"
+        )
 
         # Parse results if we have wt_ext_cli
         results = {}
         if results_offset > 0:
             try:
-                results = self._wt_ext_cli_client_service.unpack_raw_blk(replay_data[results_offset:])
+                results = self._wt_ext_cli_client_service.unpack_raw_blk(
+                    replay_data[results_offset:]
+                )
             except Exception as e:
                 logger.error(f"Error unpacking results: {e}")
         else:
@@ -205,31 +236,55 @@ class ReplayParserService:
         self._parse_results(replay, results)
 
         # Decode rec_data stream for per-vehicle kills/deaths and awards.
-        # Players are already built by _parse_results; we match them by slot index.
-        # Pass authoritative BLK death counts and team assignments so the decoder
-        # can cap EID attribution, enforce cross-team constraints, and fill gaps
-        # via timeline inference without overcounting.
-        slot_deaths = {i: p.deaths.total for i, p in enumerate(replay.players)}
+        # Players retain their original result-array slots even when metadata is missing.
+        # Pass authoritative BLK kill/death counts and team assignments so the
+        # decoder can reject excess kill events, cap EID attribution, enforce
+        # cross-team constraints, and fill gaps via timeline inference.
+        players_by_slot = {
+            player.slot if player.slot is not None else index: player
+            for index, player in enumerate(replay.players)
+        }
+        slot_deaths = {
+            slot: player.deaths.total for slot, player in players_by_slot.items()
+        }
+        slot_air_kill_caps = {
+            slot: player.kills.air + player.kills.ai_air + player.kills.team
+            for slot, player in players_by_slot.items()
+        }
+        slot_kill_caps = {
+            slot: player.kills.total_kills + player.kills.team
+            for slot, player in players_by_slot.items()
+        }
         slot_vehicle_death_caps: dict[int, dict[str, int]] = {}
-        for i, p in enumerate(replay.players):
+        for slot, player in players_by_slot.items():
             veh_caps: dict[str, int] = {}
-            for d in getattr(p.deaths, "vehicles", []) or []:
+            for d in getattr(player.deaths, "vehicles", []) or []:
                 veh = getattr(d, "victim_vehicle", None)
                 if not veh:
                     continue
                 veh_caps[veh] = veh_caps.get(veh, 0) + 1
             if veh_caps:
-                slot_vehicle_death_caps[i] = veh_caps
-        slot_teams = {i: p.team for i, p in enumerate(replay.players) if p.team is not None}
+                slot_vehicle_death_caps[slot] = veh_caps
+        slot_teams = {
+            slot: player.team
+            for slot, player in players_by_slot.items()
+            if player.team is not None
+        }
         # First vehicle in each player's BLK lineup = their initial-spawn vehicle.
         # Passed to the stream decoder so M6 can recover initial EIDs when the
         # physics-predate guard would otherwise discard the attribution.
-        slot_initial_vehicles = {i: p.lineup[0] for i, p in enumerate(replay.players) if p.lineup}
+        slot_initial_vehicles = {
+            slot: player.lineup[0]
+            for slot, player in players_by_slot.items()
+            if player.lineup
+        }
         try:
             stream_result = self._replay_stream_decoder.decode_from_raw_replay(
                 replay_data,
                 slot_deaths=slot_deaths,
                 slot_vehicle_death_caps=slot_vehicle_death_caps,
+                slot_air_kill_caps=slot_air_kill_caps,
+                slot_kill_caps=slot_kill_caps,
                 slot_teams=slot_teams,
                 slot_initial_vehicles=slot_initial_vehicles,
             )
@@ -240,8 +295,13 @@ class ReplayParserService:
         # Build the author player object. Some replays omit a matching author entry
         # in the results/playerInfo data, so we must not raise if the author is missing.
         author_user_id_raw = results.get("authorUserId", "")
-        author_user_id = str(author_user_id_raw) if author_user_id_raw is not None else ""
-        replay.author = next((player for player in replay.players if player.user_id == author_user_id))
+        author_user_id = (
+            str(author_user_id_raw) if author_user_id_raw is not None else ""
+        )
+        replay.author = next(
+            (player for player in replay.players if player.user_id == author_user_id),
+            replay.author,
+        )
         if author_user_id and replay.author.user_id != author_user_id:
             logger.warning(f"No author player found for authorUserId: {author_user_id}")
 
@@ -270,16 +330,28 @@ class ReplayParserService:
             data = self.load_replay(file_path)
             replay = self.parse_replay_data(data)
 
-            # Normal replays are prepended with a #, but saved ones aren't?
-            replay_timestamp = file_path.stem
-            if replay_timestamp.startswith("#"):
-                replay_timestamp = replay_timestamp[1:]
-
-            replay.end_time = datetime.strptime(replay_timestamp, "%Y.%m.%d %H.%M.%S")
+            replay.end_time = self._get_replay_end_time_from_filename(file_path)
             return replay
         except Exception as e:
             logger.error(f"Error parsing replay file {file_path}: {e}")
             raise
+
+    @staticmethod
+    def _get_replay_end_time_from_filename(file_path: Path) -> datetime:
+        replay_timestamp = file_path.stem
+        if replay_timestamp.startswith("#"):
+            replay_timestamp = replay_timestamp[1:]
+
+        timestamp_length = len("YYYY.MM.DD HH.MM.SS")
+        timestamp = replay_timestamp[:timestamp_length]
+        if len(replay_timestamp) < timestamp_length or (
+            len(replay_timestamp) > timestamp_length
+            and not replay_timestamp[timestamp_length].isspace()
+        ):
+            raise ValueError(
+                f"Replay filename does not start with a timestamp: {file_path.name}"
+            )
+        return datetime.strptime(timestamp, "%Y.%m.%d %H.%M.%S")
 
     def get_session_id_from_replay_file(self, file_path: Path) -> str:
         """Extract the session ID from a raw .wrpl file without full replay parsing."""
@@ -317,7 +389,7 @@ class ReplayParserService:
         ui_scripts_data = results.get("uiScriptsData", {})
         players_info = ui_scripts_data.get("playersInfo", {})
 
-        for player_data in players_array:
+        for slot, player_data in enumerate(players_array):
             user_id = str(player_data.get("userId", ""))
 
             # Find matching player info
@@ -329,11 +401,27 @@ class ReplayParserService:
 
             if player_info:
                 player = self._create_player_from_json(
-                    player_info, player_data, replay.battle_class, replay.battle_type, replay.start_time
+                    player_info,
+                    player_data,
+                    replay.battle_class,
+                    replay.battle_type,
+                    replay.start_time,
                 )
-                replay.players.append(player)
             else:
-                logger.warning(f"No player info found for user ID: {user_id}")
+                username = player_data.get("name")
+                if user_id in ("", "-1") or not username:
+                    logger.debug(
+                        f"Skipping empty player result at slot {slot} without player info"
+                    )
+                    continue
+                logger.warning(
+                    f"No player info found for user ID: {user_id}; "
+                    "using results player data"
+                )
+                player = self._create_player_from_results_data(player_data)
+
+            player.slot = slot
+            replay.players.append(player)
 
         # Set the replay battle rating to the highest player battle rating
         for player in replay.players:
@@ -349,22 +437,23 @@ class ReplayParserService:
           t2_playerNN_0 -> slot NN-1+16  (slots 16-31)
 
         Despite the t1/t2 prefix, these groups do NOT correspond to the JSON
-        `team` field (1 or 2).  The slot is simply the player's 0-indexed
-        position in the results player array (players_array from wt_ext_cli),
-        regardless of team.  players_array order is preserved in replay.players,
-        so the correct mapping is global insertion order.
+        `team` field (1 or 2). The slot is the player's 0-indexed position in
+        the results player array (players_array from wt_ext_cli). Player.slot
+        preserves that position when records without player metadata are omitted.
         """
-        from src.replay_data_grabber.services.replay_stream_decoder_service import StreamDecodeResult
+        from src.replay_data_grabber.services.replay_stream_decoder_service import (
+            StreamDecodeResult,
+        )
 
         if not isinstance(stream_result, StreamDecodeResult):
             return
 
-        # Build slot -> Player map using global position in replay.players.
-        # Position 0 = slot 0, position 1 = slot 1, ..., position 31 = slot 31.
+        # Build slot -> Player map from original result-array positions.
         slot_map: dict[int, "Player"] = {}
         for i, player in enumerate(replay.players):
-            player.slot = i
-            slot_map[i] = player
+            slot = player.slot if player.slot is not None else i
+            player.slot = slot
+            slot_map[slot] = player
 
         # Apply vehicle_kills
         for slot, veh_counts in stream_result.vehicle_kills.items():
@@ -374,7 +463,9 @@ class ReplayParserService:
                 continue
             for veh, count in veh_counts.items():
                 if player.lineup and veh not in player.lineup:
-                    logger.debug(f"Stream: skipping vehicle kill for {veh} not in BLK lineup for slot {slot}")
+                    logger.debug(
+                        f"Stream: skipping vehicle kill for {veh} not in BLK lineup for slot {slot}"
+                    )
                     continue
                 player.vehicle_kills[veh] = player.vehicle_kills.get(veh, 0) + count
 
@@ -386,7 +477,9 @@ class ReplayParserService:
                 continue
             for veh, count in veh_counts.items():
                 if player.lineup and veh not in player.lineup:
-                    logger.debug(f"Stream: skipping vehicle death for {veh} not in BLK lineup for slot {slot}")
+                    logger.debug(
+                        f"Stream: skipping vehicle death for {veh} not in BLK lineup for slot {slot}"
+                    )
                     continue
                 player.vehicle_deaths[veh] = player.vehicle_deaths.get(veh, 0) + count
 
@@ -406,9 +499,17 @@ class ReplayParserService:
         _TICK_DURATION_S = 0.1  # ~10 Hz simulation tick rate
         for detail in stream_result.kill_details:
             killer_player = slot_map.get(detail.killer_slot)
-            victim_player = slot_map.get(detail.victim_slot) if detail.victim_slot is not None else None
-            victim_user_id = victim_player.user_id if victim_player is not None else None
-            killer_user_id = killer_player.user_id if killer_player is not None else None
+            victim_player = (
+                slot_map.get(detail.victim_slot)
+                if detail.victim_slot is not None
+                else None
+            )
+            victim_user_id = (
+                victim_player.user_id if victim_player is not None else None
+            )
+            killer_user_id = (
+                killer_player.user_id if killer_player is not None else None
+            )
 
             # Use embedded game time when available (accurate to ~0.5 s);
             # fall back to the fixed 0.1 s/tick estimate otherwise.
@@ -418,9 +519,13 @@ class ReplayParserService:
                 and detail.tick_idx < len(stream_result.tick_game_times)
                 and stream_result.tick_game_times[detail.tick_idx] > 0
             ):
-                time_utc = replay.start_time + timedelta(milliseconds=stream_result.tick_game_times[detail.tick_idx])
+                time_utc = replay.start_time + timedelta(
+                    milliseconds=stream_result.tick_game_times[detail.tick_idx]
+                )
             elif replay.start_time is not None:
-                time_utc = replay.start_time + timedelta(seconds=detail.tick_idx * _TICK_DURATION_S)
+                time_utc = replay.start_time + timedelta(
+                    seconds=detail.tick_idx * _TICK_DURATION_S
+                )
             else:
                 time_utc = None
 
@@ -435,14 +540,23 @@ class ReplayParserService:
                         killer_slot=detail.killer_slot,
                         victim_vehicle=detail.victim_vehicle,
                         victim_user_id=victim_user_id,
-                        victim_username=victim_player.username if victim_player is not None else None,
+                        victim_username=(
+                            victim_player.username
+                            if victim_player is not None
+                            else None
+                        ),
                         victim_slot=detail.victim_slot,
                         time_utc=time_utc,
                     )
                 )
 
             # Only append DeathDetail when victim vehicle + killer user_id are both resolved
-            if victim_player is not None and detail.victim_vehicle is not None and killer_user_id is not None:
+            if (
+                victim_player is not None
+                and detail.victim_vehicle is not None
+                and killer_user_id is not None
+                and detail.victim_death_counted
+            ):
                 victim_player.deaths.vehicles.append(
                     DeathDetail(
                         victim_vehicle=detail.victim_vehicle,
@@ -451,7 +565,11 @@ class ReplayParserService:
                         victim_slot=detail.victim_slot,
                         killer_vehicle=detail.killer_vehicle,
                         killer_user_id=killer_user_id,
-                        killer_username=killer_player.username if killer_player is not None else None,
+                        killer_username=(
+                            killer_player.username
+                            if killer_player is not None
+                            else None
+                        ),
                         killer_slot=detail.killer_slot,
                         time_utc=time_utc,
                     )
@@ -482,7 +600,9 @@ class ReplayParserService:
         if battle_rating is not None:
             return battle_rating
 
-        raise ValueError(f"Unable to determine battle rating for lineup: {lineup} and battle_type: {battle_type}")
+        raise ValueError(
+            f"Unable to determine battle rating for lineup: {lineup} and battle_type: {battle_type}"
+        )
 
     def _get_player_min_battle_rating(
         self,
@@ -521,12 +641,18 @@ class ReplayParserService:
             return round(sum(battle_ratings) / len(battle_ratings), 2)
 
         battle_rating = self._get_transformed_player_battle_rating(
-            compute_battle_rating_mean, battle_class, battle_type, lineup, battle_datetime=battle_datetime
+            compute_battle_rating_mean,
+            battle_class,
+            battle_type,
+            lineup,
+            battle_datetime=battle_datetime,
         )
         if battle_rating is not None:
             return battle_rating
 
-        raise ValueError(f"Unable to determine mean battle rating for lineup: {lineup} and battle_type: {battle_type}")
+        raise ValueError(
+            f"Unable to determine mean battle rating for lineup: {lineup} and battle_type: {battle_type}"
+        )
 
     def _get_transformed_player_battle_rating(
         self,
@@ -542,7 +668,9 @@ class ReplayParserService:
         """
         vehicles = []
         for vehicle_name in lineup:
-            vehicle = self._vehicle_service.get_vehicles_by_internal_name(vehicle_name, search_datetime=battle_datetime)
+            vehicle = self._vehicle_service.get_vehicles_by_internal_name(
+                vehicle_name, search_datetime=battle_datetime
+            )
             if vehicle:
                 vehicles.append(vehicle)
 
@@ -563,6 +691,35 @@ class ReplayParserService:
 
         battle_rating = transform_func(battle_ratings)
         return battle_rating
+
+    @staticmethod
+    def _apply_player_results_data(player: Player, player_data: dict[str, Any]) -> None:
+        player.kills.air = player_data.get("kills", 0)
+        player.kills.ground = player_data.get("groundKills", 0)
+        player.kills.naval = player_data.get("navalKills", 0)
+        player.kills.team = player_data.get("teamKills", 0)
+        player.kills.ai_air = player_data.get("aiKills", 0)
+        player.kills.ai_ground = player_data.get("aiGroundKills", 0)
+        player.kills.ai_naval = player_data.get("aiNavalKills", 0)
+
+        player.assists = player_data.get("assists", 0)
+        player.deaths = Deaths(total=player_data.get("deaths", 0))
+        player.capture_zone = player_data.get("captureZone", 0)
+        player.damage_zone = player_data.get("damageZone", 0)
+        player.score = player_data.get("score", 0)
+        player.award_damage = player_data.get("awardDamage", 0)
+        player.missile_evades = player_data.get("missileEvades", 0)
+
+    def _create_player_from_results_data(self, player_data: dict[str, Any]) -> Player:
+        player = Player()
+        player.user_id = str(player_data.get("userId", ""))
+        player.username = str(player_data.get("name", ""))
+        player.squadron_tag = player_data.get("clanTag") or None
+        player.team = player_data.get("team")
+        player.squad = player_data.get("squadId")
+        player.auto_squad = bool(player_data.get("autoSquad", 1))
+        self._apply_player_results_data(player, player_data)
+        return player
 
     def _create_player_from_json(
         self,
@@ -617,7 +774,9 @@ class ReplayParserService:
         # Vehicle lineup
         crafts = player_info.get("crafts", {})
         player.lineup = list(crafts.values())
-        player.is_premium = self._vehicle_service.is_vehicle_premium(player.lineup, search_datetime=start_time)
+        player.is_premium = self._vehicle_service.is_vehicle_premium(
+            player.lineup, search_datetime=start_time
+        )
 
         # Replay metadata
         player.team = player_data.get("team")
@@ -637,21 +796,6 @@ class ReplayParserService:
             battle_class, battle_type, player.lineup, battle_datetime=start_time
         )
 
-        # Kill statistics
-        player.kills.air = player_data.get("kills", 0)
-        player.kills.ground = player_data.get("groundKills", 0)
-        player.kills.naval = player_data.get("navalKills", 0)
-        player.kills.team = player_data.get("teamKills", 0)
-        player.kills.ai_air = player_data.get("aiKills", 0)
-        player.kills.ai_ground = player_data.get("aiGroundKills", 0)
-        player.kills.ai_naval = player_data.get("aiNavalKills", 0)
-
-        player.assists = player_data.get("assists", 0)
-        player.deaths = Deaths(total=player_data.get("deaths", 0))
-        player.capture_zone = player_data.get("captureZone", 0)
-        player.damage_zone = player_data.get("damageZone", 0)
-        player.score = player_data.get("score", 0)
-        player.award_damage = player_data.get("awardDamage", 0)
-        player.missile_evades = player_data.get("missileEvades", 0)
+        self._apply_player_results_data(player, player_data)
 
         return player

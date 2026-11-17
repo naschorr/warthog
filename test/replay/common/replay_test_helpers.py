@@ -19,14 +19,16 @@ from typing import Any
 # Source-of-truth dataclasses
 # ---------------------------------------------------------------------------
 
-DEFAULT_TIMESTAMP_TOLERANCE_S = 5  # ±seconds when matching time_utc against battle-log timestamps
+DEFAULT_TIMESTAMP_TOLERANCE_S = (
+    5  # ±seconds when matching time_utc against battle-log timestamps
+)
 
 
 @dataclass
 class KillDetailTruth:
-    """A kill that must be matchable in the player's kills.vehicles list."""
+    """A kill that must be matchable, optionally without a resolved killer vehicle."""
 
-    killer_vehicle: str
+    killer_vehicle: str | None = None
     victim_username: str | None = None
     victim_vehicle: str | None = None
     # Elapsed seconds from battle start, derived from the battle log timestamp.
@@ -87,11 +89,20 @@ def find_kill(
 ) -> dict | None:
     """Return the first kill detail matching all non-None fields of *truth*."""
     for kd in kills:
-        if kd.get("killer_vehicle") != truth.killer_vehicle:
+        if (
+            truth.killer_vehicle is not None
+            and kd.get("killer_vehicle") != truth.killer_vehicle
+        ):
             continue
-        if truth.victim_username is not None and kd.get("victim_username") != truth.victim_username:
+        if (
+            truth.victim_username is not None
+            and kd.get("victim_username") != truth.victim_username
+        ):
             continue
-        if truth.victim_vehicle is not None and kd.get("victim_vehicle") != truth.victim_vehicle:
+        if (
+            truth.victim_vehicle is not None
+            and kd.get("victim_vehicle") != truth.victim_vehicle
+        ):
             continue
         if truth.time_seconds is not None and battle_start is not None:
             et = elapsed_seconds(kd.get("time_utc"), battle_start)
@@ -111,9 +122,15 @@ def find_death(
     for dd in deaths:
         if dd.get("victim_vehicle") != truth.victim_vehicle:
             continue
-        if truth.killer_username is not None and dd.get("killer_username") != truth.killer_username:
+        if (
+            truth.killer_username is not None
+            and dd.get("killer_username") != truth.killer_username
+        ):
             continue
-        if truth.killer_vehicle is not None and dd.get("killer_vehicle") != truth.killer_vehicle:
+        if (
+            truth.killer_vehicle is not None
+            and dd.get("killer_vehicle") != truth.killer_vehicle
+        ):
             continue
         if truth.time_seconds is not None and battle_start is not None:
             et = elapsed_seconds(dd.get("time_utc"), battle_start)
@@ -123,15 +140,21 @@ def find_death(
     return None
 
 
-def assert_awards_present(actual_awards: list[str], expected_awards: list[str], username: str) -> None:
+def assert_awards_present(
+    actual_awards: list[str], expected_awards: list[str], username: str
+) -> None:
     """Assert every award in *expected_awards* is present (with minimum counts)."""
     for award_id in set(expected_awards):
         assert award_id in actual_awards, f"{username}: expected award '{award_id}'"
 
 
-def assert_award_counts(actual_awards: list[str], expected_awards: list[str], username: str) -> None:
+def assert_award_counts(
+    actual_awards: list[str], expected_awards: list[str], username: str
+) -> None:
     """Assert minimum occurrence counts for each expected award."""
     actual_counts = Counter(actual_awards)
     for award_id, expected_min in Counter(expected_awards).items():
         actual = actual_counts[award_id]
-        assert actual >= expected_min, f"{username}: expected at least {expected_min}x '{award_id}', got {actual}"
+        assert (
+            actual >= expected_min
+        ), f"{username}: expected at least {expected_min}x '{award_id}', got {actual}"
