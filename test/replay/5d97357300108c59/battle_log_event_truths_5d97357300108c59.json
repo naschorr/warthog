@@ -1,0 +1,636 @@
+{
+  "events": [
+    {
+      "source_line": "1:04 Harimizu (Chieftain 900) destroyed =2020= PAT615 (M1296)",
+      "killer_username": "Harimizu",
+      "victim_username": "PAT615",
+      "killer_vehicle": "uk_chieftain_900",
+      "victim_vehicle": "us_m1296_dragoon",
+      "time_seconds": 64
+    },
+    {
+      "source_line": "1:14 Harimizu (Chieftain 900) destroyed *HAG* 🎮 rfonseca138 (M3 Bradley)",
+      "killer_username": "Harimizu",
+      "victim_username": "rfonseca138",
+      "killer_vehicle": "uk_chieftain_900",
+      "victim_vehicle": "us_m3_bradley",
+      "time_seconds": 74
+    },
+    {
+      "source_line": "1:21 maseaneabaghira (AMX-30B2) destroyed tom24121998 (Leopard A1A1)",
+      "killer_username": "maseaneabaghira",
+      "victim_username": "tom24121998",
+      "killer_vehicle": "fr_amx_30_b2",
+      "victim_vehicle": "germ_leopard_I_a1",
+      "time_seconds": 81
+    },
+    {
+      "source_line": "1:28 ^7ELB8^ DeividBv (Leopard 1A5) destroyed maseaneabaghira (AMX-30B2)",
+      "killer_username": "DeividBv",
+      "victim_username": "maseaneabaghira",
+      "killer_vehicle": "germ_leopard_1a5",
+      "victim_vehicle": "fr_amx_30_b2",
+      "time_seconds": 88
+    },
+    {
+      "source_line": "1:31 =VOGUE= 🎮 stinkyfeet678 (ZA-35) destroyed Ranol (CV 90105 TML)",
+      "killer_username": "stinkyfeet678",
+      "victim_username": "Ranol",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "sw_cv_90105",
+      "time_seconds": 91
+    },
+    {
+      "source_line": "1:32 =8CW8= xSHiZZY (Object 140) destroyed danny_gt (XM1 (Chrysler))",
+      "killer_username": "xSHiZZY",
+      "victim_username": "danny_gt",
+      "killer_vehicle": "ussr_object_140",
+      "victim_vehicle": "us_xm1_chrysler",
+      "time_seconds": 92
+    },
+    {
+      "source_line": "1:36 -kcw42- Твoй Oтчим (BMD-4) shot down Recon Micro",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": null,
+      "killer_vehicle": "ussr_bmd_4",
+      "victim_vehicle": null,
+      "time_seconds": 96
+    },
+    {
+      "source_line": "1:54 Harimizu (Chieftain 900) destroyed 🎮 MauroZedong (XM800T)",
+      "killer_username": "Harimizu",
+      "victim_username": "MauroZedong",
+      "killer_vehicle": "uk_chieftain_900",
+      "victim_vehicle": "us_xm_800t",
+      "time_seconds": 114
+    },
+    {
+      "source_line": "1:55 BiggestBertha (ZT3A2) destroyed 🎮 KINGMETROE (M60A2)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "KINGMETROE",
+      "killer_vehicle": "uk_ratel_zt3",
+      "victim_vehicle": "us_m60a2",
+      "time_seconds": 115
+    },
+    {
+      "source_line": "1:58 =DRAGA= gennsgems (Raketenjagdpanzer 2 (HOT)) destroyed =JMcum= 克海_ (AMX-30B2)",
+      "killer_username": "gennsgems",
+      "victim_username": "克海_",
+      "killer_vehicle": "germ_raketenjagdpanzer_2_hot",
+      "victim_vehicle": "fr_amx_30_b2",
+      "time_seconds": 118
+    },
+    {
+      "source_line": "2:07 Матье__Балл (Khalid) destroyed SeuBob (Leopard 1A5NO2)",
+      "killer_username": "Матье__Балл",
+      "victim_username": "SeuBob",
+      "killer_vehicle": "uk_khalid",
+      "victim_vehicle": "sw_leopard_1a5no",
+      "time_seconds": 127
+    },
+    {
+      "source_line": "2:11 Batushka1324 (Leopard A1A1) destroyed [LAG24] 🎮 GL Heli0s (Tiran 6)",
+      "killer_username": "Batushka1324",
+      "victim_username": "GL Heli0s",
+      "killer_vehicle": "germ_leopard_I_a1",
+      "victim_vehicle": "il_tiran_6",
+      "time_seconds": 131
+    },
+    {
+      "source_line": "2:12 Ranol (Ikv 91-105) destroyed =VOGUE= 🎮 stinkyfeet678 (ZA-35)",
+      "killer_username": "Ranol",
+      "victim_username": "stinkyfeet678",
+      "killer_vehicle": "sw_ikv_91_105",
+      "victim_vehicle": "uk_rooikat_za_35",
+      "time_seconds": 132
+    },
+    {
+      "source_line": "2:15 ^7ELB8^ DeividBv (Leopard 1A5) destroyed 🟢 Conqueftador379 (XM803)",
+      "killer_username": "DeividBv",
+      "victim_username": "Conqueftador379",
+      "killer_vehicle": "germ_leopard_1a5",
+      "victim_vehicle": "us_xm_803",
+      "time_seconds": 135
+    },
+    {
+      "source_line": "2:18 *HAG* Blegoman_ (M3 Bradley) destroyed Harimizu (Chieftain 900)",
+      "killer_username": "Blegoman_",
+      "victim_username": "Harimizu",
+      "killer_vehicle": "us_m3_bradley",
+      "victim_vehicle": "uk_chieftain_900",
+      "time_seconds": 138
+    },
+    {
+      "source_line": "2:26 ^FUMPA^ scsmrcw (AMX-32) destroyed [No401] 🎮 Perez0506106 (Type 87 RCV)",
+      "killer_username": "scsmrcw",
+      "victim_username": "Perez0506106",
+      "killer_vehicle": "fr_amx_32",
+      "victim_vehicle": "jp_type_87_rcv",
+      "time_seconds": 146
+    },
+    {
+      "source_line": "2:32 Reaver63782 (TAM 2IP) destroyed *HAG* Blegoman_ (M3 Bradley)",
+      "killer_username": "Reaver63782",
+      "victim_username": "Blegoman_",
+      "killer_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "victim_vehicle": "us_m3_bradley",
+      "time_seconds": 152
+    },
+    {
+      "source_line": "2:39 FAUCON-987-69 (AMX-30B2) destroyed =8CW8= xSHiZZY (Object 140)",
+      "killer_username": "FAUCON-987-69",
+      "victim_username": "xSHiZZY",
+      "killer_vehicle": "fr_amx_30_b2",
+      "victim_vehicle": "ussr_object_140",
+      "time_seconds": 159
+    },
+    {
+      "source_line": "2:48 BiggestBertha (ZT3A2) destroyed =2020= PAT615 (XM800T)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "PAT615",
+      "killer_vehicle": "uk_ratel_zt3",
+      "victim_vehicle": "us_xm_800t",
+      "time_seconds": 168
+    },
+    {
+      "source_line": "2:59 .SAaP.Amplespore (KPz-70) destroyed ^FUMPA^ scsmrcw (AMX-32)",
+      "killer_username": "Amplespore",
+      "victim_username": "scsmrcw",
+      "killer_vehicle": "germ_kpz_70",
+      "victim_vehicle": "fr_amx_32",
+      "time_seconds": 179
+    },
+    {
+      "source_line": "3:00 Reaver63782 (TAM 2IP) destroyed *HAG* 🎮 rfonseca138 (XM800T)",
+      "killer_username": "Reaver63782",
+      "victim_username": "rfonseca138",
+      "killer_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "victim_vehicle": "us_xm_800t",
+      "time_seconds": 180
+    },
+    {
+      "source_line": "3:02 Ranol (Ikv 91-105) destroyed Batushka1324 (Leopard A1A1)",
+      "killer_username": "Ranol",
+      "victim_username": "Batushka1324",
+      "killer_vehicle": "sw_ikv_91_105",
+      "victim_vehicle": "germ_leopard_I_a1",
+      "time_seconds": 182
+    },
+    {
+      "source_line": "3:09 -kcw42- Твoй Oтчим (BMD-4) destroyed 🎮 MauroZedong (T58)",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": "MauroZedong",
+      "killer_vehicle": "ussr_bmd_4",
+      "victim_vehicle": "us_t58",
+      "time_seconds": 189
+    },
+    {
+      "source_line": "3:19 BiggestBertha (ZT3A2) destroyed 🎮 KINGMETROE (M3 Bradley)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "KINGMETROE",
+      "killer_vehicle": "uk_ratel_zt3",
+      "victim_vehicle": "us_m3_bradley",
+      "time_seconds": 199
+    },
+    {
+      "source_line": "3:22 danny_gt (XM1 (Chrysler)) destroyed .SAaP.Amplespore (KPz-70)",
+      "killer_username": "danny_gt",
+      "victim_username": "Amplespore",
+      "killer_vehicle": "us_xm1_chrysler",
+      "victim_vehicle": "germ_kpz_70",
+      "time_seconds": 202
+    },
+    {
+      "source_line": "3:24 *HAG* Blegoman_ (M60A1 RISE (P)) destroyed =DRAGA= gennsgems (Raketenjagdpanzer 2 (HOT))",
+      "killer_username": "Blegoman_",
+      "victim_username": "gennsgems",
+      "killer_vehicle": "us_m60a1_rise_passive_era",
+      "victim_vehicle": "germ_raketenjagdpanzer_2_hot",
+      "time_seconds": 204
+    },
+    {
+      "source_line": "3:30 maseaneabaghira (AMX-30B2) destroyed 🎮 CASPER-KILLER-08 (TAM)",
+      "killer_username": "maseaneabaghira",
+      "victim_username": "CASPER-KILLER-08",
+      "killer_vehicle": "fr_amx_30_b2",
+      "victim_vehicle": "germ_thyssen_henschel_tam",
+      "time_seconds": 210
+    },
+    {
+      "source_line": "3:39 Reaver63782 (TAM 2IP) destroyed *HAG* Blegoman_ (M60A1 RISE (P))",
+      "killer_username": "Reaver63782",
+      "victim_username": "Blegoman_",
+      "killer_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "victim_vehicle": "us_m60a1_rise_passive_era",
+      "time_seconds": 219
+    },
+    {
+      "source_line": "3:41 danny_gt (XM1 (Chrysler)) destroyed 11MM (T-55A)",
+      "killer_username": "danny_gt",
+      "victim_username": "11MM",
+      "killer_vehicle": "us_xm1_chrysler",
+      "victim_vehicle": "ussr_t_55a",
+      "time_seconds": 221
+    },
+    {
+      "source_line": "3:49 [LAG24] 🎮 GL Heli0s (Magach 6R) destroyed christiah007 (Turm III)",
+      "killer_username": "GL Heli0s",
+      "victim_username": "christiah007",
+      "killer_vehicle": "il_magach_6r",
+      "victim_vehicle": "germ_erprobungstrager_3_achs_turm",
+      "time_seconds": 229
+    },
+    {
+      "source_line": "3:56 danny_gt (XM1 (Chrysler)) destroyed ^7ELB8^ DeividBv (Leopard 1A5)",
+      "killer_username": "danny_gt",
+      "victim_username": "DeividBv",
+      "killer_vehicle": "us_xm1_chrysler",
+      "victim_vehicle": "germ_leopard_1a5",
+      "time_seconds": 236
+    },
+    {
+      "source_line": "4:01 Batushka1324 (PzH 2000) destroyed danny_gt (XM1 (Chrysler))",
+      "killer_username": "Batushka1324",
+      "victim_username": "danny_gt",
+      "killer_vehicle": "germ_pzh_2000",
+      "victim_vehicle": "us_xm1_chrysler",
+      "time_seconds": 241
+    },
+    {
+      "source_line": "4:06 =2020= PAT615 (XM246) shot down Harimizu (Harrier GR.1)",
+      "killer_username": "PAT615",
+      "victim_username": "Harimizu",
+      "killer_vehicle": "us_xm246",
+      "victim_vehicle": "harrier_gr1",
+      "time_seconds": 246
+    },
+    {
+      "source_line": "4:15 Reaver63782 (TAM 2IP) destroyed *HAG* 🎮 rfonseca138 (XM246)",
+      "killer_username": "Reaver63782",
+      "victim_username": "rfonseca138",
+      "killer_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "victim_vehicle": "us_xm246",
+      "time_seconds": 255
+    },
+    {
+      "source_line": "4:18 ^FUMPA^ scsmrcw (AMX-30 Super) destroyed [No401] 🎮 Perez0506106 (Type 74 (E))",
+      "killer_username": "scsmrcw",
+      "victim_username": "Perez0506106",
+      "killer_vehicle": "fr_amx_30_super",
+      "victim_vehicle": "jp_type_74",
+      "time_seconds": 258
+    },
+    {
+      "source_line": "4:23 -kcw42- Твoй Oтчим (BMD-4) destroyed SeuBob (Strv 103C)",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": "SeuBob",
+      "killer_vehicle": "ussr_bmd_4",
+      "victim_vehicle": "sw_strv_103c",
+      "time_seconds": 263
+    },
+    {
+      "source_line": "4:25 maseaneabaghira (AMX-30B2) destroyed .SAaP.Amplespore (TAM 2IP)",
+      "killer_username": "maseaneabaghira",
+      "victim_username": "Amplespore",
+      "killer_vehicle": "fr_amx_30_b2",
+      "victim_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "time_seconds": 265
+    },
+    {
+      "source_line": "4:26 =ZORA= EvilNasa (AMV (BMP-3)) destroyed BiggestBertha (ZT3A2)",
+      "killer_username": "EvilNasa",
+      "victim_username": "BiggestBertha",
+      "killer_vehicle": "sw_patria_bmp_3",
+      "victim_vehicle": "uk_ratel_zt3",
+      "time_seconds": 266
+    },
+    {
+      "source_line": "4:31 Batushka1324 (PzH 2000) destroyed ^FUMPA^ scsmrcw (AMX-30 Super)",
+      "killer_username": "Batushka1324",
+      "victim_username": "scsmrcw",
+      "killer_vehicle": "germ_pzh_2000",
+      "victim_vehicle": "fr_amx_30_super",
+      "time_seconds": 271
+    },
+    {
+      "source_line": "4:46 =ZORA= EvilNasa (AMV (BMP-3)) destroyed 11MM (BMP-2)",
+      "killer_username": "EvilNasa",
+      "victim_username": "11MM",
+      "killer_vehicle": "sw_patria_bmp_3",
+      "victim_vehicle": "ussr_bmp_2",
+      "time_seconds": 286
+    },
+    {
+      "source_line": "4:57 TrueJackal (M60A1 RISE (P)) destroyed Batushka1324 (PzH 2000)",
+      "killer_username": "TrueJackal",
+      "victim_username": "Batushka1324",
+      "killer_vehicle": "us_m60a1_rise_passive_era",
+      "victim_vehicle": "germ_pzh_2000",
+      "time_seconds": 297
+    },
+    {
+      "source_line": "5:00 -kcw42- Твoй Oтчим (BMD-4) shot down *HAG* Blegoman_ (F3H-2)",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": "Blegoman_",
+      "killer_vehicle": "ussr_bmd_4",
+      "victim_vehicle": "f3h-2",
+      "time_seconds": 300
+    },
+    {
+      "source_line": "5:02 christiah007 (Turm III) destroyed [LAG24] 🎮 GL Heli0s (Magach 6R)",
+      "killer_username": "christiah007",
+      "victim_username": "GL Heli0s",
+      "killer_vehicle": "germ_erprobungstrager_3_achs_turm",
+      "victim_vehicle": "il_magach_6r",
+      "time_seconds": 302
+    },
+    {
+      "source_line": "5:13 FAUCON-987-69 (AMX-30B2) destroyed Матье__Балл (Khalid)",
+      "killer_username": "FAUCON-987-69",
+      "victim_username": "Матье__Балл",
+      "killer_vehicle": "fr_amx_30_b2",
+      "victim_vehicle": "uk_khalid",
+      "time_seconds": 313
+    },
+    {
+      "source_line": "5:16 maseaneabaghira (AMX-30B2) destroyed [No401] 🎮 Perez0506106 (Type 99)",
+      "killer_username": "maseaneabaghira",
+      "victim_username": "Perez0506106",
+      "killer_vehicle": "fr_amx_30_b2",
+      "victim_vehicle": "jp_type_99",
+      "time_seconds": 316
+    },
+    {
+      "source_line": "5:17 BiggestBertha (ZA-35) destroyed =ZORA= EvilNasa (AMV (BMP-3))",
+      "killer_username": "BiggestBertha",
+      "victim_username": "EvilNasa",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "sw_patria_bmp_3",
+      "time_seconds": 317
+    },
+    {
+      "source_line": "5:19 -kcw42- Твoй Oтчим (BMD-4) destroyed =JMcum= 克海_ (AMX-30 S DCA)",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": "克海_",
+      "killer_vehicle": "ussr_bmd_4",
+      "victim_vehicle": "fr_amx_30_dca",
+      "time_seconds": 319
+    },
+    {
+      "source_line": "5:25 Reaver63782 (TAM 2IP) destroyed 🎮 MauroZedong (XM246)",
+      "killer_username": "Reaver63782",
+      "victim_username": "MauroZedong",
+      "killer_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "victim_vehicle": "us_xm246",
+      "time_seconds": 325
+    },
+    {
+      "source_line": "5:41 Reaver63782 (TAM 2IP) destroyed SeuBob (ItPsV Leopard)",
+      "killer_username": "Reaver63782",
+      "victim_username": "SeuBob",
+      "killer_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "victim_vehicle": "sw_itpsv_90",
+      "time_seconds": 341
+    },
+    {
+      "source_line": "5:44 BiggestBertha (ZA-35) destroyed FAUCON-987-69 (AMX-30B2)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "FAUCON-987-69",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "fr_amx_30_b2",
+      "time_seconds": 344
+    },
+    {
+      "source_line": "5:48 🟢 Conqueftador379 (XM803) destroyed .SAaP.Amplespore (Begleitpanzer 57)",
+      "killer_username": "Conqueftador379",
+      "victim_username": "Amplespore",
+      "killer_vehicle": "us_xm_803",
+      "victim_vehicle": "germ_begleitpanzer_57",
+      "time_seconds": 348
+    },
+    {
+      "source_line": "5:57 danny_gt (A-10A) destroyed christiah007 (Turm III)",
+      "killer_username": "danny_gt",
+      "victim_username": "christiah007",
+      "killer_vehicle": "a_10a_early",
+      "victim_vehicle": "germ_erprobungstrager_3_achs_turm",
+      "time_seconds": 357
+    },
+    {
+      "source_line": "6:25 =ZORA= EvilNasa (AMV (BMP-3)) destroyed 🎮 CASPER-KILLER-08 (Marder 1A3)",
+      "killer_username": "EvilNasa",
+      "victim_username": "CASPER-KILLER-08",
+      "killer_vehicle": "sw_patria_bmp_3",
+      "victim_vehicle": "germ_marder_1a3",
+      "time_seconds": 385
+    },
+    {
+      "source_line": "6:27 -kcw42- Твoй Oтчим (BMD-4) shot down [LAG24] 🎮 GL Heli0s (✸A-4H)",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": "GL Heli0s",
+      "killer_vehicle": "ussr_bmd_4",
+      "victim_vehicle": "a_4h",
+      "time_seconds": 387
+    },
+    {
+      "source_line": "7:02 BiggestBertha (ZA-35) destroyed TrueJackal (M60A1 RISE (P))",
+      "killer_username": "BiggestBertha",
+      "victim_username": "TrueJackal",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "us_m60a1_rise_passive_era",
+      "time_seconds": 422
+    },
+    {
+      "source_line": "7:17 danny_gt (A-10A) destroyed -kcw42- Твoй Oтчим (BMD-4)",
+      "killer_username": "danny_gt",
+      "victim_username": "Твoй Oтчим",
+      "killer_vehicle": "a_10a_early",
+      "victim_vehicle": "ussr_bmd_4",
+      "time_seconds": 437
+    },
+    {
+      "source_line": "7:21 BiggestBertha (ZA-35) shot down danny_gt (A-10A)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "danny_gt",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "a_10a_early",
+      "time_seconds": 441
+    },
+    {
+      "source_line": "7:22 🎮 MauroZedong (XM246) destroyed Reaver63782 (TAM 2IP)",
+      "killer_username": "MauroZedong",
+      "victim_username": "Reaver63782",
+      "killer_vehicle": "us_xm246",
+      "victim_vehicle": "germ_thyssen_henschel_tam_2ip",
+      "time_seconds": 442
+    },
+    {
+      "source_line": "7:26 maseaneabaghira (AMX-30B2) destroyed =8CW8= xSHiZZY (Object 140)",
+      "killer_username": "maseaneabaghira",
+      "victim_username": "xSHiZZY",
+      "killer_vehicle": "fr_amx_30_b2",
+      "victim_vehicle": "ussr_object_140",
+      "time_seconds": 446
+    },
+    {
+      "source_line": "7:50 Ranol (Ikv 91-105) destroyed christiah007 (Gepard)",
+      "killer_username": "Ranol",
+      "victim_username": "christiah007",
+      "killer_vehicle": "sw_ikv_91_105",
+      "victim_vehicle": "germ_flakpz_I_Gepard",
+      "time_seconds": 470
+    },
+    {
+      "source_line": "7:54 =8CW8= xSHiZZY (Object 685) destroyed Ranol (Ikv 91-105)",
+      "killer_username": "xSHiZZY",
+      "victim_username": "Ranol",
+      "killer_vehicle": "ussr_object_685",
+      "victim_vehicle": "sw_ikv_91_105",
+      "time_seconds": 474
+    },
+    {
+      "source_line": "8:02 BiggestBertha (ZA-35) destroyed danny_gt (M3A3 Bradley)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "danny_gt",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "us_m3a3_bradley",
+      "time_seconds": 482
+    },
+    {
+      "source_line": "8:15 =8CW8= xSHiZZY (Object 685) destroyed 🟢 Conqueftador379 (XM803)",
+      "killer_username": "xSHiZZY",
+      "victim_username": "Conqueftador379",
+      "killer_vehicle": "ussr_object_685",
+      "victim_vehicle": "us_xm_803",
+      "time_seconds": 495
+    },
+    {
+      "source_line": "8:19 =DRAGA= gennsgems (Leopard 1A5) destroyed FAUCON-987-69 (AMX-13-90)",
+      "killer_username": "gennsgems",
+      "victim_username": "FAUCON-987-69",
+      "killer_vehicle": "germ_leopard_1a5",
+      "victim_vehicle": "fr_amx_13_90",
+      "time_seconds": 499
+    },
+    {
+      "source_line": "8:29 BiggestBertha (ZA-35) destroyed 🎮 MauroZedong (XM246)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "MauroZedong",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "us_xm246",
+      "time_seconds": 509
+    },
+    {
+      "source_line": "8:31 =DRAGA= gennsgems (Leopard 1A5) destroyed TrueJackal (M103)",
+      "killer_username": "gennsgems",
+      "victim_username": "TrueJackal",
+      "killer_vehicle": "germ_leopard_1a5",
+      "victim_vehicle": "us_m103",
+      "time_seconds": 511
+    },
+    {
+      "source_line": "8:39 christiah007 (Gepard) shot down Recon Micro",
+      "killer_username": "christiah007",
+      "victim_username": null,
+      "killer_vehicle": "germ_flakpz_I_Gepard",
+      "victim_vehicle": null,
+      "time_seconds": 519
+    },
+    {
+      "source_line": "8:39 =DRAGA= gennsgems (Leopard 1A5) destroyed maseaneabaghira (AMX-30B2)",
+      "killer_username": "gennsgems",
+      "victim_username": "maseaneabaghira",
+      "killer_vehicle": "germ_leopard_1a5",
+      "victim_vehicle": "fr_amx_30_b2",
+      "time_seconds": 519
+    },
+    {
+      "source_line": "9:05 Ranol (Pbv 302 (BILL)) destroyed =DRAGA= gennsgems (Leopard 1A5)",
+      "killer_username": "Ranol",
+      "victim_username": "gennsgems",
+      "killer_vehicle": "sw_pbv_302_bill",
+      "victim_vehicle": "germ_leopard_1a5",
+      "time_seconds": 545
+    },
+    {
+      "source_line": "9:26 BiggestBertha (ZA-35) destroyed *HAG* 🎮 rfonseca138 (XM246)",
+      "killer_username": "BiggestBertha",
+      "victim_username": "rfonseca138",
+      "killer_vehicle": "uk_rooikat_za_35",
+      "victim_vehicle": "us_xm246",
+      "time_seconds": 566
+    },
+    {
+      "source_line": "9:56 -kcw42- Твoй Oтчим (Su-22M3) destroyed =2020= PAT615 (XM246)",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": "PAT615",
+      "killer_vehicle": "su_22m3",
+      "victim_vehicle": "us_xm246",
+      "time_seconds": 596
+    },
+    {
+      "source_line": "9:59 =DRAGA= gennsgems (TAM) destroyed Ranol (Pbv 302 (BILL))",
+      "killer_username": "gennsgems",
+      "victim_username": "Ranol",
+      "killer_vehicle": "germ_thyssen_henschel_tam",
+      "victim_vehicle": "sw_pbv_302_bill",
+      "time_seconds": 599
+    },
+    {
+      "source_line": "10:22 =DRAGA= gennsgems (TAM) destroyed 🟢 Conqueftador379 (M3 Bradley)",
+      "killer_username": "gennsgems",
+      "victim_username": "Conqueftador379",
+      "killer_vehicle": "germ_thyssen_henschel_tam",
+      "victim_vehicle": "us_m3_bradley",
+      "time_seconds": 622
+    },
+    {
+      "source_line": "10:28 ^FUMPA^ scsmrcw (AMX-32 (105)) destroyed BiggestBertha (ZA-35)",
+      "killer_username": "scsmrcw",
+      "victim_username": "BiggestBertha",
+      "killer_vehicle": "fr_amx_32_105",
+      "victim_vehicle": "uk_rooikat_za_35",
+      "time_seconds": 628
+    },
+    {
+      "source_line": "10:39 =DRAGA= gennsgems (TAM) destroyed 🎮 MauroZedong (M60)",
+      "killer_username": "gennsgems",
+      "victim_username": "MauroZedong",
+      "killer_vehicle": "germ_thyssen_henschel_tam",
+      "victim_vehicle": "us_m60",
+      "time_seconds": 639
+    },
+    {
+      "source_line": "10:46 christiah007 (Gepard) destroyed ^FUMPA^ scsmrcw (AMX-32 (105))",
+      "killer_username": "christiah007",
+      "victim_username": "scsmrcw",
+      "killer_vehicle": "germ_flakpz_I_Gepard",
+      "victim_vehicle": "fr_amx_32_105",
+      "time_seconds": 646
+    },
+    {
+      "source_line": "10:55 =DRAGA= gennsgems (TAM) destroyed FAUCON-987-69 (AMX-30 (1972))",
+      "killer_username": "gennsgems",
+      "victim_username": "FAUCON-987-69",
+      "killer_vehicle": "germ_thyssen_henschel_tam",
+      "victim_vehicle": "fr_amx_30_1972",
+      "time_seconds": 655
+    },
+    {
+      "source_line": "10:55 -kcw42- Твoй Oтчим (Su-22M3) destroyed =2020= PAT615 (XM246)",
+      "killer_username": "Твoй Oтчим",
+      "victim_username": "PAT615",
+      "killer_vehicle": "su_22m3",
+      "victim_vehicle": "us_xm246",
+      "time_seconds": 655
+    },
+    {
+      "source_line": "10:55 =8CW8= xSHiZZY (Object 685) destroyed 🟢 Conqueftador379 (M3 Bradley)",
+      "killer_username": "xSHiZZY",
+      "victim_username": "Conqueftador379",
+      "killer_vehicle": "ussr_object_685",
+      "victim_vehicle": "us_m3_bradley",
+      "time_seconds": 655
+    }
+  ]
+}
