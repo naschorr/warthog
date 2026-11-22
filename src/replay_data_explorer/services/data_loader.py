@@ -10,6 +10,9 @@ from src.replay_data_grabber.services import ReplayManagerService
 from src.replay_data_explorer.services import BattleRatingTierClassifier
 
 
+NON_STANDARD_LEVEL_MARKERS = ("event", "ffa_race")
+
+
 class DataLoaders:
     """
     Convenience class to handle loading stored data into pandas DataFrames for analysis.
@@ -21,6 +24,11 @@ class DataLoaders:
         self._replay_manager_service = replay_manager_service
 
         self.battle_rating_tier_classifier = BattleRatingTierClassifier()
+
+    @staticmethod
+    def _is_non_standard_replay(replay: Replay) -> bool:
+        level_settings = (replay.level_settings or "").casefold()
+        return any(marker in level_settings for marker in NON_STANDARD_LEVEL_MARKERS)
 
     def get_player_performance_data(
         self, player_name: Optional[str] = None, country_filters: list[Country] = []
@@ -37,10 +45,13 @@ class DataLoaders:
             DataFrame with processed replay data for the target player
         """
         data = []
-        loaded_replays = self._replay_manager_service.loaded_replays
+        player_replays: list[tuple[str, Replay, Player]] = []
 
         replay: Replay
-        for replay_file_path, replay in loaded_replays.items():
+        for replay_file_path, replay in self._replay_manager_service.loaded_replays.items():
+            if self._is_non_standard_replay(replay):
+                continue
+
             try:
                 # Get target player
                 target_player = None
@@ -57,13 +68,28 @@ class DataLoaders:
                 if target_player is None:
                     continue
 
-                if country_filters and target_player.country not in country_filters:
-                    continue
-
                 if not target_player.country:
                     print(f"Skipping player with no country in replay {Path(replay_file_path).name}")
                     continue
 
+                player_replays.append((replay_file_path, replay, target_player))
+            except Exception as e:
+                print(f"Error processing {Path(replay_file_path).name}: {e}")
+                continue
+
+        if not player_replays:
+            return pd.DataFrame()
+
+        max_player_br = max(target_player.battle_rating for _, _, target_player in player_replays)
+
+        for replay_file_path, replay, target_player in player_replays:
+            if replay.battle_rating > max_player_br:
+                continue
+
+            if country_filters and target_player.country not in country_filters:
+                continue
+
+            try:
                 # Keep the shape of the replay data, but normalize it to a flat structure
                 # TODO: the replay and player models need a to_dict or maybe to_dataframe?
                 replay_data = json.loads(replay.to_json())
@@ -93,22 +119,32 @@ class DataLoaders:
 
         return pd.DataFrame(data) if data else pd.DataFrame()
 
-    def get_global_performance_data(self, country_filters: list[Country] = []) -> pd.DataFrame:
+    def get_global_performance_data(
+        self,
+        country_filters: list[Country] = [],
+        *,
+        release_loaded_replays: bool = False,
+    ) -> pd.DataFrame:
         """
         Process replay data for a all players.
 
         Args:
             replay_manager: ReplayManagerService instance
             country_filters: List of countries to filter by
+            release_loaded_replays: Release cached replay models as they are processed
 
         Returns:
             DataFrame with processed replay data for all players
         """
         data = []
-        loaded_replays = self._replay_manager_service.loaded_replays
 
         replay: Replay
-        for replay_file_path, replay in loaded_replays.items():
+        for replay_file_path, replay in self._replay_manager_service.iter_loaded_replays(
+            release=release_loaded_replays
+        ):
+            if self._is_non_standard_replay(replay):
+                continue
+
             try:
                 # Get replay data once for this replay
                 replay_data = json.loads(replay.to_json())
@@ -141,5 +177,9 @@ class DataLoaders:
             except Exception as e:
                 print(f"Error processing {Path(replay_file_path).name}: {e}")
                 continue
+
+        if release_loaded_replays:
+            replay = None
+            player = None
 
         return pd.DataFrame(data) if data else pd.DataFrame()
