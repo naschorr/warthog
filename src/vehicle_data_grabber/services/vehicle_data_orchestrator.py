@@ -97,23 +97,17 @@ class VehicleDataOrchestrator:
         return [tag.name for tag in tags]
 
     def run_orchestrator(self):
+        game_version_to_datetime_map = self._load_game_version_release_datetimes()
+
         # Start from a clean slate
         self._clean_working_directory()
 
-        # Keep track of when each game version was released
-        game_version_to_datetime_map: dict[str, datetime] = {}
-        previous_game_version_to_datetime_map: dict[str, datetime] = {}
-        with open(self._game_version_release_datetimes_file_path, "r") as f:
-            try:
-                loaded_game_version_to_datetime_map = json.load(f)
-                # Convert string datetimes back to datetime objects
-                for version, dt_str in loaded_game_version_to_datetime_map.items():
-                    previous_game_version_to_datetime_map[version] = datetime.fromisoformat(dt_str)
-            except Exception as e:
-                logger.warning(f"Could not load existing game version release datetimes: {e}")
-
         # Process each game version, using stored datamine data when available.
         for version in self.get_game_versions():
+            if version in game_version_to_datetime_map:
+                logger.info(f"Skipping already processed game version {version}")
+                continue
+
             local_datamine_path = None
             if self._datamine_data_dir:
                 candidate_path = self._datamine_data_dir / version
@@ -130,22 +124,16 @@ class VehicleDataOrchestrator:
 
             if local_datamine_path is not None:
                 repository_path = local_datamine_path
-                previous_game_version_datetime = previous_game_version_to_datetime_map.get(version)
-                if previous_game_version_datetime:
-                    game_version_to_datetime_map[version] = previous_game_version_datetime
-                else:
-                    # If the version datetime isn't cached, we need git metadata to fill it.
-                    if not self._git_repository_client.is_cloned:
-                        self._git_repository_client.clone_partial(
-                            sparse_paths=self._vehicle_data_processor.get_datamined_file_paths()
-                        )
-                    try:
-                        self._git_repository_client.checkout_branch(version)
-                        game_version_to_datetime_map[version] = self._git_repository_client.get_head_date(utc=True)
-                    except Exception as e:
-                        logger.warning(
-                            f"Could not determine release datetime for version {version} from local datamine data: {e}"
-                        )
+                if not self._git_repository_client.is_cloned:
+                    self._git_repository_client.clone_partial(
+                        sparse_paths=self._vehicle_data_processor.get_datamined_file_paths()
+                    )
+                try:
+                    self._git_repository_client.checkout_branch(version)
+                except Exception as e:
+                    logger.error(f"Error checking out version {version}: {e}")
+                    continue
+                release_datetime = self._git_repository_client.get_head_date(utc=True)
             else:
                 # Clone the repository (if not already cloned)
                 if not self._git_repository_client.is_cloned:
@@ -162,14 +150,15 @@ class VehicleDataOrchestrator:
                     logger.error(f"Error checking out version {version}: {e}")
                     continue
 
-                # Update the version to datetime map
-                head_datetime = self._git_repository_client.get_head_date(utc=True)
-                game_version_to_datetime_map[version] = head_datetime
+                release_datetime = self._git_repository_client.get_head_date(utc=True)
 
             # Process the vehicle data for this version
             self._vehicle_data_processor.process_vehicle_data(
                 repository_version=version, repository_path=repository_path
             )
+
+            game_version_to_datetime_map[version] = release_datetime
+            self._save_game_version_release_datetimes(game_version_to_datetime_map)
 
             # Store the datamined data, if configured and this version came from a clone
             if (
@@ -183,11 +172,30 @@ class VehicleDataOrchestrator:
                     destination_file_path.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy(repository_path / file_path, destination_file_path)
 
-            # Persist the release datetime map after each successful version.
-            self._save_game_version_release_datetimes(game_version_to_datetime_map)
-
         # Clean up the working directory
         self._clean_working_directory()
+
+    def _load_game_version_release_datetimes(self) -> dict[str, datetime]:
+        with open(self._game_version_release_datetimes_file_path, "r", encoding="utf-8") as file:
+            loaded_game_version_to_datetime_map = json.load(file)
+
+        if not isinstance(loaded_game_version_to_datetime_map, dict):
+            raise ValueError(
+                f"Expected a JSON object in {self._game_version_release_datetimes_file_path}"
+            )
+
+        game_version_to_datetime_map = {}
+        for version, datetime_string in loaded_game_version_to_datetime_map.items():
+            if not isinstance(version, str) or not isinstance(datetime_string, str):
+                raise ValueError(f"Invalid release datetime entry for game version {version!r}")
+            try:
+                game_version_to_datetime_map[version] = datetime.fromisoformat(datetime_string)
+            except ValueError as e:
+                raise ValueError(
+                    f"Invalid release datetime for game version {version}: {datetime_string!r}"
+                ) from e
+
+        return game_version_to_datetime_map
 
     def _has_complete_local_datamine_data(self, local_path: Path) -> bool:
         for file_path in self._vehicle_data_processor.get_datamined_file_paths():
@@ -232,5 +240,5 @@ class VehicleDataOrchestrator:
         self._working_directory.mkdir(parents=True, exist_ok=True)
 
     def _save_game_version_release_datetimes(self, game_version_to_datetime_map: dict[str, datetime]) -> None:
-        with open(self._game_version_release_datetimes_file_path, "w") as f:
+        with open(self._game_version_release_datetimes_file_path, "w", encoding="utf-8") as f:
             json.dump(game_version_to_datetime_map, f, indent=4, default=str)
