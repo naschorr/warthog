@@ -39,8 +39,11 @@ def create_heatmap_one_death_leave_rate_by_country_and_br(
         print("No data available for plotting")
         return None
 
-    df = global_performance_df.copy()
-
+    df, _ = get_br_limited_graph_data(
+        global_performance_df,
+        ["status", "player.country", "player.deaths", "session_id"],
+        battle_rating_column="battle_rating",
+    )
     df = df[df["battle_rating"].notna()]
     df = df[df["player.country"].notna()]
     df = df[df["player.deaths"].notna()]
@@ -91,7 +94,7 @@ def create_heatmap_one_death_leave_rate_by_country_and_br(
     leavers_pivot = leavers_pivot.reindex(index=available_countries, columns=available_brs)
 
     # Build z_values from smoothed rates; blank only truly empty cells (below min_appearances).
-    z_values = smoothed_pivot.copy().values
+    z_values = smoothed_pivot.to_numpy(copy=True)
     for i in range(len(available_countries)):
         for j in range(len(available_brs)):
             appearances = appearances_pivot.iloc[i, j]
@@ -113,7 +116,7 @@ def create_heatmap_one_death_leave_rate_by_country_and_br(
                 confidence = "High" if appearances >= 50 else ("Medium" if appearances >= 20 else "Low")
                 row.append(
                     f"Country: {country}<br>"
-                    f"Battle Rating: {br:.1f}<br>"
+                    f"Replay Max BR: {br:.1f}<br>"
                     f"Smoothed Leave Rate: {smoothed:.1f}%<br>"
                     f"Raw Leave Rate: {raw_rate:.1f}%<br>"
                     f"One-Death Leavers: {int(one_death_leavers)}<br>"
@@ -123,7 +126,7 @@ def create_heatmap_one_death_leave_rate_by_country_and_br(
             else:
                 row.append(
                     f"Country: {country}<br>"
-                    f"Battle Rating: {br:.1f}<br>"
+                    f"Replay Max BR: {br:.1f}<br>"
                     f"Insufficient data (< {min_appearances} appearances)"
                 )
         hover_text.append(row)
@@ -185,11 +188,18 @@ def create_heatmap_one_death_leave_rate_by_country_and_br(
             [country.value for country in country_filters]
         )
     title_filters["Total Replays"] = str(df["session_id"].nunique())
-    title = title_builder.build_title("One-Death Leave Rate by Country and Battle Rating", filters=title_filters)
+    title = title_builder.build_title(
+        "One-Death Leave Rate by Country and Replay Max Battle Rating", filters=title_filters
+    )
 
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        xaxis=dict(title="Battle Rating", side="bottom", tickangle=45 if len(available_brs) > 10 else 0),
+        xaxis=dict(
+            title="Replay Max Battle Rating",
+            side="bottom",
+            tickangle=45 if len(available_brs) > 10 else 0,
+            **get_battle_rating_category_axis_options(available_brs),
+        ),
         yaxis=dict(title="Country", side="left"),
         width=max(get_graph_width("heatmap"), len(available_brs) * 40),
         height=max(400, len(available_countries) * 60),

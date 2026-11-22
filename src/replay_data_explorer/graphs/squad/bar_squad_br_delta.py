@@ -20,11 +20,28 @@ def create_bar_squad_br_delta(
         print("No performance data available for plotting")
         return None
 
-    # Get a copy of the data to avoid modifying the original
-    df = global_performance_df.copy()
+    squad_columns = [
+        "session_id",
+        "player.username",
+        "player.squad",
+        "player.team",
+        "player.auto_squad",
+        "battle_rating",
+        "player.battle_rating",
+        "player.battle_rating_delta",
+    ]
+    if "author" in global_performance_df.columns:
+        squad_columns.insert(0, "author")
+    squad_data = global_performance_df.loc[:, squad_columns].copy()
+    squad_data["squad_flavor"] = add_squad_flavor_column(squad_data)["squad_flavor"]
 
-    # Apply squad flavor determination with session-based grouping
-    df = add_squad_flavor_column(df)
+    df, _ = get_br_limited_graph_data(
+        squad_data,
+        ["player.username", "squad_flavor"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
+
     df = df[df["player.username"] == player_name]
 
     # Check if we have any data after filtering

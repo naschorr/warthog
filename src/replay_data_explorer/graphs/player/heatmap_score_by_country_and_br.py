@@ -20,7 +20,12 @@ def create_heatmap_score_by_country_and_br(
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = player_performance_df.copy()
+    df, _ = get_player_br_limited_graph_data(
+        player_performance_df,
+        ["player.country", "player.score"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
 
     # Get unique countries and battle ratings
     available_countries = sorted(df["player.country"].unique(), reverse=True)
@@ -56,11 +61,11 @@ def create_heatmap_score_by_country_and_br(
             score = score_pivot.iloc[i, j]
             count = count_pivot.iloc[i, j]
             if pd.isna(score):
-                row_text.append(f"Country: {country}<br>Battle Rating: {br:.1f}<br>No data")
+                row_text.append(f"Country: {country}<br>Player Battle Rating: {br:.1f}<br>No data")
             else:
                 row_text.append(
                     f"Country: {country}<br>"
-                    + f"Battle Rating: {br:.1f}<br>"
+                    + f"Player Battle Rating: {br:.1f}<br>"
                     + f"Mean Score: {score:.0f}<br>"
                     + f"Battles: {int(count)}"
                 )
@@ -93,12 +98,17 @@ def create_heatmap_score_by_country_and_br(
         title_filters[f"Countr{'y' if len(country_filters) == 1 else 'ies'}"] = ", ".join(
             [country.value for country in country_filters]
         )
-    title = title_builder.build_title("Mean Score by Country and Battle Rating", filters=title_filters)
+    title = title_builder.build_title("Mean Score by Country and Player Battle Rating", filters=title_filters)
 
     # Update layout
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        xaxis=dict(title="Battle Rating", side="bottom", tickangle=45 if len(available_brs) > 10 else 0),
+        xaxis=dict(
+            title="Player Battle Rating",
+            side="bottom",
+            tickangle=45 if len(available_brs) > 10 else 0,
+            **get_battle_rating_category_axis_options(available_brs),
+        ),
         yaxis=dict(title="Country", side="left"),
         width=max(get_graph_width("heatmap"), len(available_brs) * 40),  # Dynamic width based on BR count
         height=max(400, len(available_countries) * 60),  # Dynamic height based on country count

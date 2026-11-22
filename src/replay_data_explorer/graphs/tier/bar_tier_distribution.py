@@ -17,8 +17,15 @@ def create_bar_tier_distribution(player_performance_df: pd.DataFrame, *, player_
         print("No data available for plotting")
         return None
 
-    # Get a copy of the data to avoid modifying the original
-    df = player_performance_df.copy()
+    df, _ = get_br_limited_graph_data(
+        player_performance_df,
+        ["start_time", "player.country", "player.tier_status"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
+    if df.empty:
+        print("No data available within the replay battle-rating limit")
+        return None
 
     # Normalize BR delta from -1 to 0 scale to -0.5 to +0.5 scale
     df["player.battle_rating_delta_normalized"] = df["player.battle_rating_delta"] + 0.5
@@ -63,7 +70,7 @@ def create_bar_tier_distribution(player_performance_df: pd.DataFrame, *, player_
         if not country_data.empty:
             # Create separate traces for each tier status within this country
             for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
-                tier_country_data = country_data[country_data["player.tier_status"] == tier_status]
+                tier_country_data = country_data[country_data["player.tier_status"] == tier_status.value]
 
                 if len(tier_country_data) > 0:
                     tier_status_display = (

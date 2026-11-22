@@ -41,7 +41,15 @@ def create_line_br_delta_over_time(
         print("No performance data available for plotting")
         return go.Figure()
 
-    df = player_performance_df.copy()
+    df, _ = get_br_limited_graph_data(
+        player_performance_df,
+        ["start_time"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
+    if df.empty:
+        print("No data available within the replay battle-rating limit")
+        return go.Figure()
 
     # Ensure start_time is tz-naive datetime
     if not pd.api.types.is_datetime64_any_dtype(df["start_time"]):

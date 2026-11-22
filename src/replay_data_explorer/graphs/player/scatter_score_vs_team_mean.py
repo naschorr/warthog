@@ -29,7 +29,24 @@ def create_scatter_score_vs_team_mean(
         print("No performance data available for plotting")
         return go.Figure()
 
-    df = player_performance_df.copy()
+    df, max_display_br = get_player_br_limited_graph_data(
+        player_performance_df,
+        [
+            "session_id",
+            "status",
+            "start_time",
+            "player.username",
+            "player.country",
+            "player.team",
+            "player.tier_status",
+            "player.score",
+        ],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
+    if df.empty or max_display_br is None:
+        print("No data available within the replay battle-rating limit")
+        return go.Figure()
 
     # --- Calculate team mean score (excluding the player) for each battle ----
     team_avg_scores = _calculate_team_avg_scores(df, global_performance_df)
@@ -54,7 +71,7 @@ def create_scatter_score_vs_team_mean(
 
     # Scatter traces per tier status
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
-        tier_data = df[df["player.tier_status"] == tier_status]
+        tier_data = df[df["player.tier_status"] == tier_status.value]
         if tier_data.empty:
             continue
 
@@ -95,7 +112,7 @@ def create_scatter_score_vs_team_mean(
                 hovertemplate=(
                     "<b>%{customdata[0]}</b><br>"
                     + "Country: %{customdata[1]}<br>"
-                    + "BR: %{customdata[2]}<br>"
+                    + "Player BR: %{customdata[2]}<br>"
                     + "Tier: "
                     + tier_display
                     + "<br>"
@@ -133,13 +150,14 @@ def create_scatter_score_vs_team_mean(
         label = "Country" if len(country_filters) == 1 else "Countries"
         title_filters[label] = ", ".join(c.value for c in country_filters)
 
-    title = title_builder.build_title("Score vs Battle Rating (Relative to Team Mean)", filters=title_filters)
+    title = title_builder.build_title("Score vs Player Battle Rating (Relative to Team Mean)", filters=title_filters)
 
     # --- Layout -------------------------------------------------------------
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
         xaxis=dict(
-            title="Battle Rating",
+            title="Player Battle Rating",
+            **get_battle_rating_axis_options(df["player.battle_rating"]),
             gridcolor="lightgray",
             gridwidth=1,
             zeroline=False,

@@ -23,7 +23,12 @@ def create_heatmap_winrate_by_country_and_br(
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = player_performance_df.copy()
+    df, _ = get_player_br_limited_graph_data(
+        player_performance_df,
+        ["status", "player.country"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
 
     # Filter out battles where player left early
     df = df[df["status"] != "left"]
@@ -83,13 +88,13 @@ def create_heatmap_winrate_by_country_and_br(
             if pd.notna(win_rate) and appearances > 0:
                 row.append(
                     f"Country: {country}<br>"
-                    f"Battle Rating: {br:.1f}<br>"
+                    f"Player Battle Rating: {br:.1f}<br>"
                     f"Win Rate: {win_rate:.1f}%<br>"
                     f"Wins: {int(wins)}<br>"
                     f"Battles: {int(appearances)}"
                 )
             else:
-                row.append(f"Country: {country}<br>Battle Rating: {br:.1f}<br>No data")
+                row.append(f"Country: {country}<br>Player Battle Rating: {br:.1f}<br>No data")
         hover_text.append(row)
 
     # Create the heatmap
@@ -141,7 +146,12 @@ def create_heatmap_winrate_by_country_and_br(
     # Update layout
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        xaxis=dict(title="Battle Rating", side="bottom", tickangle=45 if len(available_brs) > 10 else 0),
+        xaxis=dict(
+            title="Player Battle Rating",
+            side="bottom",
+            tickangle=45 if len(available_brs) > 10 else 0,
+            **get_battle_rating_category_axis_options(available_brs),
+        ),
         yaxis=dict(title="Country", side="left"),
         width=max(get_graph_width("heatmap"), len(available_brs) * 40),
         height=max(400, len(available_countries) * 60),

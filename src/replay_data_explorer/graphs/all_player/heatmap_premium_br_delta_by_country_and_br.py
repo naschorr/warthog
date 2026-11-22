@@ -2,14 +2,13 @@ from src.replay_data_explorer.graphs.initialization import *
 
 
 def create_heatmap_premium_br_delta_by_country_and_br(
-    global_performance_df: pd.DataFrame, *, author_name: Optional[str] = None, country_filters=[]
+    global_performance_df: pd.DataFrame, *, country_filters=[]
 ):
     """
     Create an interactive Plotly heatmap showing BR delta difference between premium and non-premium players by country and battle rating.
 
     Args:
         global_performance_df: DataFrame with global player performance data
-        author_name: Name of the author, if provided the battle ratings will be capped to the author's max BR.
         country_filters: List of countries to filter by
 
     Returns:
@@ -20,24 +19,16 @@ def create_heatmap_premium_br_delta_by_country_and_br(
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = global_performance_df.copy()
+    df, _ = get_br_limited_graph_data(
+        global_performance_df,
+        ["player.country", "player.is_premium", "player.battle_rating_delta"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
 
     # Get unique countries and battle ratings
     available_countries = sorted(df["player.country"].unique(), reverse=True)
     available_brs = sorted(df["player.battle_rating"].unique())
-
-    # If author_name is provided, filter battle ratings to the author's max BR
-    if author_name:
-        author_mask = df["player.username"] == author_name
-        author_data = df[author_mask]
-        if len(author_data) > 0:
-            author_max_br = author_data["player.battle_rating"].max()
-            available_brs = [br for br in available_brs if br <= author_max_br]
-            # Also filter the dataframe to only include BRs up to author's max
-            br_mask = df["player.battle_rating"] <= author_max_br
-            df = df[br_mask]
-        else:
-            print(f"Warning: Author '{author_name}' not found in data")
 
     if len(available_countries) == 0 or len(available_brs) == 0:
         print("Insufficient data for heatmap")
@@ -140,7 +131,7 @@ def create_heatmap_premium_br_delta_by_country_and_br(
             ):
                 row_text.append(
                     f"Country: {country}<br>"
-                    + f"Battle Rating: {br:.1f}<br>"
+                    + f"Player Battle Rating: {br:.1f}<br>"
                     + f"Insufficient data<br>"
                     + f"Premium players: {int(premium_count)}<br>"
                     + f"Non-premium players: {int(non_premium_count)}<br>"
@@ -149,7 +140,7 @@ def create_heatmap_premium_br_delta_by_country_and_br(
             else:
                 row_text.append(
                     f"Country: {country}<br>"
-                    + f"Battle Rating: {br:.1f}<br>"
+                    + f"Player Battle Rating: {br:.1f}<br>"
                     + f"BR Delta Difference: {delta_diff:.3f}<br>"
                     + f"Premium Mean BR Delta: {premium_br_delta_mean:.3f} ({int(premium_count)} players)<br>"
                     + f"Non-Premium Mean BR Delta: {non_premium_br_delta_mean:.3f} ({int(non_premium_count)} players)"
@@ -186,7 +177,12 @@ def create_heatmap_premium_br_delta_by_country_and_br(
     # Update layout
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        xaxis=dict(title="Battle Rating", side="bottom", tickangle=45 if len(available_brs) > 10 else 0),
+        xaxis=dict(
+            title="Player Battle Rating",
+            side="bottom",
+            tickangle=45 if len(available_brs) > 10 else 0,
+            **get_battle_rating_category_axis_options(available_brs),
+        ),
         yaxis=dict(title="Country", side="left"),
         width=max(get_graph_width("heatmap"), len(available_brs) * 40),  # Dynamic width based on BR count
         height=max(400, len(available_countries) * 60),  # Dynamic height based on country count

@@ -2,13 +2,19 @@ from src.replay_data_explorer.graphs.initialization import *
 
 
 def create_scatter_score_vs_br(
-    player_performance_df: pd.DataFrame, *, player_name=None, country_filters=[], std_dev=None
+    player_performance_df: pd.DataFrame,
+    global_performance_df: Optional[pd.DataFrame] = None,
+    *,
+    player_name=None,
+    country_filters=[],
+    std_dev=None,
 ):
     """
     Create an interactive Plotly scatter plot of Score vs Battle Rating.
 
     Args:
         player_performance_df: DataFrame with performance data including tier status
+        global_performance_df: Optional all-player data for team averages
         player_name: Optional player name for filtering
         country_filters: Optional list of Country enums for filtering
         std_dev: Optional standard deviation for outlier removal
@@ -21,10 +27,29 @@ def create_scatter_score_vs_br(
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = player_performance_df.copy()
+    df, max_display_br = get_player_br_limited_graph_data(
+        player_performance_df,
+        [
+            "session_id",
+            "status",
+            "start_time",
+            "player.username",
+            "player.country",
+            "player.team",
+            "player.tier_status",
+            "player.score",
+        ],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
+    if df.empty or max_display_br is None:
+        print("No data available within the replay battle-rating limit")
+        return None
 
     # Load global performance data to calculate team averages
-    global_df = data_loaders.get_global_performance_data(country_filters)
+    global_df = global_performance_df
+    if global_df is None:
+        global_df = data_loaders.get_global_performance_data(country_filters)
 
     # Calculate team average score for each game (excluding the player)
     if not global_df.empty:
@@ -67,7 +92,7 @@ def create_scatter_score_vs_br(
 
     # One trace per tier — clicking a tier legend item filters all points of that tier.
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
-        tier_data = df[df["player.tier_status"] == tier_status]
+        tier_data = df[df["player.tier_status"] == tier_status.value]
         if tier_data.empty:
             continue
 
@@ -83,7 +108,8 @@ def create_scatter_score_vs_br(
             {
                 "username": tier_data["player.username"],
                 "country": tier_data["player.country"],
-                "battle_rating": tier_data["battle_rating"],
+                "player_battle_rating": tier_data["player.battle_rating"],
+                "replay_battle_rating": tier_data["battle_rating"],
                 "team_avg": tier_data["team_avg_score"],
                 "start_time": tier_data["start_time"],
                 "session_id": tier_data["session_id"],
@@ -108,15 +134,16 @@ def create_scatter_score_vs_br(
                 hovertemplate=(
                     "<b>%{customdata[0]}</b><br>"
                     + "Country: %{customdata[1]}<br>"
-                    + "BR: %{customdata[2]}<br>"
+                    + "Player BR: %{customdata[2]:.1f}<br>"
+                    + "Replay Max BR: %{customdata[3]:.1f}<br>"
                     + "Tier: "
                     + tier_status_display
                     + "<br>"
-                    + "Result: %{customdata[6]}<br>"
+                    + "Result: %{customdata[7]}<br>"
                     + "Score: %{y:.0f}<br>"
-                    + "Team Avg: %{customdata[3]:.0f}<br>"
-                    + "Date: %{customdata[4]}<br>"
-                    + "Session: %{customdata[5]}<br><extra></extra>"
+                    + "Team Avg: %{customdata[4]:.0f}<br>"
+                    + "Date: %{customdata[5]}<br>"
+                    + "Session: %{customdata[6]}<br><extra></extra>"
                 ),
             )
         )
@@ -153,14 +180,14 @@ def create_scatter_score_vs_br(
                 mode="lines",
                 name=f"Overall Trend (slope: {z[0]:.1f})",
                 line=dict(color=hex_to_rgba("#000000", PLOTLY_TRENDLINE_OPACITY), width=2, dash="dash"),
-                hovertemplate="Overall Trend<br>BR: %{x:.1f}<br>Predicted Score: %{y:.0f}<extra></extra>",
+                hovertemplate="Overall Trend<br>Player BR: %{x:.1f}<br>Predicted Score: %{y:.0f}<extra></extra>",
                 showlegend=True,
             )
         )
 
     # Add per-tier trend lines
     for tier_status in PLOTLY_BATTLE_RATING_TIER_STATUS_ORDER:
-        tier_data = df[df["player.tier_status"] == tier_status]
+        tier_data = df[df["player.tier_status"] == tier_status.value]
         tier_status_display = battle_rating_tier_display_builder.get_battle_rating_tier_display_from_battle_rating_tier(
             tier_status
         )
@@ -187,7 +214,7 @@ def create_scatter_score_vs_br(
                         mode="lines",
                         name=f"{tier_status_display} Trend ({z_tier[0]:.1f})",
                         line=dict(color=hex_to_rgba(tier_color, PLOTLY_TRENDLINE_OPACITY), width=1.5, dash="dot"),
-                        hovertemplate=f"{tier_status_display} Trend<br>BR: %{{x}}<br>Predicted Score: %{{y:.0f}}<extra></extra>",
+                        hovertemplate=f"{tier_status_display} Trend<br>Player BR: %{{x}}<br>Predicted Score: %{{y:.0f}}<extra></extra>",
                         showlegend=True,
                         legendgroup=tier_status_display,  # Group with the scatter points
                         visible="legendonly",
@@ -208,12 +235,18 @@ def create_scatter_score_vs_br(
         )
     if std_dev is not None:
         title_filters["σ"] = str(std_dev)
-    title = title_builder.build_title("Score vs Battle Rating with Tier", filters=title_filters)
+    title = title_builder.build_title("Score vs Player Battle Rating with Tier", filters=title_filters)
 
     # Update the graph's layout
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        xaxis=dict(title="Battle Rating", gridcolor="lightgray", gridwidth=1, zeroline=False),
+        xaxis=dict(
+            title="Player Battle Rating",
+            **get_battle_rating_axis_options(df["player.battle_rating"]),
+            gridcolor="lightgray",
+            gridwidth=1,
+            zeroline=False,
+        ),
         yaxis=dict(title="Score", gridcolor="lightgray", gridwidth=1, zeroline=False),
         plot_bgcolor="white",
         width=get_graph_width(),

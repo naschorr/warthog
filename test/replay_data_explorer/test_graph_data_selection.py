@@ -2,7 +2,6 @@ from datetime import datetime
 import importlib
 
 import pandas as pd
-import pytest
 
 from src.replay_data_explorer.enums import BattleRatingTier
 from src.replay_data_explorer.graphs.initialization import (
@@ -116,7 +115,7 @@ def test_br_axis_preserves_decimal_endpoints_and_adds_edge_padding() -> None:
     assert category_options["range"] == [-0.5, 1.5]
 
 
-def test_player_graph_axes_extend_to_player_br(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_player_graph_axes_extend_to_player_br() -> None:
     player_rows = []
     teammate_rows = []
     for index, (player_br, replay_br) in enumerate(((8.7, 9.7), (9.3, 10.3))):
@@ -177,12 +176,7 @@ def test_player_graph_axes_extend_to_player_br(monkeypatch: pytest.MonkeyPatch) 
         "src.replay_data_explorer.graphs.player.scatter_score_vs_br"
     )
 
-    class StubDataLoader:
-        def get_global_performance_data(self, *_args):
-            return global_df
-
-    monkeypatch.setattr(score_vs_br_module, "data_loaders", StubDataLoader())
-    score_vs_br = score_vs_br_module.create_scatter_score_vs_br(player_df)
+    score_vs_br = score_vs_br_module.create_scatter_score_vs_br(player_df, global_df)
 
     relative_score = create_scatter_score_vs_team_mean(player_df, global_df)
     tier_frequency = create_bar_tier_frequency_vs_br(player_df)
@@ -191,10 +185,21 @@ def test_player_graph_axes_extend_to_player_br(monkeypatch: pytest.MonkeyPatch) 
     br_delta_heatmap = create_heatmap_br_delta_by_country_and_br(player_df)
 
     assert score_vs_br.layout.xaxis.range == (1.15, 9.45)
+    assert score_vs_br.layout.xaxis.title.text == "Player Battle Rating"
     assert relative_score.layout.xaxis.range == (1.15, 9.45)
     assert tier_frequency.layout.xaxis.range == (1.15, 9.45)
     assert list(score_vs_br.layout.xaxis.tickvals) == [1.3, 8.7, 9.3]
     assert list(score_vs_br.layout.xaxis.ticktext) == ["1.3", "8.7", "9.3"]
+    score_hover_row = next(
+        row
+        for trace in score_vs_br.data
+        if trace.customdata is not None
+        for row in trace.customdata
+        if row[6] == "session-1"
+    )
+    assert score_hover_row[2] == 9.3
+    assert score_hover_row[3] == 10.3
+    assert score_hover_row[4] == 800
     assert list(tier_frequency.layout.xaxis.tickvals) == [1.3, 8.7, 9.3]
     assert list(score_heatmap.data[0].x) == ["1.3", "8.7", "9.3"]
     assert score_heatmap.layout.xaxis.range == (-0.5, 2.5)

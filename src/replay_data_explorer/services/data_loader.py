@@ -56,11 +56,13 @@ class DataLoaders:
                 # Get target player
                 target_player = None
                 if player_name:
-                    # Find specific player by name
-                    for player in replay.players:
-                        if player.username == player_name:
-                            target_player = player
-                            break
+                    if replay.author and replay.author.username == player_name:
+                        target_player = replay.author
+                    else:
+                        target_player = next(
+                            (player for player in replay.players if player.username == player_name),
+                            None,
+                        )
                 else:
                     # Use author if no specific player name provided
                     target_player = replay.author
@@ -80,12 +82,7 @@ class DataLoaders:
         if not player_replays:
             return pd.DataFrame()
 
-        max_player_br = max(target_player.battle_rating for _, _, target_player in player_replays)
-
         for replay_file_path, replay, target_player in player_replays:
-            if replay.battle_rating > max_player_br:
-                continue
-
             if country_filters and target_player.country not in country_filters:
                 continue
 

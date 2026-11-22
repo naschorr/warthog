@@ -26,12 +26,18 @@ class StubReplay:
         level_settings: str,
         replay_br: float,
         author_br: float,
+        *,
+        author_in_player_list: bool = True,
     ):
         self.session_id = session_id
         self.level_settings = level_settings
         self.battle_rating = replay_br
         self.author = StubPlayer("Ranol", author_br)
-        self.players = [self.author, StubPlayer("teammate", replay_br)]
+        self.players = (
+            [self.author, StubPlayer("teammate", replay_br)]
+            if author_in_player_list
+            else [StubPlayer("teammate", replay_br)]
+        )
 
     def to_json(self) -> str:
         return json.dumps(
@@ -97,7 +103,11 @@ def test_performance_data_excludes_event_and_race_replays() -> None:
     player_data = data_loaders.get_player_performance_data("Ranol")
     global_data = data_loaders.get_global_performance_data()
 
-    assert player_data["session_id"].tolist() == ["regular-session"]
+    assert player_data["session_id"].tolist() == [
+        "regular-session",
+        "above-player-max-session",
+        "outlier-session",
+    ]
     assert global_data["session_id"].tolist() == [
         "regular-session",
         "regular-session",
@@ -106,3 +116,18 @@ def test_performance_data_excludes_event_and_race_replays() -> None:
         "outlier-session",
         "outlier-session",
     ]
+
+
+def test_player_performance_data_includes_author_when_not_in_player_list() -> None:
+    replay = StubReplay(
+        "author-only-session",
+        "gamedata/missions/cta/tanks/berlin/berlin_dom.blk",
+        replay_br=9.3,
+        author_br=9.3,
+        author_in_player_list=False,
+    )
+    manager = StubReplayManager({"author-only.json": replay})
+
+    player_data = DataLoaders(manager).get_player_performance_data("Ranol")
+
+    assert player_data["session_id"].tolist() == ["author-only-session"]

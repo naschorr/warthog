@@ -30,7 +30,11 @@ def create_heatmap_winrate_by_country_and_player_br(
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = global_performance_df.copy()
+    df, _ = get_br_limited_graph_data(
+        global_performance_df,
+        ["status", "player.country", "session_id"],
+        battle_rating_column="player.battle_rating",
+    )
 
     # Filter out battles where player left early
     df = df[df["status"] != "left"]
@@ -86,7 +90,7 @@ def create_heatmap_winrate_by_country_and_player_br(
 
     # Prepare data for the heatmap
     # Mask cells with insufficient data so they don't get colored
-    z_values = winrate_pivot.copy().values
+    z_values = winrate_pivot.to_numpy(copy=True)
     for i in range(len(available_countries)):
         for j in range(len(available_brs)):
             appearances = appearances_pivot.iloc[i, j]
@@ -179,7 +183,12 @@ def create_heatmap_winrate_by_country_and_player_br(
     # Update layout
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        xaxis=dict(title="Player Battle Rating", side="bottom", tickangle=45 if len(available_brs) > 10 else 0),
+        xaxis=dict(
+            title="Player Battle Rating",
+            side="bottom",
+            tickangle=45 if len(available_brs) > 10 else 0,
+            **get_battle_rating_category_axis_options(available_brs),
+        ),
         yaxis=dict(title="Country", side="left"),
         width=max(get_graph_width("heatmap"), len(available_brs) * 40),  # Dynamic width based on BR count
         height=max(400, len(available_countries) * 60),  # Dynamic height based on country count

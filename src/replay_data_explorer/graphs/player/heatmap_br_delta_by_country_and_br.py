@@ -20,7 +20,12 @@ def create_heatmap_br_delta_by_country_and_br(
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = player_performance_df.copy()
+    df, _ = get_player_br_limited_graph_data(
+        player_performance_df,
+        ["player.country", "player.battle_rating_delta"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
 
     # Get unique countries and battle ratings
     available_countries = sorted(df["player.country"].unique(), reverse=True)
@@ -58,13 +63,13 @@ def create_heatmap_br_delta_by_country_and_br(
             delta = delta_pivot.iloc[i, j]
             count = count_pivot.iloc[i, j]
             if pd.isna(delta):
-                row_text.append(f"Country: {country}<br>" + f"Battle Rating: {br:.1f}<br>")
+                row_text.append(f"Country: {country}<br>" + f"Player Battle Rating: {br:.1f}<br>")
             else:
                 tier_status = battle_rating_tier_display_builder.get_battle_rating_tier_display_from_delta(delta)
 
                 hover_info = (
                     f"Country: {country}<br>"
-                    f"Battle Rating: {br:.1f}<br>"
+                    f"Player Battle Rating: {br:.1f}<br>"
                     f"Mean BR Delta: {delta:.3f}<br>"
                     f"Tier Status: {tier_status}<br>"
                     f"Total Battles: {int(count)}"
@@ -100,7 +105,12 @@ def create_heatmap_br_delta_by_country_and_br(
     # Update layout
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
-        xaxis=dict(title="Battle Rating", side="bottom", tickangle=45 if len(available_brs) > 10 else 0),
+        xaxis=dict(
+            title="Player Battle Rating",
+            side="bottom",
+            tickangle=45 if len(available_brs) > 10 else 0,
+            **get_battle_rating_category_axis_options(available_brs),
+        ),
         yaxis=dict(title="Country", side="left"),
         width=max(get_graph_width("heatmap"), len(available_brs) * 40),  # Dynamic width based on BR count
         height=max(400, len(available_countries) * 60),  # Dynamic height based on country count

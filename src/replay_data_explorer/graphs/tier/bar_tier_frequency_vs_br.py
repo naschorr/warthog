@@ -18,10 +18,22 @@ def create_bar_tier_frequency_vs_br(player_performance_df: pd.DataFrame, *, play
         return None
 
     # Get a copy of the data to avoid modifying the original
-    df = player_performance_df.copy()
+    df, max_display_br = get_player_br_limited_graph_data(
+        player_performance_df,
+        ["player.tier_status"],
+        battle_rating_column="player.battle_rating",
+        require_valid_br_delta=True,
+    )
+    if df.empty or max_display_br is None:
+        print("No data available within the replay battle-rating limit")
+        return None
 
     # Get available battle ratings
     available_brs = sorted(df["player.battle_rating"].unique())
+    if not available_brs:
+        print("No battle-rating groups available for plotting")
+        return None
+    br_axis_options = get_battle_rating_axis_options(df["player.battle_rating"])
 
     # Calculate tier percentages for each battle rating
     br_tier_data = []
@@ -59,6 +71,7 @@ def create_bar_tier_frequency_vs_br(player_performance_df: pd.DataFrame, *, play
                     name=tier_status_display,
                     x=battle_ratings,
                     y=percentages,
+                    width=0.3,
                     text=[str(count) if count > 0 else "" for count in counts],
                     textposition="inside",
                     textfont=dict(color="white", size=9),
@@ -66,7 +79,7 @@ def create_bar_tier_frequency_vs_br(player_performance_df: pd.DataFrame, *, play
                     customdata=list(zip(counts, totals)),
                     hovertemplate=(
                         f"<b>{tier_status_display}</b><br>"
-                        + "Battle Rating: %{x}<br>"
+                        + "Player Battle Rating: %{x}<br>"
                         + "Percentage: %{y:.1f}%<br>"
                         + "Count: %{customdata[0]}<br>"
                         + "Total Battles: %{customdata[1]}<br>"
@@ -91,10 +104,8 @@ def create_bar_tier_frequency_vs_br(player_performance_df: pd.DataFrame, *, play
     fig.update_layout(
         title={"text": title, "x": 0.5, "xanchor": "center", "font": {"size": 16}},
         xaxis=dict(
-            title="Battle Rating",
-            tickangle=45 if len(available_brs) > 10 else 0,
-            tickvals=available_brs,
-            ticktext=[f"{br:.1f}" for br in available_brs],
+            title="Player Battle Rating",
+            **br_axis_options,
         ),
         yaxis=dict(title="Percentage (%)", range=[0, 100]),
         barmode="stack",
