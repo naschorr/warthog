@@ -153,11 +153,14 @@ class ReplayParserService:
         )
         offset += 4
 
-        battle_class_raw = self._read_string(replay_data, offset, 128).lower()
-        if "air_ground" in battle_class_raw:
-            battle_class = BattleVehicleClassType.AIR_GROUND
-        else:
-            battle_class = BattleVehicleClassType.AIR
+        # Skip the unmodeled header block before the battle-class string.
+        offset += 48
+        battle_class_raw = self._read_string(replay_data, offset, 128)
+        battle_class = (
+            BattleVehicleClassType.AIR_GROUND
+            if "air_ground" in battle_class_raw.casefold()
+            else BattleVehicleClassType.AIR
+        )
         offset += 128
 
         battle_kill_streak = self._read_string(replay_data, offset, 128)
