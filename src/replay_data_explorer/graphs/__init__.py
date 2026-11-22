@@ -28,6 +28,9 @@ from .all_player.heatmap_winrate_by_country_and_player_br import (
 from .all_player.heatmap_lineup_ground_vehicle_type_frequency_by_country_and_player_br import (
     create_heatmap_lineup_ground_vehicle_type_frequency_by_country_and_player_br as create_all_player_heatmap_lineup_ground_vehicle_type_frequency_by_country_and_player_br,
 )
+from .all_player.heatmap_tier_frequency_by_country_and_player_br import (
+    create_heatmap_tier_frequency_by_country_and_player_br as create_all_player_heatmap_tier_frequency_by_country_and_player_br,
+)
 from .all_player.heatmap_one_death_leave_rate_by_country_and_br import (
     create_heatmap_one_death_leave_rate_by_country_and_br as create_all_player_heatmap_one_death_leave_rate_by_country_and_br,
 )
@@ -80,6 +83,7 @@ __all__ = [
     "create_pie_tier_frequency",
     "create_bar_tier_frequency_vs_country",
     "create_bar_tier_frequency_vs_br",
+    "create_all_player_heatmap_tier_frequency_by_country_and_player_br",
     # Squad
     "create_bar_squad_performance",
     "create_bar_squad_win_rate",
