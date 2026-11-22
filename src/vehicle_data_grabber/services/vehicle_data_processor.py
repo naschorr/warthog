@@ -572,6 +572,8 @@ class VehicleDataProcessor:
             return VehicleType.BATTLESHIP
         elif "type_battlecruiser" in tags:
             return VehicleType.BATTLECRUISER
+        elif "type_submarine" in tags:
+            return VehicleType.SUBMARINE  # Assumed to be bluewater, this doesn't have a wiki entry yet.
 
         # Coastal fleet vehicle types
         elif "type_barge" in tags:

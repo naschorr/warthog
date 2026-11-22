@@ -26,6 +26,7 @@ class VehicleType(Enum):
     HEAVY_CRUISER = "Heavy Cruiser"
     BATTLESHIP = "Battleship"
     BATTLECRUISER = "Battlecruiser"
+    SUBMARINE = "Submarine"
 
     # Coastal Fleet Vehicle Types
     BARGE = "Barge"
