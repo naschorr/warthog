@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import Iterator, Optional, TYPE_CHECKING
 
 from src.replay_data_grabber.configuration import ReplayManagerServiceConfig
 from src.replay_data_grabber.models import Replay
@@ -49,6 +49,16 @@ class ReplayManagerService:
         return {session_id: replay for session_id, (path, replay) in self._loaded_replays.items()}
 
     # Methods
+
+    def iter_loaded_replays(self, *, release: bool = False) -> Iterator[tuple[Path, Replay]]:
+        """Iterate cached replays, optionally releasing each model as it is consumed."""
+        session_ids = list(self._loaded_replays) if release else self._loaded_replays
+        for session_id in session_ids:
+            if release:
+                replay_file_path, replay = self._loaded_replays.pop(session_id)
+            else:
+                replay_file_path, replay = self._loaded_replays[session_id]
+            yield replay_file_path, replay
 
     def load_processed_replay(self, replay_file_path: Path) -> Replay:
         """

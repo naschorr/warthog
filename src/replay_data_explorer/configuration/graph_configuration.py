@@ -43,6 +43,7 @@ PLOTLY_CONCLUSION_COLORS = {
 }
 
 MINIMUM_ITEMS_FOR_PLOTTING = 10
+BATTLE_RATING_AXIS_PADDING = 0.15
 
 # Marker symbol per battle outcome (Plotly symbol names)
 PLOTLY_BATTLE_OUTCOME_SYMBOLS = {
