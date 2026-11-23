@@ -61,5 +61,10 @@ class ReplayManagerServiceConfig(BaseModel):
 class WarthogReplayDataGrabberConfig(BaseModel):
     """Replay data grabber specific configuration."""
 
+    max_parse_workers: int = Field(
+        default=4,
+        ge=1,
+        description="Maximum worker processes for parsing replay directories.",
+    )
     wt_ext_cli_service_config: WtExtCliServiceConfig = WtExtCliServiceConfig()
     replay_manager_service_config: ReplayManagerServiceConfig

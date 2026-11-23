@@ -94,7 +94,7 @@ def main():
     args = parse_arguments()
     service_factory = ServiceFactory()
     service_factory.create_logging_service()
-    replay_manager_service = service_factory.get_replay_manager_service()
+    replay_manager_service = service_factory.get_replay_manager_service(load_existing_replays=False)
 
     replay_copier = WarthogReplayDataCopier(
         replay_manager_service, output_dir=Path(args.output_dir_path), allow_overwrite=args.overwrite
