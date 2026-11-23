@@ -692,6 +692,15 @@ class ReplayParserService:
             else:
                 raise ValueError(f"Unknown battle type: {battle_type}")
 
+        if not battle_ratings:
+            logger.warning(
+                "No battle ratings found for lineup %r (battle class=%s, battle type=%s); using 0.0",
+                lineup,
+                battle_class,
+                battle_type,
+            )
+            return 0.0
+
         battle_rating = transform_func(battle_ratings)
         return battle_rating
 

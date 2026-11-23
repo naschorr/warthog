@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.enums import BattleVehicleClassType
+from src.common.enums import BattleType, BattleVehicleClassType
 from src.replay_data_grabber.services.replay_parser_service import ReplayParserService
 
 
@@ -103,3 +103,17 @@ def test_realistic_ground_replay_uses_f4jk_air_ground_rating() -> None:
 
     assert battle_class == BattleVehicleClassType.AIR_GROUND
     assert battle_rating == 10.3
+
+
+def test_missing_lineup_battle_ratings_do_not_abort_replay_parsing(caplog) -> None:
+    parser = object.__new__(ReplayParserService)
+    parser._vehicle_service = StubVehicleService()
+
+    battle_rating = parser._get_player_battle_rating(
+        BattleVehicleClassType.AIR,
+        BattleType.REALISTIC,
+        [],
+    )
+
+    assert battle_rating == 0.0
+    assert "using 0.0" in caplog.text
