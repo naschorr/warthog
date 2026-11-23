@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from typing import Optional
 
@@ -89,8 +88,8 @@ class DataLoaders:
             try:
                 # Keep the shape of the replay data, but normalize it to a flat structure
                 # TODO: the replay and player models need a to_dict or maybe to_dataframe?
-                replay_data = json.loads(replay.to_json())
-                player_data = json.loads(target_player.to_json())
+                replay_data = replay.model_dump(mode="json")
+                player_data = target_player.model_dump(mode="json")
 
                 # Remove the players array from replay data
                 if "players" in replay_data:
@@ -144,7 +143,7 @@ class DataLoaders:
 
             try:
                 # Get replay data once for this replay
-                replay_data = json.loads(replay.to_json())
+                replay_data = replay.model_dump(mode="json")
 
                 # Remove the players array from replay data
                 if "players" in replay_data:
@@ -155,7 +154,7 @@ class DataLoaders:
                     if country_filters and player.country not in country_filters:
                         continue
 
-                    player_data = json.loads(player.to_json())
+                    player_data = player.model_dump(mode="json")
 
                     # Calculate additional player metrics
                     battle_rating_delta = round(player.battle_rating - replay.battle_rating, 2)
