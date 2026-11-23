@@ -91,8 +91,10 @@ class Player(SerializableModel):
 
     @field_validator("platform_type", mode="before")
     @classmethod
-    def validate_platform_type(cls, v: str | PlatformType) -> PlatformType:
+    def validate_platform_type(cls, v: str | PlatformType | None) -> PlatformType | None:
         """Convert string platform values to PlatformType enum."""
+        if v is None or v == "None":
+            return None
         if isinstance(v, str):
             for platform_enum in PlatformType:
                 if platform_enum.value == v:
@@ -102,14 +104,16 @@ class Player(SerializableModel):
 
     @field_serializer("platform_type")
     @classmethod
-    def serialize_platform_type(cls, v: PlatformType) -> str:
+    def serialize_platform_type(cls, v: Optional[PlatformType]) -> Optional[str]:
         """Serialize PlatformType enum to its string value."""
-        return v.value if isinstance(v, PlatformType) else str(v)
+        return v.value if isinstance(v, PlatformType) else None
 
     @field_validator("country", mode="before")
     @classmethod
-    def validate_country(cls, v: str | Country) -> Country:
+    def validate_country(cls, v: str | Country | None) -> Country | None:
         """Convert string country values to Country enum."""
+        if v is None or v == "None":
+            return None
         if isinstance(v, str):
             for country_enum in Country:
                 if country_enum.value == v:
@@ -127,6 +131,6 @@ class Player(SerializableModel):
 
     @field_serializer("country")
     @classmethod
-    def serialize_country(cls, v: Country) -> str:
+    def serialize_country(cls, v: Optional[Country]) -> Optional[str]:
         """Serialize Country enum to its string value."""
-        return v.value if isinstance(v, Country) else str(v)
+        return v.value if isinstance(v, Country) else None
