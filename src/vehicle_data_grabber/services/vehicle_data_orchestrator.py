@@ -7,7 +7,8 @@ logger = logging.getLogger(__name__)
 
 import shutil
 import json
-from datetime import datetime
+from bisect import bisect_right
+from datetime import datetime, timezone
 from pathlib import Path
 
 from src.common.clients import GitRepositoryClient
@@ -50,42 +51,37 @@ class VehicleDataOrchestrator:
         if len(self._game_versions) > 0:
             return self._game_versions
 
-        # Prefer processed replay data when available.
-        replays = list(self._replay_manager_service.loaded_replays.values())
+        loaded_replays = self._replay_manager_service.loaded_replays
+        replay_start_times = [
+            replay.start_time for replay in loaded_replays.values() if replay.start_time is not None
+        ]
 
-        oldest_replay_date = None
-        if replays:
-            processed_replays = [replay for replay in replays if replay.start_time is not None]
-            if processed_replays:
-                oldest_replay_date = min(
-                    replay.start_time for replay in processed_replays if replay.start_time is not None
-                )
-
-        # If there are no processed replays with start time, fall back to raw replay headers.
-        if oldest_replay_date is None:
-            raw_replay_files = self._replay_manager_service.discover_raw_replay_files(
-                self._replay_manager_service._raw_replay_dir_path
+        raw_replay_files = self._replay_manager_service.discover_raw_replay_files(
+            self._replay_manager_service._raw_replay_dir_path
+        )
+        if not replay_start_times and not raw_replay_files:
+            raise ValueError(
+                "Unable to determine game versions because no raw or processed replay files were available. "
+                "Please add .wrpl files to the replay directory and retry."
             )
-            if not raw_replay_files:
-                raise ValueError(
-                    "Unable to determine game versions because no raw or processed replay files were available. "
-                    "Please add .wrpl files to the replay directory and retry."
-                )
 
-            for replay_file in raw_replay_files.keys():
-                try:
-                    start_time = self._replay_manager_service._replay_parser_service.get_start_time_from_replay_file(
+        for replay_file, session_id in raw_replay_files.items():
+            if session_id in loaded_replays:
+                continue
+
+            try:
+                replay_start_times.append(
+                    self._replay_manager_service._replay_parser_service.get_start_time_from_replay_file(
                         replay_file
                     )
-                    if oldest_replay_date is None or start_time < oldest_replay_date:
-                        oldest_replay_date = start_time
-                except Exception as e:
-                    logger.debug(f"Skipping raw replay file {replay_file} while determining oldest date: {e}")
+                )
+            except Exception as e:
+                logger.debug(f"Skipping raw replay file {replay_file} while determining replay dates: {e}")
 
-        if oldest_replay_date is None:
+        if not replay_start_times:
             raise ValueError(
                 "Unable to determine game versions because no replay start times were available. "
-                "Please add raw .wrpl replay files to the replay directory and retry."
+                "Please check that replay files contain valid start times and retry."
             )
 
         if not self._git_repository_client.is_cloned:
@@ -93,8 +89,44 @@ class VehicleDataOrchestrator:
                 sparse_paths=self._vehicle_data_processor.get_datamined_file_paths()
             )
 
-        tags = self._git_repository_client.get_tags_between_datetimes(start=oldest_replay_date, end=datetime.now())
-        return [tag.name for tag in tags]
+        tags_with_release_datetimes = []
+        for tag_ref in self._git_repository_client.get_tags():
+            try:
+                release_datetime = tag_ref.commit.committed_datetime.astimezone(timezone.utc).replace(tzinfo=None)
+                tags_with_release_datetimes.append((release_datetime, tag_ref.name))
+            except Exception as e:
+                logger.debug(f"Could not get commit date for tag {tag_ref.name}: {e}")
+
+        tags_with_release_datetimes.sort(key=lambda tag: (tag[0], tag[1]))
+        if not tags_with_release_datetimes:
+            logger.warning("No game-version tags were available to cover the loaded replays")
+            return []
+
+        tag_release_datetimes = [release_datetime for release_datetime, _ in tags_with_release_datetimes]
+        selected_versions = set()
+        for replay_start_time in replay_start_times:
+            if replay_start_time.tzinfo is not None:
+                replay_start_time = replay_start_time.astimezone(timezone.utc).replace(tzinfo=None)
+
+            tag_index = bisect_right(tag_release_datetimes, replay_start_time) - 1
+            if tag_index < 0:
+                logger.warning(
+                    "No game-version tag was released at or before replay time %s",
+                    replay_start_time,
+                )
+                continue
+            selected_versions.add(tags_with_release_datetimes[tag_index][1])
+
+        selected_tags = [
+            version for _, version in tags_with_release_datetimes if version in selected_versions
+        ]
+        logger.info(
+            "Selected %d of %d game-version tags to cover %d replay dates",
+            len(selected_tags),
+            len(tags_with_release_datetimes),
+            len(replay_start_times),
+        )
+        return selected_tags
 
     def run_orchestrator(self):
         game_version_to_datetime_map = self._load_game_version_release_datetimes()
