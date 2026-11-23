@@ -1,5 +1,3 @@
-import json
-
 from src.replay_data_explorer.services.data_loader import DataLoaders
 
 
@@ -9,14 +7,12 @@ class StubPlayer:
         self.country = "Germany"
         self.battle_rating = battle_rating
 
-    def to_json(self) -> str:
-        return json.dumps(
-            {
-                "username": self.username,
-                "country": self.country,
-                "battle_rating": self.battle_rating,
-            }
-        )
+    def model_dump(self, *, mode: str) -> dict:
+        return {
+            "username": self.username,
+            "country": self.country,
+            "battle_rating": self.battle_rating,
+        }
 
 
 class StubReplay:
@@ -39,15 +35,13 @@ class StubReplay:
             else [StubPlayer("teammate", replay_br)]
         )
 
-    def to_json(self) -> str:
-        return json.dumps(
-            {
-                "session_id": self.session_id,
-                "level_settings": self.level_settings,
-                "battle_rating": self.battle_rating,
-                "players": [],
-            }
-        )
+    def model_dump(self, *, mode: str) -> dict:
+        return {
+            "session_id": self.session_id,
+            "level_settings": self.level_settings,
+            "battle_rating": self.battle_rating,
+            "players": [],
+        }
 
 
 class StubReplayManager:

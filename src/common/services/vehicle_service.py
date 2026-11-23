@@ -30,17 +30,19 @@ class VehicleService:
         self._vehicle_data_directory_path = self._config.processed_vehicle_data_directory_path
         self._game_version_to_release_datetime_path = self._config.game_version_to_release_datetime_file_path
 
-        self._vehicle_data = self._load_vehicle_data(
+        self._vehicle_data_paths = self._index_vehicle_data_files(
             self._vehicle_data_directory_path, self._game_version_to_release_datetime_path
         )
+        self._vehicle_data_datetimes = sorted(self._vehicle_data_paths, reverse=True)
+        self._vehicle_data: dict[datetime, dict[str, Vehicle]] = {}
 
     ## Methods
 
-    def _load_vehicle_data(
+    def _index_vehicle_data_files(
         self, vehicle_data_directory_path: Path, game_version_to_release_datetime_path: Path
-    ) -> dict[datetime, dict[str, Vehicle]]:
+    ) -> dict[datetime, Path]:
         """
-        Load vehicle data from directory containing the processed JSON files.
+        Index processed vehicle JSON files by their release datetime without loading their contents.
         """
         # Validate paths
         if not vehicle_data_directory_path.exists():
@@ -63,7 +65,7 @@ class VehicleService:
                     )
 
         # Build output map
-        datetime_to_vehicle_data: dict[datetime, dict[str, Vehicle]] = {}
+        datetime_to_vehicle_data_path: dict[datetime, Path] = {}
 
         # Find all candidate processed vehicle data files
         processed_vehicle_data_paths = list(vehicle_data_directory_path.glob("*.json"))
@@ -73,58 +75,50 @@ class VehicleService:
             file_name_parts = file_name.split(".")
             game_version = ".".join(file_name_parts[1:])
 
-            with open(vehicle_data_path, "r", encoding="utf-8") as file:
-                raw_data = json.load(file)
-
-            # Convert dictionaries back to Vehicle objects
-            vehicles: dict[str, Vehicle] = {}
-            for internal_name, vehicle_data in raw_data.items():
-                try:
-                    # Pydantic will automatically convert string enum values to actual enums
-                    vehicle = Vehicle.model_validate(vehicle_data)
-                    vehicles[internal_name] = vehicle
-                except Exception as e:
-                    logger.error(f"Failed to load vehicle {internal_name}: {e}")
-
             if game_version not in game_version_to_release_datetime:
                 logger.warning(
                     f"Game version {game_version} from file {vehicle_data_path} not found in release datetime mapping; skipping"
                 )
                 continue
 
-            logger.info(f"Loaded {len(vehicles)} vehicles from {vehicle_data_path}")
-            datetime_to_vehicle_data[game_version_to_release_datetime[game_version]] = vehicles
+            datetime_to_vehicle_data_path[game_version_to_release_datetime[game_version]] = vehicle_data_path
 
-        return datetime_to_vehicle_data
+        return datetime_to_vehicle_data_path
+
+    def _load_vehicle_data_bucket(self, vehicle_data_path: Path) -> dict[str, Vehicle]:
+        with open(vehicle_data_path, "r", encoding="utf-8") as file:
+            raw_data = json.load(file)
+
+        vehicles: dict[str, Vehicle] = {}
+        for internal_name, vehicle_data in raw_data.items():
+            try:
+                # Pydantic will automatically convert string enum values to actual enums
+                vehicle = Vehicle.model_validate(vehicle_data)
+                vehicles[internal_name] = vehicle
+            except Exception as e:
+                logger.error(f"Failed to load vehicle {internal_name}: {e}")
+
+        logger.info(f"Loaded {len(vehicles)} vehicles from {vehicle_data_path}")
+        return vehicles
 
     def _get_vehicle_data_bucket(self, search_datetime: datetime) -> dict[str, Vehicle]:
         """
-        Get the vehicle data bucket for a specific datetime.
+        Get the vehicle data bucket for a specific datetime, loading it on first use.
         """
-        datetime_buckets = sorted(self._vehicle_data.keys(), reverse=True)
-        best_datetime_bucket: Optional[datetime] = None
-        previous_datetime_bucket: Optional[datetime] = None
-        for datetime_bucket in datetime_buckets:
-            if previous_datetime_bucket is not None:
-                if search_datetime >= datetime_bucket and search_datetime <= previous_datetime_bucket:
-                    best_datetime_bucket = datetime_bucket
+        if not self._vehicle_data_datetimes:
+            logger.warning(
+                "No processed vehicle data buckets found for search datetime %s; returning empty vehicle data.",
+                search_datetime,
+            )
+            return {}
 
-                if search_datetime >= previous_datetime_bucket:
-                    best_datetime_bucket = previous_datetime_bucket
-                    # We've passed the search datetime, so we can stop looking
-                    break
-
-            previous_datetime_bucket = datetime_bucket
-
-        # No bucket? Use the newest one.
-        if best_datetime_bucket is None:
-            if not datetime_buckets:
-                logger.warning(
-                    "No processed vehicle data buckets found for search datetime %s; returning empty vehicle data.",
-                    search_datetime,
-                )
-                return {}
-            best_datetime_bucket = datetime_buckets[0]
+        best_datetime_bucket = next(
+            (bucket for bucket in self._vehicle_data_datetimes if search_datetime >= bucket),
+            self._vehicle_data_datetimes[0],
+        )
+        if best_datetime_bucket not in self._vehicle_data:
+            vehicle_data_path = self._vehicle_data_paths[best_datetime_bucket]
+            self._vehicle_data[best_datetime_bucket] = self._load_vehicle_data_bucket(vehicle_data_path)
 
         return self._vehicle_data[best_datetime_bucket]
 

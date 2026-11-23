@@ -13,6 +13,7 @@ from src.common.services import VehicleService, LoggingService
 from src.common.utilities import get_root_directory
 
 if TYPE_CHECKING:
+    from src.replay_data_grabber.configuration import WarthogReplayDataGrabberConfig
     from src.vehicle_data_grabber.services.vehicle_data_orchestrator import VehicleDataOrchestrator
     from src.vehicle_data_grabber.services.vehicle_data_processor import VehicleDataProcessor
     from src.replay_data_grabber.services.replay_parser_service import ReplayParserService
@@ -105,6 +106,9 @@ class ServiceFactory:
 
     # Replay Data Grabber Services
 
+    def get_replay_data_grabber_config(self) -> "WarthogReplayDataGrabberConfig":
+        return self._config.replay_data_grabber_config
+
     def get_wt_ext_cli_client_service(self) -> "WtExtCliClientService":
         """
         Get or create a WtExtCliClientService instance.
@@ -132,7 +136,9 @@ class ServiceFactory:
             )
         return self._replay_parser_service
 
-    def get_replay_manager_service(self, **kwargs) -> "ReplayManagerService":
+    def get_replay_manager_service(
+        self, *, load_existing_replays: bool = True, **kwargs
+    ) -> "ReplayManagerService":
         """
         Get or create a ReplayManagerService instance.
         """
@@ -147,5 +153,6 @@ class ServiceFactory:
             self._replay_manager_service = ReplayManagerService(
                 service_config,
                 replay_parser_service=self.get_replay_parser_service(),
+                load_existing_replays=load_existing_replays,
             )
         return self._replay_manager_service

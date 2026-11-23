@@ -1,12 +1,12 @@
+import json
 import logging
-
-logger = logging.getLogger(__name__)
-
 from pathlib import Path
 from typing import Iterator, Optional, TYPE_CHECKING
 
 from src.replay_data_grabber.configuration import ReplayManagerServiceConfig
 from src.replay_data_grabber.models import Replay
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from src.replay_data_grabber.services.replay_parser_service import ReplayParserService
@@ -31,7 +31,13 @@ class ReplayManagerService:
 
     # Lifecycle
 
-    def __init__(self, config: ReplayManagerServiceConfig, *, replay_parser_service: "ReplayParserService"):
+    def __init__(
+        self,
+        config: ReplayManagerServiceConfig,
+        *,
+        replay_parser_service: "ReplayParserService",
+        load_existing_replays: bool = True,
+    ):
         self._config = config
 
         self._replay_parser_service = replay_parser_service
@@ -39,7 +45,11 @@ class ReplayManagerService:
         self._processed_replay_dir_path = Path(self._config.processed_replay_dir)
         self._allow_overwrite = self._config.allow_overwrite
 
-        self._loaded_session_ids, self._loaded_replays = self.load_processed_replays()
+        if load_existing_replays:
+            self._loaded_session_ids, self._loaded_replays = self.load_processed_replays()
+        else:
+            self._loaded_session_ids = set()
+            self._loaded_replays = {}
 
     # Properties
 
@@ -156,9 +166,16 @@ class ReplayManagerService:
         replay_file_session_map = {}
         for replay_file in replay_files:
             try:
-                replay = self.load_processed_replay(replay_file)
-                replay_file_session_map[replay_file] = replay.session_id
-            except Exception as e:
+                replay_data = json.loads(replay_file.read_text(encoding="utf-8"))
+                if not isinstance(replay_data, dict):
+                    raise ValueError("Processed replay JSON must contain an object")
+
+                session_id = replay_data.get("session_id")
+                if not isinstance(session_id, str) or not session_id:
+                    raise ValueError("Processed replay JSON is missing a valid session_id")
+
+                replay_file_session_map[replay_file] = session_id
+            except (OSError, json.JSONDecodeError, ValueError) as e:
                 logger.debug(f"Could not get session ID from {replay_file}: {e}")
 
         return replay_file_session_map

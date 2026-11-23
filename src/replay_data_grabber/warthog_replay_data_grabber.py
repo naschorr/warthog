@@ -2,14 +2,20 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+import os
 import traceback
 import argparse
 from typing import Optional
 from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor
 
 from src.common.factories import ServiceFactory
 from src.replay_data_grabber.models import Replay
 from src.replay_data_grabber.models.enums import ProcessingMode
+from src.replay_data_grabber.services.replay_parse_worker import (
+    initialize_replay_parser_worker,
+    parse_replay_file_in_worker,
+)
 
 
 class WarthogReplayDataGrabber:
@@ -26,14 +32,23 @@ class WarthogReplayDataGrabber:
         raw_replay_dir_path: Optional[Path] = None,
         processed_replay_dir_path: Optional[Path] = None,
         processing_mode: ProcessingMode = ProcessingMode.NEW,
+        max_parse_workers: Optional[int] = None,
     ):
         service_factory = ServiceFactory()
+        if max_parse_workers is None:
+            configured_workers = service_factory.get_replay_data_grabber_config().max_parse_workers
+            max_parse_workers = min(configured_workers, os.cpu_count() or 1)
+        if max_parse_workers < 1:
+            raise ValueError("max_parse_workers must be at least 1")
+
         service_factory.create_logging_service()
         self._processing_mode = processing_mode
+        self._max_parse_workers = max_parse_workers
         self._replay_manager_service = service_factory.get_replay_manager_service(
             raw_replay_dir=raw_replay_dir_path,
             processed_replay_dir=processed_replay_dir_path,
             allow_overwrite=processing_mode == ProcessingMode.ALL,
+            load_existing_replays=False,
         )
 
         ## Little bit of mode validation
@@ -110,16 +125,10 @@ class WarthogReplayDataGrabber:
             for path, session_id in raw_replay_session_map.items()
             if session_id not in processed_replay_sessions
         }
-        new_replays = set(new_replays_session_map.keys())
+        new_replays = list(new_replays_session_map)
 
         logger.info(f"Found {len(new_replays)} new replay files to process.")
-        for replay_file in new_replays:
-            try:
-                replay = self._parse_replay_file(replay_file)
-                self._replay_manager_service.store_replay(replay)
-            except Exception as e:
-                logger.error(f"Error processing replay file {replay_file}: {e}")
-                continue
+        self._parse_and_store_replays(new_replays, overwrite=False)
 
     def parse_all_replay_files(self, replay_directory: Optional[Path] = None):
         """Parse all .wrpl replay files in the given directory, overwriting any existing processed outputs.
@@ -133,13 +142,37 @@ class WarthogReplayDataGrabber:
         logger.info(f"Parsing all replay files from {replay_directory} and saving to {self._processed_replay_dir_path}")
         replay_files = self._replay_manager_service.discover_raw_replay_files(replay_directory)
         logger.info(f"Found {len(replay_files)} replay files to process.")
-        for replay_file in replay_files:
-            try:
-                replay = self._parse_replay_file(replay_file)
-                self._replay_manager_service.store_replay(replay, overwrite=True)
-            except Exception as e:
-                logger.error(f"Error processing replay file {replay_file}: {e}")
-                continue
+        self._parse_and_store_replays(list(replay_files), overwrite=True)
+
+    def _parse_and_store_replays(self, replay_files: list[Path], *, overwrite: bool) -> None:
+        if not replay_files:
+            return
+
+        worker_count = min(self._max_parse_workers, len(replay_files))
+        if worker_count == 1:
+            for replay_file in replay_files:
+                try:
+                    replay = self._parse_replay_file(replay_file)
+                    self._replay_manager_service.store_replay(replay, overwrite=overwrite)
+                except Exception as e:
+                    logger.error(f"Error processing replay file {replay_file}: {e}")
+            return
+
+        logger.info(f"Processing {len(replay_files)} replay files with {worker_count} workers")
+        with ProcessPoolExecutor(
+            max_workers=worker_count,
+            initializer=initialize_replay_parser_worker,
+        ) as executor:
+            futures = [
+                (replay_file, executor.submit(parse_replay_file_in_worker, str(replay_file)))
+                for replay_file in replay_files
+            ]
+            for replay_file, future in futures:
+                try:
+                    replay = future.result()
+                    self._replay_manager_service.store_replay(replay, overwrite=overwrite)
+                except Exception as e:
+                    logger.error(f"Error processing replay file {replay_file}: {e}")
 
     def stop_collection(self):
         logger.info("Stopping collection process")
@@ -180,6 +213,12 @@ def parse_arguments():
         type=str.strip,
         help="Path to output directory to store processed replay data",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help="Maximum replay parsing processes (default from replay_data_grabber_config.max_parse_workers)",
+    )
 
     return parser.parse_args()
 
@@ -206,6 +245,7 @@ def main():
         raw_replay_dir_path=raw_replay_dir_path,
         processed_replay_dir_path=args.output,
         processing_mode=processing_mode,
+        max_parse_workers=args.workers,
     )
 
     try:
